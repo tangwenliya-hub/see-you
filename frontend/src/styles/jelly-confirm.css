@@ -1,0 +1,35 @@
+/* 果冻风确认弹窗（全站通用，配合 utils/confirm.js 的 jellyConfirm）
+   ElMessageBox 挂在 body 下，必须用全局样式才能命中 */
+.jelly-confirm {
+  border-radius: 18px !important;
+  border: 1px solid rgba(140, 194, 105, 0.35);
+  box-shadow: 0 18px 50px rgba(80, 120, 95, 0.18);
+  max-width: 92vw;
+  padding: 18px 22px 16px;
+}
+.jelly-confirm .el-message-box__title { color: #2f4a3a; font-weight: 700; }
+.jelly-confirm .el-message-box__message { color: #55635c; line-height: 1.7; word-break: break-all; }
+/* 确认按钮：主题绿胶囊 */
+.jelly-confirm .el-button--primary {
+  background: var(--c-hex, #8cc269) !important;
+  border-color: var(--c-hex, #8cc269) !important;
+  border-radius: 999px !important;
+  padding: 8px 22px;
+}
+/* 取消按钮：灰色胶囊 */
+.jelly-confirm .el-button:not(.el-button--primary) {
+  border-radius: 999px !important;
+  color: #6b7a72;
+}
+/* 危险操作（删除日记等）：确认按钮变红 */
+.jelly-confirm.danger .el-button--primary {
+  background: #e25c50 !important;
+  border-color: #e25c50 !important;
+}
+/* 深色模式 */
+:root.dark-mode .jelly-confirm {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+:root.dark-mode .jelly-confirm .el-message-box__title { color: #e5e7eb; }
+:root.dark-mode .jelly-confirm .el-message-box__message { color: #9ca3af; }

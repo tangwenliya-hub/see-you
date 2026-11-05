@@ -1,0 +1,201 @@
+# ⚠️ 安全约定（重要）
+# 本文件【不含任何真实凭据】，只保留占位符；真实值一律来自：
+#   1) 本地开发：application-local.yml（已在 .gitignore 中忽略，不入库）
+#   2) 生产部署：环境变量（见 .env.example）
+# 这样仓库可以安全地公开到 GitHub / 写进简历，不会泄露密钥。
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  # 默认激活 local profile（读 application-local.yml，该文件不入库）。
+  # 部署到服务器时设 SPRING_PROFILES_ACTIVE=prod 即可切到 application-prod.yml。
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/see_you?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    # 不给任何默认密码：没配就直接启动失败，避免"带后门上线"
+    password: ${DB_PASSWORD:__SET_DB_PASSWORD__}
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+  # 邮件服务（找回密码用；username 留空则降级：验证码打进后端日志，本地可直接使用）
+  mail:
+    host: ${MAIL_HOST:smtp.qq.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# 文件保存目录（相对于后端项目根目录）
+upload:
+  path: ${UPLOAD_PATH:upload}
+  # 前端 public 目录：换机器部署时必须改这里，否则图片上传后前端访问不到
+  front-path: ${FRONT_PATH:}
+
+mybatis-plus:
+  type-aliases-package: com.seeyou.see_you.entity
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true  # 🆕 数据库字段自动驼峰映射
+
+# AI 大模型配置（DeepSeek）
+# 注册地址: https://platform.deepseek.com/
+# ⚠️ api-key 必须用环境变量注入（AI_API_KEY），仓库里不保存任何真实 Key。
+#    未配置时 AI 对话接口会失败但项目其余功能不受影响。
+ai:
+  api-url: ${AI_API_URL:https://api.deepseek.com/v1/chat/completions}
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:deepseek-chat}
+  timeout: 15000
+
+# JWT 签名密钥：必须外部注入。
+# 说明：之所以不给默认值，是因为"内置默认密钥"意味着任何人都能自签 token 冒充任意用户。
+jwt:
+  secret: ${JWT_SECRET:__SET_JWT_SECRET__}
+
+# =====================================================================================
+# 三大新模块配置（改完重启即可生效，方便毕设调试与答辩现场演示）
+# =====================================================================================
+app:
+  # ---- 跨域允许来源（逗号分隔，支持通配符）。本地开发保持 * 开箱即用；
+  #      生产部署务必在 application-prod.yml 或环境变量覆盖为明确域名清单 ----
+  cors:
+    allowed-origins: "*"
+  # ---- 接口限流（高成本 / 敏感接口，按 IP 滑动窗口，窗口固定 60 秒）----
+  # 答辩演示或压测时可把 enabled 设为 false 一键关闭，避免自己被 429 挡住；
+  # 阈值逐条覆盖示例：rules: "/user/login=30,/aiChat=100"
+  rate-limit:
+    enabled: true
+    rules: ""
+  # ---- 轻量无感记录模块 ----
+  sense:
+    enabled: true
+    # 行为数据保留天数，到期由每周日凌晨的物理清理任务删除（隐私合规）
+    retention-days: 180
+    max-batch: 50
+    # 单场景单日停留上限 8 小时，防止挂机导致特征失真
+    max-stay-ms: 28800000
+    max-click-cnt: 100000
+    knn-k: 5
+    history-days: 90
+    series-days: 30
+    # 低于该置信度不产生推荐（宁可不猜，也不误导用户）
+    min-confidence: 0.45
+    # 夜里自动代记的置信度阈值：比主动推荐宽松，因为用途是「保底打卡」而不是给用户下结论。
+    # 若沿用 0.45，数据稍少的日子会被跳过，用户又断签，免打卡就形同虚设。
+    auto-fill-min-confidence: 0.30
+    # 代记是否要求当天有使用痕迹：true=保守（没打开就不记）；改成 false 则只靠历史数据外推，
+    # 真正做到「一天都不打开也有记录」，但纯推测占比会变高
+    auto-fill-require-behavior: true
+    expire-days: 7
+    generate-hour: 20
+    allow-standalone-text: false
+
+  # ---- 情绪风险预警模块（非医疗诊断） ----
+  alert:
+    enabled: true
+    # 滑动窗口天数
+    window-days: 7
+    # 窗口内至少要有几天有记录才参与判定（数据太少不妄下结论）
+    min-record-days: 4
+    # 一级是否要求低落天数 >= 2（false 时单日低落也可能触发一级）
+    require-multi-day: true
+    # 窗口内低落 3 天 → 二级提醒（低落 = 疲惫/难过/焦虑，不含生气）
+    level2-downcast-days: 3
+    # 窗口内低落 5 天 → 三级高度关注
+    level3-downcast-days: 5
+    level3-ratio: 0.75
+    level3-avg-index: 35.0
+    level1-ratio: 0.5
+    level1-slope: -1.5
+    # 同一等级预警多少天内不重复打扰
+    cooldown-days: 3
+    # ---- 危机通道：正文命中即在保存时提醒，不受上面窗口/冷静期约束 ----
+    # 为什么单开一条通道：趋势通道要求窗口内至少 4 天有记录，对"第一次写下不想活了"的用户是延迟
+    crisis-enabled: true
+    # AI 精判（两级漏斗第二级）：危机词未命中时把正文交给 LLM 分类（复用 ai.* 的 api-key/model）。
+    # 隐私红线：只发正文不带身份信息；失败/未配 key 静默降级为纯规则；每人每天最多 1 次调用。
+    ai-judge-enabled: true
+    # 每人每天最多几次 AI 精判（成本上限；不设成 1，避免一天内换着说法表达时后续全被静默跳过）
+    ai-judge-daily-limit: 3
+    crisis-level: 3
+    # 危机词库（命中任意一条即触发；可自行增删，改完需重启）
+    crisis-words:
+      - 不想活了
+      - 不想活
+      - 活不下去
+      - 活着没意思
+      - 活着没意义
+      - 活够了
+      - 想死
+      - 死了算了
+      - 死掉
+      - 拿刀砍人
+      - 想砍人
+      - 想杀人
+      - 想打人
+      - 想揍人
+      - 一了百了
+      - 想自杀
+      - 自杀
+      - 自残
+      - 轻生
+      - 结束生命
+      - 放弃生命
+      - 伤害自己
+      - 割腕
+      - 跳楼
+      - 跳河
+      - 吞药
+      - 不想醒来
+      - 再也不想醒来
+      - 消失就好了
+    # ---- 预警词（二级中度提醒）----
+    # 「撑不下去了」这类既可能是危机、也常出现在日常抱怨里的两可表达：
+    # 弹三级红色「危机关怀」误报代价太高，不报又可能漏掉真难受的人 → 降为二级：
+    # 仍然保存即提醒、仍然推管理员，只是等级与文案更温和（走 WARNING_WORD 规则）
+    warning-level: 2
+    warning-words:
+      - 撑不下去了
+    # 例外短语：命中词的邻域里出现这些，判为亲昵/夸张用法，不触发（如"想死你了"）
+    crisis-excludes:
+      - 想死你
+      - 想死我
+      - 想死啦
+      - 想死啊
+      - 想死嘞
+      # 「死掉」在口语里常作夸张用法（笑死掉了/累死掉了），邻域内出现这些前缀就不报
+      - 笑死掉
+      - 累死掉
+      - 热死掉
+      - 吓死掉
+      - 忙死掉
+      - 饿死掉
+      - 困死掉
+      - 冻死掉
+      - 馋死掉
+      - 闲死掉
+      - 萌死掉
+      - 羡慕死掉
+      - 笑死
+      - 美死
+      - 甜死
+    # 求助渠道清单（前端弹窗与危机正文共用，改这里即可，无需改代码）
+    # 格式：「名称 + 空格 + 号码」，前端把号码加粗；没有号码的整条显示
+    crisis-hotlines:
+      - "全国 24 小时心理援助热线 12356"
+      - "北京心理危机研究与干预中心 010-82951332"
+      - "希望 24 热线 400-161-9995"
+      - "学校心理咨询中心 / 当地精神卫生中心"
+    disclaimer: "本提示仅基于你自行记录的情绪数据做统计参考，不属于医疗诊断，不能替代专业评估。"

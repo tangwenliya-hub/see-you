@@ -1,0 +1,35 @@
+# =====================================================================================
+# 前端镜像：Nginx 托管构建产物
+# 构建上下文：仓库根目录
+#   docker build -f deploy/Dockerfile.frontend -t seeyou-frontend .
+#
+# 关键点：dist 先放在 /usr/share/nginx/html-src，容器启动时再复制到真正的 html 根目录。
+# 原因是 html 根目录是一个与后端共享的 volume（后端要把上传的图片写进去），
+# volume 首次挂载是空的，如果构建时就把 dist 放进去会被空卷覆盖掉。
+# =====================================================================================
+
+# ---- 阶段 1：构建前端 ----
+FROM node:20-alpine AS builder
+WORKDIR /web
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+# ---- 阶段 2：Nginx ----
+FROM nginx:1.27-alpine
+COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /web/dist /usr/share/nginx/html-src
+
+# 启动脚本：html 根为空则把 dist 复制进去，再启动 nginx
+RUN printf '%s\n' \
+  '#!/bin/sh' \
+  'set -e' \
+  'if [ -z "$(ls -A /usr/share/nginx/html 2>/dev/null)" ]; then' \
+  '  cp -a /usr/share/nginx/html-src/. /usr/share/nginx/html/' \
+  'fi' \
+  'exec nginx -g "daemon off;"' \
+  > /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
+
+EXPOSE 80
+ENTRYPOINT ["/docker-entrypoint.sh"]

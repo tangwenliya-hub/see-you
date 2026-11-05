@@ -1,0 +1,414 @@
+html,body,ul,li,ol,dl,dd,dt,p,h1,h2,h3,h4,h5,h6,form,fieldset,legend,img{
+    margin: 0;
+    padding: 0;
+}
+li{
+    list-style: none;
+}
+a{
+    text-decoration: none;
+    color: #89898b;
+}
+i,em{
+    font-style: normal;
+}
+b,strong{
+    font-weight: normal;
+}
+/* 高度坍塌 */
+.clearfix::after,.clearfix::before{
+    content: "";
+    display: block;
+    clear: both;
+    overflow: hidden;
+    visibility: hidden;
+    height: 0;
+}
+/* 上面都是通用的设置 */
+/* 左侧固定悬浮框 */
+.box{
+    width: 180px;
+    position: fixed;
+    left: 20px;
+    top: 270px;
+    z-index: 99;
+    background-color: var(--c-hex);
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    padding: 10px 0;
+    text-align: center;
+}
+.box a{
+    display: block;
+    padding: 15px 0;
+    margin:10px 15px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 24px;
+    border-radius: 15px;
+    background-color: rgba(255,255,255,0.1);
+    transition: background-color 0.3s, transform 0.2s;
+}
+.box a:active{
+    background-color: #ffffff;
+    color: var(--c-hex);
+    transform: scale(1.05);
+    font-weight: bold;
+}
+.box a:hover{
+    background-color: #ffffff;
+    color: var(--c-hex);
+    transform: scale(1.05);
+    font-weight: bold;
+}
+/* 右侧固定悬浮框 */
+.box-right{
+    width: 70px;
+    height: 70px;
+    position: fixed;
+    right:70px;
+    bottom:70px;
+    z-index: 99;
+    background: url(/img/注册.jpg) no-repeat;
+    background-size: 75px;
+    background-position-x: -2px;
+    background-position-y: -2px;
+    border-radius: 70px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+.box-right:hover{
+    background-position-y: -80px;
+}
+.box-right a{
+    display: block;
+    width: 70px;
+    height: 70px;
+}
+/* 尾部固定尾页 */
+#footer{
+    width: 100%;
+    text-align: center;
+    font-size:1vw;
+    background-color: var(--c-bg2);
+    padding:1.5vw 0;
+    margin-top: 3vw;
+    color: #444;
+    line-height: 2vw;
+}
+#footer a{
+    font-size: 1.2vw;
+    color: var(--c-hex);
+    text-decoration: none;
+    margin: 0 0.5vw;
+}
+#footer a:hover{
+    text-decoration: underline;
+}
+#footer p{
+    line-height: 3vw;
+    font-size: 1.2vw;
+}
+
+/* ===== 顶部 App Bar（跟随主题的玻璃效果）===== */
+.app-bar {
+    position: fixed;
+    top: -60px;              /* 默认向上隐藏 */
+    left: 0;
+    right: 0;
+    height: 52px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 0 22px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--c-main) 45%, white), color-mix(in srgb, var(--c-hex) 35%, white));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+    transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+/* 鼠标靠近顶部或 hover 导航栏时显示 */
+.app-bar.visible {
+    top: 0;
+}
+/* 顶部 hover 感应条（60px 高） */
+.app-bar-hover-zone {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 999;
+}
+
+/* 返回按钮 */
+.app-bar .back-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--c-hex);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.app-bar .back-btn:hover {
+    background: color-mix(in srgb, var(--c-main) 40%, white);
+    transform: translateX(-2px);
+}
+
+.app-bar .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-decoration: none;
+    background: var(--c-hex);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+}
+/* 品牌 logo：和后台侧栏同款牛牛 */
+.app-bar .logo-cow {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    /* 文字用背景裁切染色，图片必须独立恢复成不透明，否则会被一起染没 */
+    -webkit-text-fill-color: initial;
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+}
+
+/* ===== App Bar 中间的毛玻璃按钮（跟随主题色）===== */
+.nav-links {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.nav-links::-webkit-scrollbar {
+    display: none;
+}
+.bar-item {
+    flex: 0 0 auto;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--c-hex);
+    background: color-mix(in srgb, var(--c-main) 45%, white);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 3px 8px color-mix(in srgb, var(--c-hex) 25%, transparent);
+    transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+    cursor: pointer;
+}
+.bar-item:hover {
+    transform: translateY(-2px) scale(1.06);
+    background: color-mix(in srgb, var(--c-main) 70%, white);
+    color: var(--c-hex);
+    box-shadow: 0 8px 16px color-mix(in srgb, var(--c-hex) 35%, transparent);
+}
+.bar-item:active {
+    transform: translateY(0);
+}
+/* 当前页导航高亮（vue-router 会自动加 router-link-active） */
+.bar-item.router-link-active {
+    background: var(--c-hex);
+    color: #fff;
+    border-color: var(--c-hex);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 45%, transparent);
+}
+
+.app-actions {
+    display: flex;
+    align-items: center;
+}
+
+/* 登入 / 注册 按钮 */
+.auth-btn {
+    display: inline-block;
+    padding: 5px 16px;
+    margin-left: 10px;
+    border-radius: 999px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    cursor: pointer;
+}
+.auth-btn.login {
+    color: var(--c-hex);
+    background: rgba(255, 255, 255, 0.6);
+    border: 1.5px solid var(--c-main);
+}
+.auth-btn.register {
+    color: #fff;
+    background: var(--c-hex);
+    border: none;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--c-hex) 35%, transparent);
+}
+.auth-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px color-mix(in srgb, var(--c-hex) 40%, transparent);
+}
+
+/* ===== 已登录用户区域 ===== */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.nav-greeting {
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-text);
+    white-space: nowrap;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    color: var(--c-text);
+    transition: all 0.25s ease;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.user-info:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--c-hex) 30%, transparent);
+}
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    background: var(--c-bg2);
+}
+.role-badge {
+    font-size: 14px;
+    line-height: 1;
+    margin-right: 4px;
+}
+.auth-btn.logout {
+    color: #d07070;
+    background: rgba(255, 240, 240, 0.8);
+    border: 1.5px solid #f0b0b0;
+    font-size: 13px;
+}
+.auth-btn.logout:hover {
+    background: rgba(240, 170, 170, 0.4);
+    /* 覆盖 .auth-btn:hover 的主题色阴影：退出是破坏性操作，保持红色语义 */
+    box-shadow: 0 10px 22px rgba(208, 112, 112, 0.28);
+}
+
+/* ===== 小屏适配 ===== */
+@media (max-width: 900px) {
+    .app-bar .logo {
+        font-size: 18px;
+    }
+}
+@media (max-width: 600px) {
+    .bar-item {
+        padding: 3px 8px;
+        font-size: 12px;
+        letter-spacing: 0;
+    }
+    .auth-btn {
+        padding: 4px 12px;
+        font-size: 13px;
+        margin-left: 6px;
+    }
+}
+
+/* ===== AppLayout 根元素：只负责宽度和最小高度，不加 padding ===== */
+.app-layout-wrap {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ===== 所有页面根元素统一处理偏移：避开 fixed 导航栏 =====
+   页面自己加 padding，背景图可以用 background-attachment: fixed 全屏铺满 */
+.main-page,
+.test-page,
+.fm-page,
+.classroom-page,
+.profile-page,
+.feedback-page,
+.assistant-page {
+    padding-left: 190px;    /* 左侧导航宽170 + 间隙20 */
+    padding-top: 52px;      /* 顶部导航高52 */
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+@media (max-width: 600px) {
+    .main-page,
+    .test-page,
+    .fm-page,
+    .classroom-page,
+    .profile-page,
+    .feedback-page,
+    .assistant-page {
+        padding-left: 0;
+        padding-top: 0;
+    }
+}
+/* =====================================================================
+ * 图表空态提示
+ * useChart 在 series 全部为空时给容器加上 data-empty 属性（文案即属性值），
+ * 这里用伪元素盖一层提示，避免"白图表"——用户无法区分
+ * 「没有记录」「还在加载」「加载失败」三种状态。
+ * 只在容器自身无子图元可见时生效，不影响正常渲染。
+ * ===================================================================== */
+[data-empty] {
+    position: relative;
+}
+
+[data-empty]::after {
+    content: attr(data-empty);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    letter-spacing: .5px;
+    color: var(--c-text-weak, #8a9a8a);
+    background: color-mix(in srgb, var(--c-panel, #fff) 55%, transparent);
+    border-radius: inherit;
+    pointer-events: none;
+}

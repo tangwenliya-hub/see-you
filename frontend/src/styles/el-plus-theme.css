@@ -1,0 +1,21 @@
+/* ===== Element Plus 组件主题桥接（全站生效）=====
+   EP 组件默认用 --el-color-primary（蓝），与项目主题 --c-hex（跟随用户主题选择动态变）互不相通，
+   这里把 EP 的主色及 hover/active 梯度全部映射到项目主题色上，
+   el-switch / el-pagination / el-radio / el-checkbox / el-select / el-slider 等一次性统一 */
+:root {
+  --el-color-primary: var(--c-hex, #7bc47b);
+  --el-color-primary-light-3: color-mix(in srgb, var(--c-hex, #7bc47b) 70%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--c-hex, #7bc47b) 50%, white);
+  --el-color-primary-light-7: color-mix(in srgb, var(--c-hex, #7bc47b) 30%, white);
+  --el-color-primary-light-8: color-mix(in srgb, var(--c-hex, #7bc47b) 20%, white);
+  --el-color-primary-light-9: color-mix(in srgb, var(--c-hex, #7bc47b) 10%, white);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--c-hex, #7bc47b) 80%, black);
+}
+/* 深色模式：light 梯度改为向深色底混合，避免开关/分页在深底上发白刺眼 */
+:root.dark-mode {
+  --el-color-primary-light-3: color-mix(in srgb, var(--c-hex, #7bc47b) 70%, #1f2937);
+  --el-color-primary-light-5: color-mix(in srgb, var(--c-hex, #7bc47b) 50%, #1f2937);
+  --el-color-primary-light-7: color-mix(in srgb, var(--c-hex, #7bc47b) 30%, #1f2937);
+  --el-color-primary-light-8: color-mix(in srgb, var(--c-hex, #7bc47b) 20%, #1f2937);
+  --el-color-primary-light-9: color-mix(in srgb, var(--c-hex, #7bc47b) 10%, #1f2937);
+}

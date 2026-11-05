@@ -1,0 +1,23 @@
+{
+  "name": "seeyou-miniapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "绪见 · 微信小程序端（uni-app + Vue3），复用现有 SpringBoot REST 接口",
+  "scripts": {
+    "dev:mp-weixin": "uni build -p mp-weixin --watch",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "dev:h5": "uni"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-5030320261023001",
+    "@dcloudio/uni-components": "3.0.0-5030320261023001",
+    "@dcloudio/uni-h5": "3.0.0-5030320261023001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-5030320261023001",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-cli-shared": "3.0.0-5030320261023001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-5030320261023001",
+    "vite": "^5.0.0"
+  }
+}

@@ -1,0 +1,41 @@
+# ===== 构建产物 =====
+target/
+dist/
+dist-ssr/
+node_modules/
+.vite/
+*.log
+
+# ===== 本地配置（含数据库密码/ AI 密钥，禁止提交）=====
+src/main/resources/application-local.yml
+**/application-local.yml
+.env
+.env.*
+# 模板文件本身要入库（上面 .env.* 会误伤，这里显式放行）
+!.env.example
+!**/application-local.yml.example
+
+# ===== 上传的文件（运行时生成，不入库）=====
+upload/
+frontend/public/banner/*
+frontend/public/cover/*
+frontend/public/video/*
+frontend/public/audio/*
+frontend/public/diary/*
+!frontend/public/**/.gitkeep
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# ===== 系统 =====
+.DS_Store
+Thumbs.db
+
+# ===== 临时/回收 =====
+Temp/
+# ===== AI 工作日志（含内部讨论与本地密码，禁止公开）=====
+.workbuddy/

@@ -1,0 +1,77 @@
+# =====================================================================================
+# 一键编排：MySQL 8 + SpringBoot 后端 + Nginx 前端
+#
+# 用法：
+#   cp .env.example .env      # 填入真实密码与密钥
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#
+# ⚠️ 数据库初始化不在这里自动完成（迁移脚本必须按顺序执行，自动化容易出错）。
+#    首次启动后按 docs/部署说明.md 手动导入 SQL。
+# =====================================================================================
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: seeyou-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: see_you
+      TZ: Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    container_name: seeyou-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mysql:3306/see_you?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      AI_API_URL: ${AI_API_URL}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_MODEL: ${AI_MODEL}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      UPLOAD_PATH: /app/upload
+      FRONT_PATH: /app/frontend-public
+    volumes:
+      - upload-data:/app/upload
+      # 与 nginx 共享：后端写图片，nginx 直接吐出去
+      - web-root:/app/frontend-public
+    expose:
+      - "8081"
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.frontend
+    container_name: seeyou-nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - web-root:/usr/share/nginx/html
+
+volumes:
+  mysql-data:
+  upload-data:
+  web-root:

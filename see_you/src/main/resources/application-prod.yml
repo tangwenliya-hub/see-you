@@ -1,0 +1,35 @@
+# =====================================================================================
+# 生产环境配置（启动时加 --spring.profiles.active=prod 或设环境变量）
+#
+# 与 application.yml 的关系：同名配置以本文件为准（Spring Boot profile 覆盖规则）。
+# 本文件仍然【不含真实凭据】，密码/密钥一律来自环境变量。
+# =====================================================================================
+
+spring:
+  datasource:
+    # 默认指向 docker-compose 里的 mysql 服务名；裸机部署时用 DB_URL 覆盖
+    url: ${DB_URL:jdbc:mysql://mysql:3306/see_you?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:__SET_DB_PASSWORD__}
+
+# 生产关闭 SQL 日志：否则每条查询都打进控制台，既吵又泄露数据
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+# 上传目录走容器内的绝对路径
+upload:
+  path: ${UPLOAD_PATH:/app/upload}
+  front-path: ${FRONT_PATH:/app/frontend-public}
+
+app:
+  # 生产严禁开启：会把验证码答案打进日志、并在接口里回显
+  dev-captcha-log: false
+  # 生产必须收敛跨域：逗号分隔的域名清单（也可用环境变量 CORS_ORIGINS 覆盖）
+  cors:
+    allowed-origins: ${CORS_ORIGINS:https://localhost}
+
+logging:
+  level:
+    root: INFO
+    com.seeyou.see_you: INFO
