@@ -639,3 +639,14 @@
   .set-row .sr-ctl { width: 100%; }
   .set-row .sr-def { width: auto; text-align: left; }
 }
+
+/* 隐私审计：「人话摘要 + 原始参数」双层显示（原始串保留，审计可追溯） */
+.detail-main { color: var(--c-text); line-height: 1.5; }
+.detail-raw {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--c-text-weak);
+  font-family: ui-monospace, Consolas, "Courier New", monospace;
+  opacity: .78;
+  word-break: break-all;
+}

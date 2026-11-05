@@ -66,6 +66,11 @@ public class AdminOpsController {
         ACTION_NAME.put("EXPORT", "导出本人数据");
         ACTION_NAME.put("DELETE", "删除本人数据");
         ACTION_NAME.put("VIEW", "查看本人推测");
+        // 以下四种由 SenseServiceImpl.log 写入，之前漏配导致后台显示英文枚举值
+        ACTION_NAME.put("GENERATE", "生成推测");
+        ACTION_NAME.put("AUTO_FILL", "自动代记");
+        ACTION_NAME.put("SWITCH", "开关变更");
+        ACTION_NAME.put("DELETE_ALL", "清空行为数据");
     }
 
     private Map<Long, String> nameMap() {

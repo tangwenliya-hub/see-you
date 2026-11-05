@@ -54,7 +54,7 @@
     <!-- 分通道准确率：讲清楚「哪条触发通道最准、误报集中在哪」 -->
     <div class="ext-box" style="margin-bottom:18px">
       <h3><img src="/img/我的评论.png" /> 各触发通道准确率（用户「这不是我」反馈）</h3>
-      <div v-if="!s.channels.length" class="ch-empty">暂无预警数据，产生预警后这里会按通道统计准确率</div>
+      <div v-if="!s.channels?.length" class="ch-empty">暂无预警数据，产生预警后这里会按通道统计准确率</div>
       <div v-else class="ch-list">
         <div v-for="c in s.channels" :key="c.rule" class="ch-row">
           <div class="ch-name">
@@ -220,7 +220,9 @@ import { adminAlertStats, adminAlertList, adminAlertDetail, adminAlertMarkRead, 
 import { useChart } from '@/composables/useChart'
 import { accent, textColor, weakColor, borderColor, hexA, LEVEL_COLORS, categoryAxis, valueAxis } from '@/utils/adminTheme'
 
-const s = ref({ total: 0, today: 0, l1: 0, l2: 0, l3: 0, unread: 0, unacked: 0 })
+// 初始值必须包含模板里会访问的所有字段（channels 缺失曾导致首次渲染时
+// !s.channels.length 报 TypeError，整个页面白屏）
+const s = ref({ total: 0, today: 0, l1: 0, l2: 0, l3: 0, unread: 0, unacked: 0, misreport: 0, accuracy: null, channels: [] })
 const disclaimer = ref('')
 const list = ref([])
 const total = ref(0)

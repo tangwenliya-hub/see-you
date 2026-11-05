@@ -52,10 +52,10 @@
             <tr v-for="l in list" :key="l.lexiconId">
               <td>{{ l.lexiconId }}</td>
               <td><b>{{ l.word }}</b></td>
-              <td><span class="status-tag">{{ l.emotionName }}</span></td>
+              <td><span class="status-tag" :class="{ muted: l.emotion === 0 }">{{ l.emotionName }}</span></td>
               <td>{{ l.weight }}</td>
               <td>{{ l.wordTypeName }}</td>
-              <td style="color:#8a9a8a">{{ l.sourceTag || '-' }}</td>
+              <td style="color:#8a9a8a">{{ l.sourceName || l.sourceTag || '-' }}</td>
               <td>
                 <button class="jelly-btn ghost" style="margin-right:6px" @click="openEdit(l)">编辑</button>
                 <button class="jelly-btn danger" @click="handleDelete(l)">删除</button>
@@ -237,6 +237,8 @@ onBeforeUnmount(() => clearTimeout(searchTimer))
 </script>
 
 <style scoped>
+/* 功能词（否定词/程度副词）的情绪列显示「—」时弱化为灰色，不与真实情绪标签抢注意力 */
+.status-tag.muted { background: #eef1f4; color: #98a2b3; border: 1px solid #e2e6ea; }
 .lex-form { display: flex; flex-direction: column; gap: 12px; }
 .lex-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #556a55; }
 .lex-form input, .lex-form select {

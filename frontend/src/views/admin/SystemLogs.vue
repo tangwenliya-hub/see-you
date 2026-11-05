@@ -151,7 +151,14 @@ const trendChart = useChart(trendRef, 'admin-log-trend')
 const moduleChart = useChart(moduleRef, 'admin-log-module')
 
 const loadStats = async () => {
-  const res = await adminLogStats()
+  let res
+  try {
+    res = await adminLogStats()
+  } catch {
+    // 网络层失败（后端未启动/正在重启）：不弹假 0，给一句能看懂的提示
+    ElMessage.error('连不上后端服务（可能正在重启），稍后点「刷新数据」重试')
+    return
+  }
   if (res?.code !== 200) { ElMessage.error(res?.msg || '日志统计加载失败'); return }
   const d = res.data || {}
   s.value = {
@@ -186,12 +193,18 @@ const loadStats = async () => {
 }
 
 const loadList = async () => {
-  const res = await adminLogList({
-    page: page.value, size: pageSize.value,
-    module: module.value ?? undefined,
-    status: status.value ?? undefined,
-    keyword: keyword.value.trim() || undefined,
-  })
+  let res
+  try {
+    res = await adminLogList({
+      page: page.value, size: pageSize.value,
+      module: module.value ?? undefined,
+      status: status.value ?? undefined,
+      keyword: keyword.value.trim() || undefined,
+    })
+  } catch {
+    ElMessage.error('连不上后端服务（可能正在重启），稍后点「刷新数据」重试')
+    return
+  }
   if (res?.code !== 200) { ElMessage.error(res?.msg || '日志列表加载失败'); return }
   list.value = res.data?.rows || []
   total.value = Number(res.data?.total || 0)

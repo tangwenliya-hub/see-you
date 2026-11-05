@@ -74,8 +74,12 @@
               <td style="color:#8a9a8a">{{ fmtTime(l.createTime) }}</td>
               <td>{{ l.userName }}</td>
               <td><span class="status-tag on">{{ l.actionName }}</span></td>
-              <td style="max-width:320px">{{ l.detail }}</td>
-              <td style="color:#9aa79a">{{ l.ipMasked }}</td>
+              <td style="max-width:340px">
+                <div class="detail-main">{{ fmtDetail(l.detail) }}</div>
+                <!-- 原始参数保留为小字：审计日志必须能追溯算法当时的真实输入 -->
+                <div class="detail-raw" :title="l.detail">{{ l.detail }}</div>
+              </td>
+              <td style="color:#9aa79a">{{ fmtIp(l.ipMasked) }}</td>
             </tr>
           </tbody>
         </table>
@@ -107,6 +111,46 @@ const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
 const action = ref(null)
+
+// ===== 审计日志「人话化」辅助 =====
+// 情绪编号与后端九类情绪字典同序（1 开心 … 9 其他）
+const EMOTIONS = ['开心', '平静', '疲惫', '难过', '生气', '焦虑', '兴奋', '满足', '其他']
+// trigger=1 夜间定时任务自动代记；2 用户主动请求生成；3 预留
+const TRIGGER_NAMES = { 1: '夜间自动代记', 2: '用户主动获取', 3: '手动补记' }
+
+/** detail 字段人话化：把 key=value 串翻成中文摘要；已经是中文句子（GRANT/REVOKE）则原样返回 */
+const fmtDetail = (detail) => {
+  if (!detail) return '—'
+  const raw = String(detail)
+  const kv = {}
+  raw.split(',').forEach(part => {
+    const i = part.indexOf('=')
+    if (i > 0) kv[part.slice(0, i).trim()] = part.slice(i + 1).trim()
+  })
+  if (Object.keys(kv).length === 0) return raw
+
+  const out = []
+  if (kv.trigger !== undefined) out.push(TRIGGER_NAMES[kv.trigger] || `触发方式 ${kv.trigger}`)
+  if (kv.emotion !== undefined) out.push(`推测情绪「${EMOTIONS[Number(kv.emotion) - 1] || kv.emotion}」`)
+  if (kv.finalEmotion !== undefined) out.push(`确认情绪「${EMOTIONS[Number(kv.finalEmotion) - 1] || kv.finalEmotion}」`)
+  if (kv.conf !== undefined && !Number.isNaN(Number(kv.conf))) out.push(`置信度 ${Math.round(Number(kv.conf) * 100)}%`)
+  if (kv.predictionId !== undefined) out.push(`关联推测 #${kv.predictionId}`)
+  if (kv.enabled !== undefined) out.push(kv.enabled === '1' ? '无感记录已开启' : '无感记录已关闭')
+  if (kv.behavior !== undefined || kv.text !== undefined) {
+    const on = []
+    if (kv.behavior === '1') on.push('行为')
+    if (kv.text === '1') on.push('文字')
+    out.push(on.length ? `记录项：${on.join(' / ')}` : '记录项：全部关闭')
+  }
+  return out.length ? out.join(' · ') : raw
+}
+
+/** 脱敏 IP 友好化：本地回环的几个等价值统一显示为「本机」 */
+const fmtIp = (ip) => {
+  if (!ip) return '—'
+  const v = String(ip)
+  return (v === '::1' || v === '0:0:0:0:0:0:0:1' || v === '127.0.0.1') ? '本机（回环）' : v
+}
 const loading = ref(false)
 const exporting = ref(false)
 
