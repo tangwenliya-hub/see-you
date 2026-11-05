@@ -587,11 +587,12 @@ const submitComment = async () => {
       resourceType: 2,
       resourceId: current.value.videoId,
       commentText: text,
-      status: 0,
     })
     if (res.code === 200) {
       newComment.value = ''
-      ElMessage.success('评论已提交，审核通过后会公开显示')
+      // 系统先审：干净评论直接公开（data=1），命中可疑判据才转人工（data=0）
+      if (res.data === 1) ElMessage.success('评论发布成功')
+      else ElMessage.success('评论已提交，疑似包含待确认内容，审核通过后会公开显示')
       // 刷新列表（后端已支持本人可见自己的待审核评论）
       loadLikeFav(current.value.videoId, commentPage.value)
     } else {

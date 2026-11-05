@@ -49,6 +49,7 @@ public class AdminManageController {
     @Resource private SenseService senseService;
     @Resource private AdminSettingsService settingsService;
     @Resource private com.seeyou.see_you.config.RiskProperties riskProps;
+    @Resource private com.seeyou.see_you.config.CommentProperties commentProps;
 
     /** userId -> 展示名（昵称优先，没有就用账号） */
     private Map<Long, String> nameMap() {
@@ -488,17 +489,23 @@ public class AdminManageController {
         Page<EmotionLexicon> p = lexiconMapper.selectPage(new Page<>(PageLimit.page(page), PageLimit.of(size)), q);
         List<Map<String, Object>> list = new ArrayList<>();
         for (EmotionLexicon l : p.getRecords()) {
+            int wt = l.getWordType() == null ? 0 : l.getWordType();
+            String wtName = switch (wt) { case 1 -> "否定词"; case 2 -> "程度副词"; default -> "情感词"; };
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("lexiconId", l.getLexiconId());
             m.put("word", l.getWord());
             m.put("emotion", l.getEmotion());
-            m.put("emotionName", EmotionConst.nameOf(l.getEmotion()));
+            // emotion=0 是否定词/程度副词等功能词，本就不属于九类情绪，显示「未知」会让人误以为数据有问题
+            m.put("emotionName", (l.getEmotion() == null || l.getEmotion() == 0) ? "—" : EmotionConst.nameOf(l.getEmotion()));
             m.put("weight", l.getWeight());
             m.put("wordType", l.getWordType());
-            m.put("wordTypeName", switch (l.getWordType() == null ? 0 : l.getWordType()) {
-                case 1 -> "否定词"; case 2 -> "程度副词"; default -> "情感词";
-            });
+            m.put("wordTypeName", wtName);
             m.put("sourceTag", l.getSourceTag());
+            // 来源标记翻译成人话：manual=内置种子词 / admin=后台添加 / admin-import=批量导入
+            m.put("sourceName", switch (String.valueOf(l.getSourceTag())) {
+                case "manual" -> "内置词库"; case "admin" -> "后台添加"; case "admin-import" -> "批量导入";
+                default -> String.valueOf(l.getSourceTag());
+            });
             list.add(m);
         }
         Map<String, Object> data = new HashMap<>();
@@ -625,7 +632,7 @@ public class AdminManageController {
     public Result<Boolean> alertWordAdd(@RequestBody Map<String, String> body, HttpServletRequest request) {
         String type = body.getOrDefault("type", "");
         String word = body.getOrDefault("word", "").trim();
-        String err = checkWord(type, word);
+        String err = checkWord(type, word, WORD_TYPES);
         if (err != null) return Result.error(400, err);
         List<String> words = new ArrayList<>(wordsOf(type));
         if (words.contains(word)) return Result.error(400, "该词条已存在");
@@ -639,7 +646,7 @@ public class AdminManageController {
     public Result<Boolean> alertWordDelete(@RequestBody Map<String, String> body, HttpServletRequest request) {
         String type = body.getOrDefault("type", "");
         String word = body.getOrDefault("word", "").trim();
-        String err = checkWord(type, word);
+        String err = checkWord(type, word, WORD_TYPES);
         if (err != null) return Result.error(400, err);
         List<String> words = new ArrayList<>(wordsOf(type));
         if (!words.contains(word)) return Result.error(400, "词条不存在，可能已被删除");
@@ -660,8 +667,8 @@ public class AdminManageController {
     }
 
     /** 词条合法性校验：词库用逗号序列化，词条本身绝不能带逗号；长度限制防止把说明文字当词条贴进来 */
-    private String checkWord(String type, String word) {
-        if (!WORD_TYPES.contains(type)) return "未知词库类型";
+    private String checkWord(String type, String word, List<String> allowedTypes) {
+        if (!allowedTypes.contains(type)) return "未知词库类型";
         if (word == null || word.isBlank()) return "词条不能为空";
         if (word.length() > 20) return "词条过长（最多 20 字）";
         if (word.contains(",") || word.contains("，")) return "词条不能包含逗号";
@@ -677,6 +684,56 @@ public class AdminManageController {
         };
         Object uid = request.getAttribute("userId");
         settingsService.save(Map.of(key, String.join(",", words)), uid == null ? "system" : String.valueOf(uid));
+    }
+
+    // ==================================================================
+    // 三点五、评论自动审核设置（可疑词库 + 总开关）
+    // ==================================================================
+
+    /**
+     * 与预警词库同一套 sys_config 机制：键 comment.reviewWords（逗号分隔）+
+     * comment.autoReview（开关）。改完立即生效，无需重启。
+     * 机器审核只做「可疑 → 转人工」，不直接拒绝 —— 最终放行与否仍由管理员判断。
+     */
+    private static final List<String> COMMENT_WORD_TYPES = List.of("review");
+
+    /** 评论审核设置：开关 + 可疑词库 */
+    @GetMapping("/comment/words")
+    public Result<Map<String, Object>> commentWords() {
+        Map<String, Object> d = new LinkedHashMap<>();
+        d.put("autoReview", commentProps.isAutoReview());
+        d.put("review", commentProps.getReviewWords());
+        return Result.success(d);
+    }
+
+    /** 新增可疑词条（命中即转人工） */
+    @PostMapping("/comment/words")
+    public Result<Boolean> commentWordAdd(@RequestBody Map<String, String> body, HttpServletRequest request) {
+        String word = body.getOrDefault("word", "").trim();
+        String err = checkWord("review", word, COMMENT_WORD_TYPES);
+        if (err != null) return Result.error(400, err);
+        List<String> words = new ArrayList<>(commentProps.getReviewWords());
+        if (words.contains(word)) return Result.error(400, "该词条已存在");
+        words.add(word);
+        Object uid = request.getAttribute("userId");
+        settingsService.save(Map.of("comment.reviewWords", String.join(",", words)),
+                uid == null ? "system" : String.valueOf(uid));
+        return Result.success(true);
+    }
+
+    /** 删除可疑词条（body 传词，避免中文拼 URL 转义） */
+    @PostMapping("/comment/words/delete")
+    public Result<Boolean> commentWordDelete(@RequestBody Map<String, String> body, HttpServletRequest request) {
+        String word = body.getOrDefault("word", "").trim();
+        String err = checkWord("review", word, COMMENT_WORD_TYPES);
+        if (err != null) return Result.error(400, err);
+        List<String> words = new ArrayList<>(commentProps.getReviewWords());
+        if (!words.contains(word)) return Result.error(400, "词条不存在，可能已被删除");
+        words.remove(word);
+        Object uid = request.getAttribute("userId");
+        settingsService.save(Map.of("comment.reviewWords", String.join(",", words)),
+                uid == null ? "system" : String.valueOf(uid));
+        return Result.success(true);
     }
 
     // ==================================================================

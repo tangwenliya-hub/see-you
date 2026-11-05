@@ -252,6 +252,10 @@ export const adminAlertDisposition = (id, data) => request.post(`/admin/alert/${
 export const adminRiskWords = () => request.get('/admin/alert/words')
 export const adminRiskWordAdd = (type, word) => request.post('/admin/alert/words', { type, word })
 export const adminRiskWordRemove = (type, word) => request.post('/admin/alert/words/delete', { type, word })
+// 评论自动审核设置（可疑词库 + 总开关）：改完内存立即生效 + sys_config 持久化，无需重启
+export const adminCommentWords = () => request.get('/admin/comment/words')
+export const adminCommentWordAdd = (word) => request.post('/admin/comment/words', { word })
+export const adminCommentWordRemove = (word) => request.post('/admin/comment/words/delete', { word })
 // 2. 轻量无感记录
 export const adminSenseStats = () => request.get('/admin/sense/stats')
 export const adminSensePredictions = (params) => request.get('/admin/sense/predictions', { params })

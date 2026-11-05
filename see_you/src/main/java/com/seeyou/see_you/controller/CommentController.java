@@ -1,6 +1,7 @@
 package com.seeyou.see_you.controller;
 
 import com.seeyou.see_you.entity.Comment;
+import com.seeyou.see_you.service.CommentModerationService;
 import com.seeyou.see_you.service.CommentService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.seeyou.see_you.util.Result;
@@ -20,6 +21,8 @@ public class CommentController {
     private CommentService commentService;
     @Resource
     private com.seeyou.see_you.util.JwtUtil jwtUtil;
+    @Resource
+    private CommentModerationService moderationService;
 
     @GetMapping("/{id:\\d+}")
     public Result<Comment> getById(@PathVariable Long id){
@@ -71,17 +74,32 @@ public class CommentController {
         return Result.success(commentService.getMyComments(page, size, viewerId, status));
     }
 
+    /**
+     * 发表评论 —— 系统先审，可疑才转人工。
+     *
+     * <p>返回 data 为该评论的最终状态：1 = 机器判定干净，已直接公开；
+     * 0 = 命中可疑判据（词库/链接/超长/刷屏），转人工复核。
+     * 前端据此给用户不同的提示文案。</p>
+     */
     @PostMapping("/save")
-    public Result<Boolean> save(@RequestBody Comment comment, HttpServletRequest request){
+    public Result<Integer> save(@RequestBody Comment comment, HttpServletRequest request){
         // 安全：userId 一律以登录态为准，防止冒名发评论（该接口不在白名单，拦截器已注入 userId）
         Long viewerId = (Long) request.getAttribute("userId");
         if (viewerId == null) return Result.error(401, "请先登录后再评论");
         comment.setUserId(viewerId);
-        // 新评论强制为待审核状态，防止前端绕过审核
-        comment.setStatus(0);
         comment.setCommentId(null);
+        // 机器审核：干净 → 1 直接公开；可疑 → 0 待人工（commentId 置空防止前端伪造主键）
+        CommentModerationService.Verdict v = moderationService.moderate(comment.getCommentText(), viewerId);
+        comment.setStatus(v.suspicious ? 0 : 1);
         boolean b = commentService.save(comment);
-        return b ? Result.success() : Result.error(500, "保存失败");
+        if (!b) return Result.error(500, "保存失败");
+        if (v.suspicious) {
+            // 记录命中原因，方便管理员排查误判（不回传给评论者，避免教人绕过词库）
+            org.slf4j.LoggerFactory.getLogger(CommentController.class)
+                    .info("[评论审核] 转人工 user={} resource={}/{} 原因={}",
+                            viewerId, comment.getResourceType(), comment.getResourceId(), v.reason);
+        }
+        return Result.success(comment.getStatus());
     }
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody Comment comment){

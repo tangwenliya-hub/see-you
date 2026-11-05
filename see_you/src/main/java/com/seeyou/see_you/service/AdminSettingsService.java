@@ -35,6 +35,7 @@ public class AdminSettingsService {
     @Resource private SysConfigMapper configMapper;
     @Resource private RiskProperties riskProps;
     @Resource private SenseProperties senseProps;
+    @Resource private com.seeyou.see_you.config.CommentProperties commentProps;
 
     /** 参数元数据类型 */
     public enum Type { BOOL, INT, DOUBLE, TEXT }
@@ -87,6 +88,12 @@ public class AdminSettingsService {
         SCHEMA.add(new Item("sense.knnK", "KNN 邻居数", "sense", Type.INT, "行为相似度比对时取的历史样本数", "个"));
         SCHEMA.add(new Item("sense.expireDays", "候选过期天数", "sense", Type.INT, "超时未确认的推测候选自动置为已过期", "天"));
         SCHEMA.add(new Item("sense.generateHour", "每日生成时刻", "sense", Type.INT, "定时任务的触发小时（cron 见 SenseScheduler，改此值需重启才换 cron）", "点"));
+
+        // ===== 评论自动审核（TEXT 型词库不在「系统参数」页渲染 —— 在「评论管理」页维护）=====
+        SCHEMA.add(new Item("comment.autoReview", "评论自动审核", "comment", Type.BOOL,
+                "开启后系统先审：正常评论直接公开，仅命中可疑判据的转人工（词库在「评论管理」页维护）", ""));
+        SCHEMA.add(new Item("comment.reviewWords", "评论可疑词库", "comment", Type.TEXT,
+                "命中任意一条即转人工审核（逗号分隔，改完立即生效，无需重启）", ""));
     }
 
     /** yml 原始默认值快照（启动时抓取，用于「恢复默认」） */
@@ -206,6 +213,8 @@ public class AdminSettingsService {
             case "sense.knnK" -> { return String.valueOf(senseProps.getKnnK()); }
             case "sense.expireDays" -> { return String.valueOf(senseProps.getExpireDays()); }
             case "sense.generateHour" -> { return String.valueOf(senseProps.getGenerateHour()); }
+            case "comment.autoReview" -> { return String.valueOf(commentProps.isAutoReview()); }
+            case "comment.reviewWords" -> { return joinWords(commentProps.getReviewWords()); }
             default -> { return ""; }
         }
     }
@@ -234,6 +243,8 @@ public class AdminSettingsService {
             case "sense.knnK" -> senseProps.setKnnK(toInt(v, senseProps.getKnnK()));
             case "sense.expireDays" -> senseProps.setExpireDays(toInt(v, senseProps.getExpireDays()));
             case "sense.generateHour" -> senseProps.setGenerateHour(toInt(v, senseProps.getGenerateHour()));
+            case "comment.autoReview" -> commentProps.setAutoReview(Boolean.parseBoolean(v));
+            case "comment.reviewWords" -> commentProps.setReviewWords(splitWords(v));
             default -> { /* 未知键忽略 */ }
         }
     }

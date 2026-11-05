@@ -13,6 +13,37 @@
       </div>
     </div>
 
+    <!-- 自动审核设置：系统先审，只有可疑评论才需要人工处理 -->
+    <div class="ext-box" style="margin-bottom:18px">
+      <h3><img src="/img/评论审核.png" /> 自动审核设置（改完立即生效，无需重启）</h3>
+      <div class="wl-note">
+        开启后系统先审：正常评论直接公开、发完即可见；只有命中可疑判据（可疑词 / 链接 / 超长 / 短时间重复）的才转人工复核。
+        机器只判定「是否转人工」，不直接拒绝任何评论 —— 最终放行与否仍由管理员决定，避免误杀正常口语。
+      </div>
+      <div class="ar-row">
+        <el-switch v-model="autoReview" :loading="switchSaving" @change="onToggleAutoReview" />
+        <span class="ar-label">{{ autoReview ? '已开启：正常评论直接公开，仅可疑的转人工审核' : '已关闭：所有评论一律待审核（全人工模式）' }}</span>
+      </div>
+      <div class="wl-groups">
+        <div class="wl-group">
+          <div class="wl-head">
+            <span class="wl-name review">可疑词库</span>
+            <span class="wl-desc">命中 → 转人工审核（不是直接拒绝）</span>
+            <span class="wl-count">{{ reviewWords.length }} 个</span>
+          </div>
+          <div class="wl-tags">
+            <span v-for="w in reviewWords" :key="w" class="wl-tag review">
+              {{ w }}<i class="wl-del" title="删除该词条" @click="removeWord(w)">×</i>
+            </span>
+            <span class="wl-add">
+              <input v-model="wordDraft" placeholder="新增可疑词…" maxlength="20" @keyup.enter="addWord" />
+              <button :disabled="!wordDraft.trim() || wordSaving" @click="addWord">{{ wordSaving ? '…' : '＋ 添加' }}</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 批量操作栏 -->
     <div v-if="selectedIds.length > 0" class="batch-bar">
       <span class="batch-info">已选择 <b>{{ selectedIds.length }}</b> 条评论</span>
@@ -92,7 +123,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import { jellyConfirm } from '@/utils/confirm'
-import { getAllCommentsWithUser, updateCommentStatus, deleteComment, getVideoList, getAudioList, batchUpdateCommentStatus, batchDeleteComment, fetchAllPages } from '@/api'
+import { getAllCommentsWithUser, updateCommentStatus, deleteComment, getVideoList, getAudioList, batchUpdateCommentStatus, batchDeleteComment, fetchAllPages, adminCommentWords, adminCommentWordAdd, adminCommentWordRemove, adminSettingsSave } from '@/api'
 import { fmtTime } from '@/utils/exportCsv'
 
 const list = ref([])
@@ -309,11 +340,6 @@ const loadData = async () => {
   }
 }
 
-onMounted(async () => {
-  await loadResourceMaps()
-  loadData()
-})
-
 const handleDelete = (c) => {
   jellyConfirm('确定删除这条评论吗？', { title: '删除确认', danger: true })
     .then(async (ok) => {
@@ -325,6 +351,69 @@ const handleDelete = (c) => {
       } catch (e) { ElMessage.error('删除失败：' + (e.message || '未知错误')) }
     }).catch(() => {})
 }
+
+// ==================== 自动审核设置（系统先审，可疑才转人工） ====================
+// 词库与开关都是「内存立即生效 + sys_config 持久化」—— 改完直接发条评论就能验证，不用重启后端
+const autoReview = ref(true)
+const switchSaving = ref(false)
+const reviewWords = ref([])
+const wordDraft = ref('')
+const wordSaving = ref(false)
+
+const loadModeration = async () => {
+  try {
+    const res = await adminCommentWords()
+    if (res?.code !== 200) { ElMessage.error(res?.msg || '审核设置加载失败'); return }
+    const d = res.data || {}
+    autoReview.value = !!d.autoReview
+    reviewWords.value = Array.isArray(d.review) ? d.review : []
+  } catch (e) { console.warn('审核设置加载失败:', e) }
+}
+
+const onToggleAutoReview = async (val) => {
+  switchSaving.value = true
+  try {
+    const res = await adminSettingsSave({ 'comment.autoReview': val })
+    if (res?.code !== 200) {
+      autoReview.value = !val   // 失败回滚
+      ElMessage.error(res?.msg || '保存失败')
+      return
+    }
+    ElMessage.success(val ? '已开启自动审核：正常评论直接公开，仅可疑的转人工' : '已关闭自动审核：所有评论一律待人工审核')
+  } catch (e) {
+    autoReview.value = !val
+    ElMessage.error('保存失败：' + (e.message || '未知错误'))
+  } finally { switchSaving.value = false }
+}
+
+const addWord = async () => {
+  const word = wordDraft.value.trim()
+  if (!word || wordSaving.value) return
+  if (word.includes(',') || word.includes('，')) { ElMessage.warning('词条不能包含逗号'); return }
+  wordSaving.value = true
+  try {
+    const res = await adminCommentWordAdd(word)
+    if (res?.code !== 200) { ElMessage.error(res?.msg || '添加失败'); return }
+    reviewWords.value.push(word)
+    wordDraft.value = ''
+    ElMessage.success(`已添加「${word}」，立即生效`)
+  } finally { wordSaving.value = false }
+}
+
+const removeWord = async (w) => {
+  try {
+    const res = await adminCommentWordRemove(w)
+    if (res?.code !== 200) { ElMessage.error(res?.msg || '删除失败'); return }
+    reviewWords.value = reviewWords.value.filter(x => x !== w)
+    ElMessage.success(`已删除「${w}」`)
+  } catch { ElMessage.error('删除失败，请重试') }
+}
+
+onMounted(async () => {
+  loadModeration()
+  await loadResourceMaps()
+  loadData()
+})
 </script>
 
 <style scoped>
@@ -341,4 +430,50 @@ const handleDelete = (c) => {
   color: #bbb;
   font-size: 14px;
 }
+/* ===== 自动审核设置（样式与预警页词库管理保持一致） ===== */
+.wl-note {
+  font-size: 12.5px; line-height: 1.8; color: #6b7f93;
+  background: #f4f8fb; border-left: 3px solid #8fb8d8;
+  border-radius: 8px; padding: 8px 12px; margin-bottom: 14px;
+}
+.ar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.ar-label { font-size: 13px; color: #4a5a4a; }
+.wl-groups { display: flex; flex-direction: column; gap: 14px; }
+.wl-group {
+  background: var(--c-bg1, #f7faf5); border-radius: 12px;
+  padding: 12px 14px;
+}
+.wl-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.wl-name { font-size: 14px; font-weight: 800; }
+.wl-name.review { color: #cf8a3a; }
+.wl-desc { font-size: 12px; color: #98a2b3; }
+.wl-count { margin-left: auto; font-size: 12px; color: #98a2b3; }
+.wl-tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.wl-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12.5px; padding: 4px 8px 4px 12px; border-radius: 999px;
+  transition: transform 0.15s ease;
+}
+.wl-tag:hover { transform: translateY(-1px); }
+.wl-tag.review { background: #fdf3e3; color: #a06a28; border: 1px solid #efd9b8; }
+.wl-del {
+  font-style: normal; width: 16px; height: 16px; line-height: 14px; text-align: center;
+  border-radius: 50%; cursor: pointer; font-size: 13px;
+  background: rgba(0,0,0,0.08); color: inherit;
+  transition: all 0.15s ease;
+}
+.wl-del:hover { background: #d65757; color: #fff; }
+.wl-add { display: inline-flex; align-items: center; gap: 6px; }
+.wl-add input {
+  width: 170px; padding: 5px 10px; font-size: 12.5px;
+  border: 1px dashed #c4cfda; border-radius: 999px; outline: none;
+  background: #fff; color: #3d4a3d; transition: border-color 0.2s;
+}
+.wl-add input:focus { border-color: #5aa96c; border-style: solid; }
+.wl-add button {
+  padding: 5px 12px; font-size: 12.5px; border: none; border-radius: 999px;
+  background: linear-gradient(135deg, #9ed3a8, #5aa96c); color: #fff;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.wl-add button:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
