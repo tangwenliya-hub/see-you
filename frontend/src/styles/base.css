@@ -25,65 +25,6 @@ b,strong{
     height: 0;
 }
 /* 上面都是通用的设置 */
-/* 左侧固定悬浮框 */
-.box{
-    width: 180px;
-    position: fixed;
-    left: 20px;
-    top: 270px;
-    z-index: 99;
-    background-color: var(--c-hex);
-    border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-    padding: 10px 0;
-    text-align: center;
-}
-.box a{
-    display: block;
-    padding: 15px 0;
-    margin:10px 15px;
-    color: #fff;
-    text-decoration: none;
-    font-size: 24px;
-    border-radius: 15px;
-    background-color: rgba(255,255,255,0.1);
-    transition: background-color 0.3s, transform 0.2s;
-}
-.box a:active{
-    background-color: #ffffff;
-    color: var(--c-hex);
-    transform: scale(1.05);
-    font-weight: bold;
-}
-.box a:hover{
-    background-color: #ffffff;
-    color: var(--c-hex);
-    transform: scale(1.05);
-    font-weight: bold;
-}
-/* 右侧固定悬浮框 */
-.box-right{
-    width: 70px;
-    height: 70px;
-    position: fixed;
-    right:70px;
-    bottom:70px;
-    z-index: 99;
-    background: url(/img/注册.jpg) no-repeat;
-    background-size: 75px;
-    background-position-x: -2px;
-    background-position-y: -2px;
-    border-radius: 70px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-}
-.box-right:hover{
-    background-position-y: -80px;
-}
-.box-right a{
-    display: block;
-    width: 70px;
-    height: 70px;
-}
 /* 尾部固定尾页 */
 #footer{
     width: 100%;

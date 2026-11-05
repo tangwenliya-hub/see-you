@@ -23,21 +23,24 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // 代理后端！前端 /api/* → 后端 http://localhost:8080/*
+    // 代理后端！前端 /api/* → 后端 http://127.0.0.1:8081/*
+    // ⚠️ 这里必须写 127.0.0.1 而不是 localhost：
+    //    localhost 在部分环境下先解析成 IPv6 的 ::1，而 http-proxy 不做 IPv4 回退，
+    //    Java 进程重启后偶发「::1 拒绝连接」，整个后台所有接口 502，页面表现为全是 0/空白。
     proxy: {
       '/api': {
-        target: 'http://localhost:8081',
+        target: 'http://127.0.0.1:8081',
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/api/, ''),
       },
       // 文件上传后访问图片的代理
       '/upload': {
-        target: 'http://localhost:8081',
+        target: 'http://127.0.0.1:8081',
         changeOrigin: true,
       },
       // WebSocket 实时推送
       '/ws': {
-        target: 'ws://localhost:8081',
+        target: 'ws://127.0.0.1:8081',
         ws: true,
         changeOrigin: true,
       },

@@ -76,18 +76,9 @@ p, li, span, td, th, div {
 }
 
 /* ---------------------------------------------------------------------
- * 1. 平板（769px ~ 1024px）：压缩悬浮元素，收窄左侧留白
+ * 1. 平板（769px ~ 1024px）：收窄页面左右留白
  * ------------------------------------------------------------------- */
 @media (max-width: 1024px) {
-  .box {
-    width: 150px;
-    left: 10px;
-  }
-  .box a {
-    font-size: 19px;
-    padding: 12px 0;
-    margin: 8px 10px;
-  }
   .main-page,
   .test-page,
   .fm-page,
@@ -106,13 +97,7 @@ p, li, span, td, th, div {
  * ------------------------------------------------------------------- */
 @media (max-width: 768px) {
 
-  /* ---- 2.1 悬浮装饰：手机端直接隐藏（它们是 fixed 定位，会挡住内容且顶宽）---- */
-  .box,
-  .box-right {
-    display: none !important;
-  }
-
-  /* ---- 2.2 页面根容器：不再为已隐藏的侧栏留白 ---- */
+  /* ---- 2.1 页面根容器：不再为已隐藏的侧栏留白 ---- */
   .main-page,
   .test-page,
   .fm-page,
@@ -128,7 +113,7 @@ p, li, span, td, th, div {
     width: 100%;
   }
 
-  /* ---- 2.3 已知 min-width 逐个解除 ---- */
+  /* ---- 2.2 已知 min-width 逐个解除 ---- */
 
   /* Test.vue：趋势图 SVG 容器写死 500px */
   .trend-svg { min-width: 0 !important; height: 160px !important; }
@@ -158,7 +143,7 @@ p, li, span, td, th, div {
     min-width: 0 !important;
   }
 
-  /* ---- 2.4 flex / grid 布局手机端自动换行 ---- */
+  /* ---- 2.3 flex / grid 布局手机端自动换行 ---- */
   .panel-row,
   .card-grid,
   .toolbar-row,
@@ -170,7 +155,7 @@ p, li, span, td, th, div {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
   }
 
-  /* ---- 2.5 触摸友好：点击目标不小于 44px ---- */
+  /* ---- 2.4 触摸友好：点击目标不小于 44px ---- */
   button,
   .auth-btn,
   .bar-item,
@@ -180,7 +165,7 @@ p, li, span, td, th, div {
   }
   .bar-item { min-height: 36px; }
 
-  /* ---- 2.6 表单：iOS 上字号 <16px 会自动放大页面，必须 ≥16px ---- */
+  /* ---- 2.5 表单：iOS 上字号 <16px 会自动放大页面，必须 ≥16px ---- */
   input,
   textarea,
   select {
@@ -188,7 +173,7 @@ p, li, span, td, th, div {
     max-width: 100%;
   }
 
-  /* ---- 2.7 顶部导航栏：手机没有 hover，改为常驻 + 横向滚动 ---- */
+  /* ---- 2.6 顶部导航栏：手机没有 hover，改为常驻 + 横向滚动 ---- */
   .app-bar {
     top: 0 !important;
     height: 52px;
@@ -202,12 +187,12 @@ p, li, span, td, th, div {
   .nav-greeting { display: none !important; }
   .nav-links { justify-content: flex-start !important; }
 
-  /* ---- 2.8 底部安全距离：给底部 Tab 栏留出空间（由 AppLayout 动态加 class）---- */
+  /* ---- 2.7 底部安全距离：给底部 Tab 栏留出空间（由 AppLayout 动态加 class）---- */
   body.has-mobile-tabbar {
     padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
   }
 
-  /* ---- 2.9 弹窗：Element Plus 对话框在手机上留出边距 ---- */
+  /* ---- 2.8 弹窗：Element Plus 对话框在手机上留出边距 ---- */
   .el-dialog {
     width: 92% !important;
     margin: 5vh auto !important;
@@ -216,7 +201,7 @@ p, li, span, td, th, div {
     width: 90% !important;
   }
 
-  /* ---- 2.10 表格：让表格自己横向滚动，而不是带崩整页 ---- */
+  /* ---- 2.9 表格：让表格自己横向滚动，而不是带崩整页 ---- */
   table {
     display: block;
     overflow-x: auto;

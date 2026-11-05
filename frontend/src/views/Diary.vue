@@ -82,7 +82,7 @@
 
             <!-- AI 寄语（嵌在月度小结里） -->
             <div class="chart-ai-whisper">
-              <img class="ai-avatar" src="/img/注册.jpg" alt="" />
+              <img class="ai-avatar" src="/img/AI悄悄话头像.jpg" alt="" />
               <p class="ai-text">{{ aiWhisper }}</p>
               <button class="ai-refresh" @click="refreshWhisper">换一条</button>
             </div>
