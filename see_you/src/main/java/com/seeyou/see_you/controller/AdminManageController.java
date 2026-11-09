@@ -33,8 +33,10 @@ import java.util.*;
  * </ul>
  */
 import lombok.extern.slf4j.Slf4j;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @Slf4j
+@RequireAdmin
 @RestController
 @RequestMapping("/admin")
 public class AdminManageController {

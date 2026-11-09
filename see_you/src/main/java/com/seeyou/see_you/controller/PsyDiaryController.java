@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import com.seeyou.see_you.util.PageLimit;
 import lombok.extern.slf4j.Slf4j;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @Slf4j
 @RestController
@@ -355,6 +356,7 @@ public class PsyDiaryController {
     // ============ 后台日记管理（管理员）============
 
     /** 管理员分页查看全站日记（keyword 搜正文，userId 过滤某用户） */
+    @RequireAdmin
     @GetMapping("/admin/list")
     public Result<Page<PsyDiary>> adminList(@RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "10") Integer size,
@@ -382,6 +384,7 @@ public class PsyDiaryController {
     }
 
     /** 管理员删除违规日记 */
+    @RequireAdmin
     @DeleteMapping("/admin/{id:\\d+}")
     public Result<Boolean> adminRemove(@PathVariable Long id) {
         if (!isAdmin()) return Result.error(403, "无管理员权限");

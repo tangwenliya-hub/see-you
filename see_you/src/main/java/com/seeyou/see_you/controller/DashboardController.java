@@ -15,8 +15,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @Slf4j
+@RequireAdmin
 @RestController
 @RequestMapping("/admin/dashboard")
 public class DashboardController {

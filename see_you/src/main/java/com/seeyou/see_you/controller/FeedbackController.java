@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import com.seeyou.see_you.util.PageLimit;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @RestController
 @RequestMapping("/feedback")
@@ -103,6 +104,7 @@ public class FeedbackController {
     }
 
     /** 列表（带用户名）- 支持按 userId 过滤 + keyword 搜索 + 时间范围 */
+    @RequireAdmin
     @GetMapping("/list")
     public Result<Page<Map<String, Object>>> list(@RequestParam(defaultValue = "1") Integer page,
                                                   @RequestParam(defaultValue = "10") Integer size,
@@ -224,6 +226,7 @@ public class FeedbackController {
     }
 
     /** 通用更新（状态/内容） */
+    @RequireAdmin
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody Feedback feedback){
         boolean b = feedbackService.updateById(feedback);
@@ -231,6 +234,7 @@ public class FeedbackController {
     }
 
     /** 管理员回复（专门接口，同时把状态改成已完成） */
+    @RequireAdmin
     @PutMapping("/reply")
     public Result<Boolean> reply(@RequestBody Map<String, Object> body){
         Long id = Long.valueOf(body.get("feedbackId").toString());
@@ -267,6 +271,7 @@ public class FeedbackController {
     }
 
     /** 管理员硬删除（含往来消息，事务保证） */
+    @RequireAdmin
     @DeleteMapping("/{id:\\d+}")
     public Result<Boolean> remove(@PathVariable Long id){
         boolean b = feedbackService.removeCascade(id);

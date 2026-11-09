@@ -52,60 +52,66 @@ public class JwtInterceptor implements HandlerInterceptor {
         request.setAttribute("role", role);
 
         // 管理员权限校验
+        // 优先看注解：@RequireAdmin 打在类或方法上即要求管理员，权限跟着代码走，新接口不会漏配
+        boolean needAdmin = requireAdminByAnnotation(handler);
         String uri = request.getRequestURI();
         String method = request.getMethod();
-        boolean needAdmin = false;
 
-        // 1. /admin/ 开头的路径（纯后台接口）
-        if (uri.contains("/admin/")) {
-            needAdmin = true;
-        }
-        // 2. 用户管理相关
-        else if (uri.startsWith("/user/list") || uri.startsWith("/user/status")) {
-            needAdmin = true;
-        }
-        // 🆕 后台日记管理（全站日记的查看与删除）
-        else if (uri.startsWith("/diary/admin/")) {
-            needAdmin = true;
-        }
-        // 🆕 批量导入用户 / 下载导入模板：属于后台管理员功能
-        else if (uri.startsWith("/user/import")) {
-            needAdmin = true;
-        }
-        else if ("DELETE".equalsIgnoreCase(method) && uri.startsWith("/user/")) {
-            needAdmin = true;
-        }
-        // 3. 评论管理相关
-        else if (uri.startsWith("/comment/listAllWithUser")
-                || uri.startsWith("/comment/updateStatus")
-                || uri.startsWith("/comment/batchUpdateStatus")
-                || uri.startsWith("/comment/batchDelete")) {
-            needAdmin = true;
-        }
-        else if ("DELETE".equalsIgnoreCase(method) && uri.startsWith("/comment/")) {
-            needAdmin = true;
-        }
-        // 🆕 修改评论内容（/comment/update）同样必须是管理员，否则普通用户能改别人的评论
-        else if ("PUT".equalsIgnoreCase(method) && uri.startsWith("/comment/update")) {
-            needAdmin = true;
-        }
-        // 4. 反馈管理相关
-        else if (uri.startsWith("/feedback/list")
-                || uri.startsWith("/feedback/update")
-                || uri.startsWith("/feedback/reply")) {
-            needAdmin = true;
-        }
-        else if ("DELETE".equalsIgnoreCase(method) && uri.startsWith("/feedback/")) {
-            needAdmin = true;
-        }
-        // 5. 测评试卷、题目、选项的写操作
-        else if ("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method) || "DELETE".equalsIgnoreCase(method)) {
-            if (uri.startsWith("/paper/") || uri.startsWith("/question/") || uri.startsWith("/option/")) {
+        // 兜底：早期硬编码的 uri 规则（与注解是「或」关系）。
+        // 等确认所有管理端接口都已标注 @RequireAdmin 后，整段可以删掉。
+        if (!needAdmin) {
+            // 1. /admin/ 开头的路径（纯后台接口）
+            if (uri.contains("/admin/")) {
                 needAdmin = true;
             }
-            // 6. 视频、音频的写操作
-            if (uri.startsWith("/video/") || uri.startsWith("/audio/")) {
+            // 2. 用户管理相关
+            else if (uri.startsWith("/user/list") || uri.startsWith("/user/status")) {
                 needAdmin = true;
+            }
+            // 后台日记管理（全站日记的查看与删除）
+            else if (uri.startsWith("/diary/admin/")) {
+                needAdmin = true;
+            }
+            // 批量导入用户 / 下载导入模板：属于后台管理员功能
+            else if (uri.startsWith("/user/import")) {
+                needAdmin = true;
+            }
+            else if ("DELETE".equalsIgnoreCase(method) && uri.startsWith("/user/")) {
+                needAdmin = true;
+            }
+            // 3. 评论管理相关
+            else if (uri.startsWith("/comment/listAllWithUser")
+                    || uri.startsWith("/comment/updateStatus")
+                    || uri.startsWith("/comment/batchUpdateStatus")
+                    || uri.startsWith("/comment/batchDelete")) {
+                needAdmin = true;
+            }
+            else if ("DELETE".equalsIgnoreCase(method) && uri.startsWith("/comment/")) {
+                needAdmin = true;
+            }
+            // 修改评论内容（/comment/update）同样必须是管理员，否则普通用户能改别人的评论
+            else if ("PUT".equalsIgnoreCase(method) && uri.startsWith("/comment/update")) {
+                needAdmin = true;
+            }
+            // 4. 反馈管理相关
+            else if (uri.startsWith("/feedback/list")
+                    || uri.startsWith("/feedback/update")
+                    || uri.startsWith("/feedback/reply")) {
+                needAdmin = true;
+            }
+            else if ("DELETE".equalsIgnoreCase(method) && uri.startsWith("/feedback/")) {
+                needAdmin = true;
+            }
+            // 5. 测评试卷、题目、选项的写操作
+            else if ("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method) || "DELETE".equalsIgnoreCase(method)) {
+                if (uri.startsWith("/paper/") || uri.startsWith("/question/") || uri.startsWith("/option/")) {
+                    needAdmin = true;
+                }
+                // 6. 视频、音频的写操作
+                // 例外：/video/play/{id}、/audio/play/{id} 是普通用户播放时上报播放量，不能要求管理员
+                if ((uri.startsWith("/video/") || uri.startsWith("/audio/")) && !uri.contains("/play/")) {
+                    needAdmin = true;
+                }
             }
         }
 
@@ -126,6 +132,18 @@ public class JwtInterceptor implements HandlerInterceptor {
             }
         }
         return true;
+    }
+
+    /**
+     * 判断目标方法（或它所在的 Controller）是否标注了 {@link RequireAdmin}。
+     * 类级注解覆盖整个 Controller，方法级只影响当前接口。
+     */
+    private boolean requireAdminByAnnotation(Object handler) {
+        if (handler instanceof org.springframework.web.method.HandlerMethod hm) {
+            return hm.hasMethodAnnotation(RequireAdmin.class)
+                    || hm.getBeanType().isAnnotationPresent(RequireAdmin.class);
+        }
+        return false;
     }
 
     /**

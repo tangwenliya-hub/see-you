@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.seeyou.see_you.util.PageLimit;
+import com.seeyou.see_you.config.RequireAdmin;
 
+@RequireAdmin
 @RestController
 @RequestMapping("/admin/aiWords")
 public class PsyAiWordsController {

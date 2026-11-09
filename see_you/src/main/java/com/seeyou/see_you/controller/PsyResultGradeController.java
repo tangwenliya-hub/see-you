@@ -7,7 +7,9 @@ import com.seeyou.see_you.util.Result;
 import org.springframework.web.bind.annotation.*;
 import jakarta.annotation.Resource;
 import java.util.List;
+import com.seeyou.see_you.config.RequireAdmin;
 
+@RequireAdmin
 @RestController
 @RequestMapping("/admin/resultGrade")
 public class PsyResultGradeController {

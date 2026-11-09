@@ -9,6 +9,7 @@ import jakarta.annotation.Resource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import com.seeyou.see_you.util.PageLimit;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @RestController
 @RequestMapping("/audio")
@@ -37,18 +38,21 @@ public class PsyAudioController {
         return Result.success(psyAudioService.page(new Page<>(PageLimit.page(page), PageLimit.of(size, 10)), wrapper));
     }
 
+    @RequireAdmin
     @PostMapping("/save")
     public Result<Boolean> save(@RequestBody PsyAudio audio) {
         boolean b = psyAudioService.save(audio);
         return b ? Result.success() : Result.error(500, "保存失败");
     }
 
+    @RequireAdmin
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody PsyAudio audio) {
         boolean b = psyAudioService.updateById(audio);
         return b ? Result.success() : Result.error(500, "更新失败");
     }
 
+    @RequireAdmin
     @DeleteMapping("/{id:\\d+}")
     public Result<Boolean> remove(@PathVariable Long id) {
         boolean b = psyAudioService.removeById(id);

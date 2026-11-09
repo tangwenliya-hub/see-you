@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import com.seeyou.see_you.util.PageLimit;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @Slf4j
 @RestController
@@ -71,20 +72,13 @@ public class SysUserController {
                 ? "该账号已注销" : "该账号已被禁用，请联系管理员");
         }
 
-        // 1. 先试 BCrypt（新注册的账号）
-        boolean loginOk = bCrypt.matches(password, user.getPassword());
-
-        // 2. 如果 BCrypt 失败，再试明文（数据库里的老数据）
-        if (!loginOk && password.equals(user.getPassword())) {
-            loginOk = true;
-            // 🔥 自动升级：把明文密码改成 BCrypt，以后就一直用加密了
-            user.setPassword(bCrypt.encode(password));
-            sysUserService.updateById(user);
-        }
-
-        if (!loginOk) {
+        // 1. BCrypt 校验
+        // 历史明文密码已于 2026-11-09 核对：sys_user 表 16 个账号全部是 BCrypt 哈希，
+        // 原「明文比对 + 自动升级」分支已删除，避免库里再出现可读密码。
+        if (!bCrypt.matches(password, user.getPassword())) {
             return Result.error(401, securityService.recordFail(username));
         }
+
         // 登录成功：清空失败计数
         securityService.clearFail(username);
 
@@ -146,6 +140,7 @@ public class SysUserController {
         u.setPassword(null);
         return Result.success(u);
     }
+    @RequireAdmin
     @GetMapping("/list")
     public Result<Page<SysUser>> list(@RequestParam(defaultValue = "1") Integer page,
                                        @RequestParam(defaultValue = "10") Integer size,
@@ -300,6 +295,7 @@ public class SysUserController {
     }
 
     /** 单独改状态（启用/禁用） */
+    @RequireAdmin
     @PutMapping("/status")
     public Result<Boolean> updateStatus(@RequestBody Map<String, Object> body){
         Long userId = Long.valueOf(body.get("userId").toString());
@@ -312,6 +308,7 @@ public class SysUserController {
     }
 
     /** 删除用户 */
+    @RequireAdmin
     @DeleteMapping("/{id:\\d+}")
     public Result<Boolean> delete(@PathVariable Long id) {
         boolean b = sysUserService.removeById(id);
@@ -321,6 +318,7 @@ public class SysUserController {
     /**
      * 下载导入模板
      */
+    @RequireAdmin
     @GetMapping("/import/template")
     public void downloadTemplate(HttpServletResponse response) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -347,6 +345,7 @@ public class SysUserController {
     /**
      * Excel 批量导入用户
      */
+    @RequireAdmin
     @PostMapping("/import")
     public Result<Map<String, Object>> importUsers(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {

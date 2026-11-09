@@ -9,6 +9,7 @@ import com.seeyou.see_you.util.Result;
 import org.springframework.web.bind.annotation.*;
 import jakarta.annotation.Resource;
 import com.seeyou.see_you.util.PageLimit;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @RestController
 @RequestMapping("/question")
@@ -30,16 +31,19 @@ public class PsyQuestionController {
         return Result.success(psyQuestionService.page(new Page<>(PageLimit.page(page), PageLimit.of(size, 10)), wrapper));
     }
 
+    @RequireAdmin
     @PostMapping("/save")
     public Result<Long> save(@RequestBody PsyQuestion question){
         boolean b = psyQuestionService.save(question);
         return b ? Result.success(question.getQuestionId()) : Result.error(500, "保存失败");
     }
+    @RequireAdmin
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody PsyQuestion question){
         boolean b = psyQuestionService.updateById(question);
         return b ? Result.success() : Result.error(500, "更新失败");
     }
+    @RequireAdmin
     @DeleteMapping("/{id:\\d+}")
     public Result<Boolean> remove(@PathVariable Long id){
         // 级联删除该题目下的所有选项（事务保证）
@@ -50,6 +54,7 @@ public class PsyQuestionController {
     /**
      * 保存题目及其选项（支持新增和编辑，编辑时会自动删除不再传过来的选项）
      */
+    @RequireAdmin
     @PostMapping("/saveWithOptions")
     public Result<Long> saveWithOptions(@RequestBody QuestionWithOptionsDTO dto) {
         // 参数校验与级联写入统一在 Service 层（事务保证题目与选项同生同灭）

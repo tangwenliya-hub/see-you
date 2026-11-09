@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import com.seeyou.see_you.util.PageLimit;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @RestController
 @RequestMapping("/comment")
@@ -52,6 +53,7 @@ public class CommentController {
         return Result.success(commentService.getCommentList(page, size, resourceType, resourceId, viewerId));
     }
 
+    @RequireAdmin
     @GetMapping("/listAllWithUser")
     public Result<Page<CommentVO>> listAllWithUser(@RequestParam(defaultValue = "1") Integer page,
                                                    @RequestParam(defaultValue = "20") Integer size,
@@ -101,6 +103,7 @@ public class CommentController {
         }
         return Result.success(comment.getStatus());
     }
+    @RequireAdmin
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody Comment comment){
         boolean b = commentService.updateById(comment);
@@ -110,12 +113,14 @@ public class CommentController {
     /**
      * 只更新评论状态（安全，不会覆盖其他字段）
      */
+    @RequireAdmin
     @PutMapping("/updateStatus")
     public Result<Boolean> updateStatus(@RequestParam Long commentId,
                                         @RequestParam Integer status) {
         boolean b = commentService.updateStatus(commentId, status);
         return b ? Result.success() : Result.error(500, "更新失败");
     }
+    @RequireAdmin
     @DeleteMapping("/{id:\\d+}")
     public Result<Boolean> remove(@PathVariable Long id){
         boolean b = commentService.removeById(id);
@@ -125,6 +130,7 @@ public class CommentController {
     /**
      * 批量更新评论状态
      */
+    @RequireAdmin
     @PutMapping("/batchUpdateStatus")
     public Result<Boolean> batchUpdateStatus(@RequestParam Integer status,
                                              @RequestBody List<Long> commentIds) {
@@ -135,6 +141,7 @@ public class CommentController {
     /**
      * 批量删除评论
      */
+    @RequireAdmin
     @DeleteMapping("/batchDelete")
     public Result<Boolean> batchDelete(@RequestBody List<Long> commentIds) {
         boolean b = commentService.batchDelete(commentIds);

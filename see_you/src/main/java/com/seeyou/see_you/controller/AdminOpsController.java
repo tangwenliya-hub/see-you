@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.seeyou.see_you.config.RequireAdmin;
 
 /**
  * 后台第二批扩展接口：隐私审计 / 用户 360 画像 / 互动与内容消费 /
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  *   <li>IP 沿用建表时的脱敏值（末段置 0），本层不做还原。</li>
  * </ul>
  */
+@RequireAdmin
 @RestController
 @RequestMapping("/admin")
 @lombok.extern.slf4j.Slf4j

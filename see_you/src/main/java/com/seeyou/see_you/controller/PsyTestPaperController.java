@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.annotation.Resource;
 import java.util.List;
 import com.seeyou.see_you.util.PageLimit;
+import com.seeyou.see_you.config.RequireAdmin;
 
 @RestController
 @RequestMapping("/paper")
@@ -55,16 +56,19 @@ public class PsyTestPaperController {
         return Result.success(pg);
     }
 
+    @RequireAdmin
     @PostMapping("/save")
     public Result<Long> save(@RequestBody PsyTestPaper paper){
         boolean b = psyTestPaperService.save(paper);
         return b ? Result.success(paper.getTestId()) : Result.error(500, "保存失败");
     }
+    @RequireAdmin
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody PsyTestPaper paper){
         boolean b = psyTestPaperService.updateById(paper);
         return b ? Result.success() : Result.error(500, "更新失败");
     }
+    @RequireAdmin
     @DeleteMapping("/{id:\\d+}")
     public Result<Boolean> remove(@PathVariable Long id){
         // 级联删除该试卷下的题目、选项与答题记录（事务保证）
@@ -75,6 +79,7 @@ public class PsyTestPaperController {
     /**
      * 更新量表状态（启用/禁用）
      */
+    @RequireAdmin
     @PutMapping("/updateStatus")
     public Result<Boolean> updateStatus(@RequestParam Long testId, @RequestParam Integer status) {
         PsyTestPaper paper = new PsyTestPaper();
