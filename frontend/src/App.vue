@@ -3,10 +3,11 @@
        1. /login / 
        2. /admin/*  （后台有自己的 AdminLayout）
        这些路由自己渲染自己的布局 -->
-  <router-view v-if="noLayout" />
+  <router-view v-if="noLayout" :key="route.fullPath" />
   <!-- 其他普通用户页面：套 AppLayout（顶部导航 + 左侧悬浮导航） -->
   <AppLayout v-else>
-    <router-view />
+    <!-- :key 用 fullPath：同一路由只换 query（如 /test?testId=1→2）时也要重建组件 -->
+    <router-view :key="route.fullPath" />
   </AppLayout>
 
   <!-- 全局路由切换加载页（仅非首次进站时出现） -->

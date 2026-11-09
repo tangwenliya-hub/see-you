@@ -625,7 +625,8 @@ const filteredPapers = computed(() => {
       (p.description && p.description.toLowerCase().includes(kw))
     )
   }
-  return list.sort((a, b) => {
+  // 注意：不能直接 list.sort()，那会原地修改 papers.value（computed 里改源数据）
+  return [...list].sort((a, b) => {
     const fa = isFavorite(a.testId) ? 1 : 0
     const fb = isFavorite(b.testId) ? 1 : 0
     return fb - fa

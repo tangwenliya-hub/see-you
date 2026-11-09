@@ -238,11 +238,11 @@ public class StatisticsController {
         return Result.success(cached("resource", () -> {
             List<Map<String, Object>> audioData = new ArrayList<>();
             for (Map<String, Object> row : statisticsMapper.audioCategoryCount()) {
-                audioData.add(mapOf(String.valueOf(row.get("name")), num(row.get("cnt"))));
+                audioData.add(mapOf(Objects.toString(row.get("name"), "未分类"), num(row.get("cnt"))));
             }
             List<Map<String, Object>> videoData = new ArrayList<>();
             for (Map<String, Object> row : statisticsMapper.videoCategoryCount()) {
-                videoData.add(mapOf(String.valueOf(row.get("name")), num(row.get("cnt"))));
+                videoData.add(mapOf(Objects.toString(row.get("name"), "未分类"), num(row.get("cnt"))));
             }
             Map<String, Object> result = new HashMap<>();
             result.put("audio", audioData);
