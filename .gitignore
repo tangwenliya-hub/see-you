@@ -14,6 +14,7 @@ src/main/resources/application-local.yml
 # 模板文件本身要入库（上面 .env.* 会误伤，这里显式放行）
 !.env.example
 !**/application-local.yml.example
+!miniapp/.env.production.example
 
 # ===== 上传的文件（运行时生成，不入库）=====
 upload/
