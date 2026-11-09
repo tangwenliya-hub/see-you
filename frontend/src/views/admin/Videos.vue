@@ -42,7 +42,7 @@
               <td>{{ v.createTime ? fmtTime(v.createTime).slice(0, 16) : '-' }}</td>
             <td>
               <div class="op-btns">
-                <button class="jelly-btn ghost" @click="handleEdit(v)">编辑</button>
+                <button class="jelly-btn op-main" @click="handleEdit(v)">编辑</button>
                 <button class="jelly-btn danger" @click="handleDelete(v)">删除</button>
               </div>
             </td>

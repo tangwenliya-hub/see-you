@@ -148,7 +148,7 @@
               <td>
                 <span class="status-tag" :class="a.disposition ? 'on' : 'muted'">{{ a.disposition || '未处置' }}</span>
               </td>
-              <td><button class="jelly-btn ghost" @click="openDetail(a)">查看依据</button></td>
+              <td><button class="jelly-btn op-main" @click="openDetail(a)">查看依据</button></td>
             </tr>
           </tbody>
         </table>

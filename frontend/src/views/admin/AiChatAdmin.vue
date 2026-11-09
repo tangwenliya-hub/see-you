@@ -39,7 +39,7 @@
               <td>{{ u.messages }}</td>
               <td>{{ u.sessions }}</td>
               <td style="color:#8a9a8a">{{ fmt(u.lastTime) }}</td>
-              <td><button class="jelly-btn ghost" @click="openSessions(u)">查看会话</button></td>
+              <td><button class="jelly-btn op-main" @click="openSessions(u)">查看会话</button></td>
             </tr>
           </tbody>
         </table>
@@ -58,7 +58,7 @@
             <td>{{ s.count }}</td>
             <td style="color:#8a9a8a">{{ fmt(s.startTime) }}</td>
             <td style="max-width:220px" class="ellipsis">{{ s.preview }}</td>
-            <td><button class="jelly-btn ghost" @click="openMessages(s)">查看内容</button></td>
+            <td><button class="jelly-btn op-main" @click="openMessages(s)">查看内容</button></td>
           </tr>
         </tbody>
       </table>

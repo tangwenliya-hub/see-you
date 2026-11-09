@@ -51,9 +51,9 @@
             <td><span :class="'status-tag ' + (u.active?'on':'off')">{{ u.active?'正常':'禁用' }}</span></td>
             <td>
               <div class="op-btns">
-                <button v-if="isCustomAvatar(u.avatar)" class="jelly-btn ghost" @click="goAvatarAudit(u)">头像</button>
-                <button class="jelly-btn ghost" @click="openProfile(u)">画像</button>
-                <button class="jelly-btn ghost" @click="openDialog(u)">编辑</button>
+                <button v-if="isCustomAvatar(u.avatar)" class="jelly-btn op-main" @click="goAvatarAudit(u)">头像</button>
+                <button class="jelly-btn op-main" @click="openProfile(u)">画像</button>
+                <button class="jelly-btn op-sub" @click="openDialog(u)">编辑</button>
                 <button class="jelly-btn danger" @click="toggleActive(u)">{{ u.active?'禁用':'启用' }}</button>
                 <button class="jelly-btn danger" style="background:#ff6b6b" @click="handleDelete(u)">删除</button>
               </div>

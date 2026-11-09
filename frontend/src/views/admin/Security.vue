@@ -63,7 +63,7 @@
               <td>{{ a.failCount }}</td>
               <td style="color:#8a9a8a">{{ fmt(a.lockUntil) }}</td>
               <td><span class="status-tag" :class="a.locked ? 'danger' : 'on'">{{ a.locked ? '锁定中' : '已解除' }}</span></td>
-              <td><button class="jelly-btn ghost" @click="handleUnlock(a)">解除锁定</button></td>
+              <td><button class="jelly-btn op-main" @click="handleUnlock(a)">解除锁定</button></td>
             </tr>
           </tbody>
         </table>

@@ -57,7 +57,7 @@
               <td>{{ l.wordTypeName }}</td>
               <td style="color:#8a9a8a">{{ l.sourceName || l.sourceTag || '-' }}</td>
               <td>
-                <button class="jelly-btn ghost" style="margin-right:6px" @click="openEdit(l)">编辑</button>
+                <button class="jelly-btn op-main" style="margin-right:6px" @click="openEdit(l)">编辑</button>
                 <button class="jelly-btn danger" @click="handleDelete(l)">删除</button>
               </td>
             </tr>

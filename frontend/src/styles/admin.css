@@ -354,6 +354,40 @@
   background: linear-gradient(135deg, rgba(248, 201, 216, 0.18), rgba(253, 231, 238, 0.10));
   color: #f0a8b8;
 }
+/* 状态筛选按钮：深色下浅底会发白，改为半透明底 + 提亮文字（选中态仍是实心渐变） */
+:root.dark-mode .fb-filter.f-all { background: rgba(140, 194, 105, 0.16); color: var(--c-main); border-color: rgba(140, 194, 105, 0.35); }
+:root.dark-mode .fb-filter.f-wait { background: rgba(240, 200, 100, 0.12); color: #e8c07a; border-color: rgba(240, 200, 100, 0.3); }
+:root.dark-mode .fb-filter.f-doing { background: rgba(120, 168, 220, 0.14); color: #8db6e0; border-color: rgba(120, 168, 220, 0.3); }
+:root.dark-mode .fb-filter.f-done { background: rgba(160, 180, 160, 0.12); color: #a8bfa8; border-color: rgba(160, 180, 160, 0.28); }
+:root.dark-mode .fb-filter b { background: rgba(255, 255, 255, 0.1); }
+/* 选中态必须是实心渐变，否则会被上面的深色半透明底盖掉 */
+:root.dark-mode .fb-filter.f-all.active { background: linear-gradient(135deg, var(--c-hex), var(--c-main)); color: #fff; border-color: transparent; }
+:root.dark-mode .fb-filter.f-wait.active { background: linear-gradient(135deg, #f0c860, #e0a63d); color: #5a4308; border-color: transparent; }
+:root.dark-mode .fb-filter.f-doing.active { background: linear-gradient(135deg, #7fb0e0, #4a7fb5); color: #fff; border-color: transparent; }
+:root.dark-mode .fb-filter.f-done.active { background: linear-gradient(135deg, #8fae8f, #5f7a5f); color: #fff; border-color: transparent; }
+:root.dark-mode .fb-filter.active b { background: rgba(255, 255, 255, 0.24); }
+:root.dark-mode .fb-filter.f-wait.active b { background: rgba(255, 255, 255, 0.45); color: #5a4308; }
+/* 操作列按钮：深色下浅底发白，主操作改半透明主题色 + 提亮文字，次要操作改白色半透明描边 */
+:root.dark-mode .jelly-btn.op-main {
+  background: color-mix(in srgb, var(--c-main) 18%, transparent);
+  color: var(--c-main);
+  border-color: color-mix(in srgb, var(--c-main) 42%, transparent);
+}
+:root.dark-mode .jelly-btn.op-main:hover {
+  background: color-mix(in srgb, var(--c-main) 30%, transparent);
+  border-color: var(--c-main);
+  color: #fff;
+}
+:root.dark-mode .jelly-btn.op-sub {
+  background: rgba(255, 255, 255, 0.06);
+  color: #9aa8a3;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+:root.dark-mode .jelly-btn.op-sub:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #e5e7eb;
+}
 :root.dark-mode .pm-close:hover { background: rgba(230, 160, 160, 0.18); }
 :root.dark-mode .admin-side.drawer { box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5); }
 /* 状态标签：浅底淡字在深色下对比不足，统一提亮文字 */
@@ -476,8 +510,55 @@
 .jelly-btn.danger { background: rgba(230, 160, 160, 0.3); color: #c76b6b; border: 1px solid rgba(230, 160, 160, 0.5); }
 .jelly-btn.danger:hover { background: rgba(230, 160, 160, 0.5); transform: translateY(-2px); }
 
+/* ===== 状态筛选用色（反馈管理等页面）：每个状态常驻自己的颜色，选中变实心 ===== */
+.fb-filters { display: flex; gap: 10px; }
+.fb-filter { border: 1px solid transparent; }
+.fb-filter b {
+  font-size: 12px; font-weight: 700; line-height: 1;
+  padding: 3px 7px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+}
+/* 全部 —— 主题色 */
+.fb-filter.f-all { background: color-mix(in srgb, var(--c-main) 22%, transparent); color: var(--c-hex); border-color: color-mix(in srgb, var(--c-main) 45%, transparent); }
+.fb-filter.f-all.active { background: linear-gradient(135deg, var(--c-hex), var(--c-main)); color: #fff; border-color: transparent; box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 30%, transparent); }
+/* 未处理 —— 琥珀（需要关注） */
+.fb-filter.f-wait { background: rgba(240, 200, 100, 0.18); color: #a88020; border-color: rgba(240, 200, 100, 0.45); }
+.fb-filter.f-wait.active { background: linear-gradient(135deg, #f0c860, #e0a63d); color: #5a4308; border-color: transparent; box-shadow: 0 4px 12px rgba(224, 166, 61, 0.35); }
+/* 处理中 —— 蓝（进行中） */
+.fb-filter.f-doing { background: rgba(120, 168, 220, 0.16); color: #3f6fa3; border-color: rgba(120, 168, 220, 0.42); }
+.fb-filter.f-doing.active { background: linear-gradient(135deg, #7fb0e0, #4a7fb5); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(74, 127, 181, 0.35); }
+/* 已完成 —— 灰绿（不再需要关注） */
+.fb-filter.f-done { background: rgba(160, 180, 160, 0.18); color: #5f7a5f; border-color: rgba(160, 180, 160, 0.42); }
+.fb-filter.f-done.active { background: linear-gradient(135deg, #8fae8f, #5f7a5f); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(95, 122, 95, 0.3); }
+.fb-filter.active b { background: rgba(255, 255, 255, 0.28); color: #fff; }
+.fb-filter:not(.active):hover { transform: translateY(-2px); filter: brightness(1.03); }
+
 .op-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .op-btns .jelly-btn { padding: 5px 12px; font-size: 12px; }
+/* 操作列按钮三档语义：主操作跟主题色、次要操作中性灰、删除沿用 .danger 的粉红 */
+.jelly-btn.op-main {
+  background: color-mix(in srgb, var(--c-main) 22%, transparent);
+  color: color-mix(in srgb, var(--c-hex) 74%, #1f2d26);
+  border: 1px solid color-mix(in srgb, var(--c-main) 55%, transparent);
+  font-weight: 600;
+}
+.jelly-btn.op-main:hover {
+  background: color-mix(in srgb, var(--c-main) 38%, transparent);
+  border-color: var(--c-hex);
+  color: color-mix(in srgb, var(--c-hex) 84%, #1f2d26);
+  transform: translateY(-2px);
+}
+.jelly-btn.op-sub {
+  background: rgba(130, 142, 138, 0.10);
+  color: #6d7d78;
+  border: 1px solid rgba(130, 142, 138, 0.30);
+}
+.jelly-btn.op-sub:hover {
+  background: rgba(130, 142, 138, 0.20);
+  border-color: rgba(130, 142, 138, 0.52);
+  color: #4b5a55;
+  transform: translateY(-2px);
+}
 
 .page-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 16px; }
 .page-title { font-size: 22px; font-weight: 700; color: var(--c-text); display: flex; align-items: center; gap: 10px; }

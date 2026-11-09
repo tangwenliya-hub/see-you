@@ -88,12 +88,12 @@
               <td><span :class="'status-tag ' + (c.status==='pending'?'warn':c.status==='approved'?'on':'danger')">{{ c.status==='pending'?'待审核':c.status==='approved'?'已通过':'已拒绝' }}</span></td>
               <td>
                 <div class="op-btns" v-if="c.status==='pending'">
-                  <button class="jelly-btn ghost" @click="changeStatus(c, 1, '通过')">通过</button>
+                  <button class="jelly-btn op-main" @click="changeStatus(c, 1, '通过')">通过</button>
                   <button class="jelly-btn danger" @click="changeStatus(c, -1, '拒绝')">拒绝</button>
                   <button class="jelly-btn danger" style="background:#ff6b6b" @click="handleDelete(c)">删除</button>
                 </div>
                 <div class="op-btns" v-else>
-                  <button class="jelly-btn ghost" @click="changeStatus(c, 0, '改回待审')">改回待审</button>
+                  <button class="jelly-btn op-sub" @click="changeStatus(c, 0, '改回待审')">改回待审</button>
                   <button class="jelly-btn danger" style="background:#ff6b6b" @click="handleDelete(c)">删除</button>
                 </div>
               </td>

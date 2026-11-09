@@ -29,8 +29,8 @@
               <td><span class="status-tag" :class="b.status === 1 ? 'on' : 'off'">{{ b.status === 1 ? '启用' : '停用' }}</span></td>
               <td>
                 <div class="op-btns">
-                  <button class="jelly-btn ghost" @click="openDialog(b)">编辑</button>
-                  <button class="jelly-btn ghost" @click="toggle(b)">{{ b.status === 1 ? '停用' : '启用' }}</button>
+                  <button class="jelly-btn op-main" @click="openDialog(b)">编辑</button>
+                  <button class="jelly-btn op-sub" @click="toggle(b)">{{ b.status === 1 ? '停用' : '启用' }}</button>
                   <button class="jelly-btn danger" @click="handleDelete(b)">删除</button>
                 </div>
               </td>

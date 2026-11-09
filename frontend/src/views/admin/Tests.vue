@@ -22,8 +22,8 @@
               <td><el-switch v-model="t.on" @change="(val) => handleStatusChange(t, val)" :active-value="1" :inactive-value="0" /></td>
               <td>
                 <div class="op-btns">
-                  <button class="jelly-btn ghost" @click="openQuestionDialog(t)">编辑题目</button>
-                  <button class="jelly-btn ghost" @click="openPaperDialog(t)">编辑</button>
+                  <button class="jelly-btn op-main" @click="openQuestionDialog(t)">编辑题目</button>
+                  <button class="jelly-btn op-sub" @click="openPaperDialog(t)">编辑</button>
                   <button class="jelly-btn danger" @click="handleDeletePaper(t)">删除</button>
                 </div>
               </td>

@@ -34,7 +34,7 @@
               <td><span :class="'status-tag ' + (k.status === 1 ? 'on' : 'off')">{{ k.status === 1 ? '启用' : '停用' }}</span></td>
               <td>
                 <div class="op-btns">
-                  <button class="jelly-btn ghost" @click="handleEdit(k)">编辑</button>
+                  <button class="jelly-btn op-main" @click="handleEdit(k)">编辑</button>
                   <button class="jelly-btn danger" @click="handleDelete(k)">删除</button>
                 </div>
               </td>

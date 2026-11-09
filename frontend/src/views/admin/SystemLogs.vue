@@ -81,7 +81,7 @@
               <td style="max-width:260px" :title="l.description">{{ l.description }}</td>
               <td>{{ l.costTime }}ms</td>
               <td><span class="status-tag" :class="l.status === 1 ? 'on' : 'warn'">{{ l.status === 1 ? '成功' : '失败' }}</span></td>
-              <td><button class="jelly-btn ghost" @click="openDetail(l)">详情</button></td>
+              <td><button class="jelly-btn op-main" @click="openDetail(l)">详情</button></td>
             </tr>
           </tbody>
         </table>

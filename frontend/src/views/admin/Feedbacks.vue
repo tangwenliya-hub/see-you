@@ -5,11 +5,11 @@
       <div class="page-title"><img src="/img/用户反馈.png" class="title-icon" /> 用户反馈管理</div>
       <div style="display:flex; gap:12px; align-items:center">
         <div class="admin-search"><img src="/img/搜索.png" class="search-icon" /><input v-model="keyword" placeholder="搜索标题/内容/用户" /></div>
-        <div style="display:flex; gap:10px">
-          <button :class="['jelly-btn', filter === 'all' ? 'primary' : 'ghost']" @click="filter='all'">全部</button>
-          <button :class="['jelly-btn', filter === '0' ? 'pink' : 'ghost']" @click="filter='0'">未处理 ({{ unreadCount }})</button>
-          <button :class="['jelly-btn', filter === '1' ? 'primary' : 'ghost']" @click="filter='1'">处理中 ({{ processingCount }})</button>
-          <button :class="['jelly-btn', filter === '2' ? 'primary' : 'ghost']" @click="filter='2'">已完成 ({{ doneCount }})</button>
+        <div class="fb-filters">
+          <button :class="['jelly-btn', 'fb-filter', 'f-all', filter === 'all' && 'active']" @click="filter='all'">全部 <b>{{ list.length }}</b></button>
+          <button :class="['jelly-btn', 'fb-filter', 'f-wait', filter === '0' && 'active']" @click="filter='0'">未处理 <b>{{ unreadCount }}</b></button>
+          <button :class="['jelly-btn', 'fb-filter', 'f-doing', filter === '1' && 'active']" @click="filter='1'">处理中 <b>{{ processingCount }}</b></button>
+          <button :class="['jelly-btn', 'fb-filter', 'f-done', filter === '2' && 'active']" @click="filter='2'">已完成 <b>{{ doneCount }}</b></button>
         </div>
       </div>
     </div>
@@ -69,8 +69,8 @@
             </td>
             <td @click.stop>
               <div class="op-btns">
-                <button class="jelly-btn ghost" @click="openDetail(f)">查看对话</button>
-                <button class="jelly-btn ghost" @click="openEdit(f)">编辑</button>
+                <button class="jelly-btn op-main" @click="openDetail(f)">查看对话</button>
+                <button class="jelly-btn op-sub" @click="openEdit(f)">编辑</button>
                 <button class="jelly-btn danger" @click="handleDelete(f)">删除</button>
               </div>
             </td>
