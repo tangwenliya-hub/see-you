@@ -40,6 +40,9 @@ Temp/
 # ===== AI 工作日志（含内部讨论与本地密码，禁止公开）=====
 .workbuddy/
 
+# ===== 本机环境交接说明（含个人路径，仅本地留存，不入库）=====
+docs/新电脑交接指南.md
+
 # ===== 本地测试残留（不入库）=====
 frontend/.playwright-cli/
 frontend/snap-alerts.yaml
