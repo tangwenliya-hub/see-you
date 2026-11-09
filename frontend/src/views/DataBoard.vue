@@ -251,6 +251,8 @@ import {
   getOverview, getResourceStats, getVideoRank,
 } from '../api'
 import { getSenseTimeline, getSenseAccuracy, getSenseCorrelation } from '../api/sense'
+import { useUserStore } from '../stores/user'
+import { isAdminFromServer } from '../router'
 
 // embedded = 内嵌在个人中心里（隐藏顶部标题栏、去掉页面留白）
 const props = defineProps({ embedded: { type: Boolean, default: false } })
@@ -288,10 +290,9 @@ const loading = ref(true)
 // ===== 加载失败提示（原来 catch 静默吞掉，接口挂了用户完全无感知）=====
 const loadErr = ref('')
 const failPart = (name) => { if (!loadErr.value) loadErr.value = name }
-const isAdmin = computed(() => {
-  const u = JSON.parse(localStorage.getItem('userInfo') || '{}')
-  return u?.role === 1 || u?.role === '1' || u?.role === 'admin'
-})
+// 管理员判定以服务端为准：localStorage 里的 role 本地随手就能改，不能拿它决定是否显示管理区（F8）
+// 真正的数据接口本来就有服务端鉴权，这里只是避免"篡改本地 role 就看到后台区块"的误判
+const isAdmin = ref(false)
 
 const currentYear = new Date().getFullYear()
 const yearOptions = [currentYear, currentYear - 1]
@@ -1093,9 +1094,11 @@ watch(senseDays, () => { loadSenseTimeline() })
 // 主题色变更后图表配色也要跟着变（个人中心改主题会广播该事件）
 const onThemeChanged = () => { loadAll() }
 
-onMounted(() => {
+onMounted(async () => {
   loadAll()
   window.addEventListener('profile-updated', onThemeChanged)
+  // 向服务端确认一次管理员身份（结果 30 秒内缓存，不会每次都请求）
+  isAdmin.value = (await isAdminFromServer(useUserStore().token)) === true
 })
 
 onBeforeUnmount(() => {

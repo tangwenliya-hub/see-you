@@ -32,6 +32,9 @@ import java.util.*;
  *   <li>会话列表不返回完整 token；密码找回列表不返回验证码。</li>
  * </ul>
  */
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/admin")
 public class AdminManageController {
@@ -57,7 +60,7 @@ public class AdminManageController {
         try {
             userService.list().forEach(u -> map.put(u.getUserId(),
                     (u.getNickname() != null && !u.getNickname().isBlank()) ? u.getNickname() : u.getUsername()));
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
         return map;
     }
 
@@ -574,11 +577,11 @@ public class AdminManageController {
             if (emotion < 1 || emotion > 9) { skipped++; continue; }
             double weight = 1.0;
             if (parts.length >= 3) {
-                try { weight = Double.parseDouble(parts[2]); } catch (Exception ignored) { }
+                try { weight = Double.parseDouble(parts[2]); } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             }
             int type = 0;
             if (parts.length >= 4) {
-                try { type = Integer.parseInt(parts[3]); } catch (Exception ignored) { }
+                try { type = Integer.parseInt(parts[3]); } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             }
             EmotionLexicon exist = lexiconMapper.selectOne(new LambdaQueryWrapper<EmotionLexicon>()
                     .eq(EmotionLexicon::getWord, word).eq(EmotionLexicon::getWordType, type).last("LIMIT 1"));
@@ -904,7 +907,7 @@ public class AdminManageController {
         Map<String, String> paperNames = new HashMap<>();
         try {
             testPaperService.list().forEach(t -> paperNames.put(String.valueOf(t.getTestId()), t.getTestName()));
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
 
         Map<String, Long> byPaper = new LinkedHashMap<>();
         for (PsyRecord r : all) {
@@ -942,7 +945,7 @@ public class AdminManageController {
         Map<Long, String> paperNames = new HashMap<>();
         try {
             testPaperService.list().forEach(t -> paperNames.put(t.getTestId(), t.getTestName()));
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
 
         LambdaQueryWrapper<PsyRecord> q = new LambdaQueryWrapper<>();
         if (testId != null) q.eq(PsyRecord::getTestId, testId);

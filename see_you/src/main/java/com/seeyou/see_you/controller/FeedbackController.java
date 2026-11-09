@@ -5,6 +5,7 @@ import com.seeyou.see_you.entity.FeedbackMessage;
 import com.seeyou.see_you.entity.SysUser;
 import com.seeyou.see_you.mapper.FeedbackMessageMapper;
 import com.seeyou.see_you.service.FeedbackService;
+import com.seeyou.see_you.service.FeedbackWriteService;
 import com.seeyou.see_you.service.SysUserService;
 import com.seeyou.see_you.websocket.FeedbackWebSocketHandler;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -32,6 +33,9 @@ public class FeedbackController {
     private FeedbackWebSocketHandler wsHandler;
     @Resource
     private FeedbackMessageMapper msgMapper;
+    /** 多步写入统一走它，保证主表与消息表同事务（B16） */
+    @Resource
+    private FeedbackWriteService feedbackWriteService;
 
     /** 🆕 获取某条反馈的完整聊天记录 */
     @GetMapping("/{id}/messages")
@@ -201,16 +205,10 @@ public class FeedbackController {
         // 自动填充
         if (feedback.getStatus() == null) feedback.setStatus(0); // 未读
         if (feedback.getCreateTime() == null) feedback.setCreateTime(LocalDateTime.now());
-        boolean b = feedbackService.save(feedback);
+        // 主表 + 首条消息在同一事务里写入（FeedbackWriteService），避免"有反馈没消息"
+        boolean b = feedbackWriteService.submit(feedback);
         if (b) {
-            // 🆕 同时写入消息表
-            FeedbackMessage m = new FeedbackMessage();
-            m.setFeedbackId(feedback.getFeedbackId());
-            m.setSenderType("user");
-            m.setContent(feedback.getFeedbackContent());
-            m.setCreateTime(feedback.getCreateTime());
-            msgMapper.insert(m);
-            // 实时推送给所有管理员
+            // 实时推送给所有管理员（推送放在事务提交之后，推失败不影响已落库数据）
             java.util.Map<String, Object> push = new java.util.HashMap<>();
             push.put("feedbackId", feedback.getFeedbackId());
             push.put("userId", feedback.getUserId());
@@ -238,20 +236,8 @@ public class FeedbackController {
         Long id = Long.valueOf(body.get("feedbackId").toString());
         String reply = (String) body.get("replyText");
         Feedback old = feedbackService.getById(id);
-        Feedback f = new Feedback();
-        f.setFeedbackId(id);
-        f.setReplyText(reply);
-        f.setStatus(2);
-        boolean b = feedbackService.updateById(f);
-        if (b) {
-            // 🆕 写入消息表
-            FeedbackMessage m = new FeedbackMessage();
-            m.setFeedbackId(id);
-            m.setSenderType("admin");
-            m.setContent(reply);
-            m.setCreateTime(LocalDateTime.now());
-            msgMapper.insert(m);
-        }
+        // 改状态 + 写管理员消息同事务（B16）
+        boolean b = feedbackWriteService.reply(id, reply);
         if (b && old != null) {
             // 实时推送给提交反馈的用户
             java.util.Map<String, Object> push = new java.util.HashMap<>();
@@ -304,21 +290,9 @@ public class FeedbackController {
         if (!isAdmin && (myId == null || !myId.equals(old.getUserId()))) {
             return Result.error(403, "只能补充自己的反馈");
         }
-        Feedback f = new Feedback();
-        f.setFeedbackId(id);
-        f.setUserSupplement(supplement);
-        f.setSupplementTime(LocalDateTime.now());
-        // 用户补充后重新把状态设为处理中，让管理员注意到
-        f.setStatus(1);
-        boolean b = feedbackService.updateById(f);
+        // 改状态 + 写用户消息同事务（B16）
+        boolean b = feedbackWriteService.supplement(id, supplement);
         if (b) {
-            // 🆕 写入消息表
-            FeedbackMessage m = new FeedbackMessage();
-            m.setFeedbackId(id);
-            m.setSenderType("user");
-            m.setContent(supplement);
-            m.setCreateTime(LocalDateTime.now());
-            msgMapper.insert(m);
             // 实时推送给管理员：用户补充了新信息
             java.util.Map<String, Object> push = new java.util.HashMap<>();
             push.put("feedbackId", id);

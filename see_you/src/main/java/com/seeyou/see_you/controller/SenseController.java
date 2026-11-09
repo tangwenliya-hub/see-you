@@ -37,6 +37,9 @@ import java.util.Map;
  *       到期由 {@code SenseScheduler} 物理删除。</li>
  * </ol>
  */
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/sense")
 public class SenseController {
@@ -90,7 +93,7 @@ public class SenseController {
             d.setHourMask(lng(m.get("hourMask")));
             Object date = m.get("date");
             if (date != null) {
-                try { d.setDate(LocalDate.parse(String.valueOf(date))); } catch (Exception ignored) { }
+                try { d.setDate(LocalDate.parse(String.valueOf(date))); } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             }
             list.add(d);
         }

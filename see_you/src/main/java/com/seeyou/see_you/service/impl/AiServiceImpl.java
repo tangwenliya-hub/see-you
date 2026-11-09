@@ -162,14 +162,28 @@ public class AiServiceImpl implements AiService {
                     log.info("AI API 调用成功，回复: {}", content);
                     return content == null ? null : content.trim();
                 }
-                log.warn("AI API 返回体缺少 choices: {}", response.getBody());
+                throw new AiApiException("大模型返回体缺少 choices: " + response.getBody());
             } else {
-                log.warn("AI API 返回非200状态码: {}, body: {}", response.getStatusCode(), response.getBody());
+                throw new AiApiException("大模型返回非 2xx：" + response.getStatusCode() + "，body=" + response.getBody());
             }
+        } catch (AiApiException e) {
+            throw e;   // 已带原因，别再被下面的通用 catch 包一层
         } catch (Exception e) {
-            log.error("AI API调用异常: {}", e.getMessage());
+            // 不在这里静默 return null（原实现把异常原因丢掉了）：
+            // 统一抛出带原因的 AiApiException，由 chat() 记录并降级到关键词匹配（B32）
+            throw new AiApiException("调用大模型失败: " + e.getMessage(), e);
         }
-        return null;
+    }
+
+    /** 大模型调用失败的专用异常：保留原始原因，交给调用方决定降级策略 */
+    private static class AiApiException extends RuntimeException {
+        AiApiException(String message) {
+            super(message);
+        }
+
+        AiApiException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
     /**

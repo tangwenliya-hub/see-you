@@ -37,6 +37,9 @@ import java.util.*;
  * 单次难过是正常的人类情绪。只有**窗口内的负面占比、连续天数与下滑趋势**
  * 三个指标共同越界，才判为需要关注 —— 这既是统计上的严谨性，也是伦理上的克制。
  */
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class RiskAlertServiceImpl implements RiskAlertService {
 
@@ -236,7 +239,8 @@ public class RiskAlertServiceImpl implements RiskAlertService {
                 CrisisAiJudge.Verdict v = aiJudge.judge(text);
                 if (v != null && v.risk()) insertAiAlert(userId, v.reason());
             } catch (Exception ignored) {
-                // 降级红线：AI 任何异常都不外抛
+                // 降级红线：AI 任何异常都不外抛，只留 debug 日志
+                log.debug("[预警] AI 研判失败，本次按规则模式处理", ignored);
             }
         });
     }

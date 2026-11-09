@@ -83,7 +83,7 @@ function isAdminLocal(userInfo) {
 let serverRoleCache = { role: null, ts: 0 }
 const SERVER_ROLE_TTL = 30 * 1000
 
-async function isAdminFromServer(token) {
+export async function isAdminFromServer(token) {
   const now = Date.now()
   if (serverRoleCache.role !== null && now - serverRoleCache.ts < SERVER_ROLE_TTL) {
     return isAdminRole(serverRoleCache.role)

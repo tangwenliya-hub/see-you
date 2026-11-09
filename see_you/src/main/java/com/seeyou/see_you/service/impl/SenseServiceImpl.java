@@ -48,6 +48,9 @@ import java.util.*;
  *   <li>任何 Mapper 的 SQL 都带 user_id 条件（见 BehaviorFeatureMapper / EmotionPredictionMapper）</li>
  * </ul>
  */
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class SenseServiceImpl implements SenseService {
 

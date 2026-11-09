@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -75,31 +74,31 @@ public class DashboardController {
                                 .ge(Comment::getCreateTime, todayStart)
                                 .le(Comment::getCreateTime, todayEnd))
                         .forEach(c -> activeUserIds.add(c.getUserId()));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             try {
                 feedbackService.list(new LambdaQueryWrapper<Feedback>()
                                 .ge(Feedback::getCreateTime, todayStart)
                                 .le(Feedback::getCreateTime, todayEnd))
                         .forEach(f -> activeUserIds.add(f.getUserId()));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             try {
                 diaryService.list(new LambdaQueryWrapper<PsyDiary>()
                                 .ge(PsyDiary::getCreateTime, todayStart)
                                 .le(PsyDiary::getCreateTime, todayEnd))
                         .forEach(d -> activeUserIds.add(d.getUserId()));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             try {
                 recordService.list(new LambdaQueryWrapper<PsyRecord>()
                                 .ge(PsyRecord::getCreateTime, todayStart)
                                 .le(PsyRecord::getCreateTime, todayEnd))
                         .forEach(r -> activeUserIds.add(r.getUserId()));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             try {
                 aiChatService.list(new LambdaQueryWrapper<AiChat>()
                                 .ge(AiChat::getCreateTime, todayStart)
                                 .le(AiChat::getCreateTime, todayEnd))
                         .forEach(a -> activeUserIds.add(a.getUserId()));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             metrics.put("activeUsersToday", activeUserIds.size());
 
             // 反馈总数 & 待处理反馈数（status=0 未读，排除软删）
@@ -250,35 +249,35 @@ public class DashboardController {
                     userActivityCount.merge(d.getUserId(), 1L, Long::sum);
                     userActivityType.putIfAbsent(d.getUserId(), "写日记");
                 });
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             // 评论
             try {
                 commentService.list().forEach(c -> {
                     userActivityCount.merge(c.getUserId(), 1L, Long::sum);
                     userActivityType.putIfAbsent(c.getUserId(), "发表评论");
                 });
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             // 测评
             try {
                 recordService.list().forEach(r -> {
                     userActivityCount.merge(r.getUserId(), 1L, Long::sum);
                     userActivityType.putIfAbsent(r.getUserId(), "做测评");
                 });
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             // 反馈
             try {
                 feedbackService.list(new LambdaQueryWrapper<Feedback>().eq(Feedback::getDeleted, 0)).forEach(f -> {
                     userActivityCount.merge(f.getUserId(), 1L, Long::sum);
                     userActivityType.putIfAbsent(f.getUserId(), "提交反馈");
                 });
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             // AI对话
             try {
                 aiChatService.list().forEach(a -> {
                     userActivityCount.merge(a.getUserId(), 1L, Long::sum);
                     userActivityType.putIfAbsent(a.getUserId(), "AI对话");
                 });
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
 
             // 按活动次数排序取前5
             List<Map.Entry<Long, Long>> sortedUsers = new ArrayList<>(userActivityCount.entrySet());

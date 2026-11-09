@@ -78,7 +78,7 @@ public class AdminOpsController {
         try {
             userMapper.selectList(null).forEach(u -> map.put(u.getUserId(),
                     (u.getNickname() != null && !u.getNickname().isBlank()) ? u.getNickname() : u.getUsername()));
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
         return map;
     }
 
@@ -294,7 +294,7 @@ public class AdminOpsController {
             try {
                 PsyTestPaper tp = testPaperMapper.selectById(r.getTestId());
                 if (tp != null && tp.getTestName() != null) paperName = tp.getTestName();
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
             last.put("testId", r.getTestId());
             last.put("paperName", paperName);
             last.put("score", r.getScore() == null ? r.getTotalScore() : r.getScore());
@@ -440,10 +440,10 @@ public class AdminOpsController {
         Map<Long, String> audioName = new HashMap<>();
         try {
             videoMapper.selectList(null).forEach(v -> videoName.put(v.getVideoId(), v.getVideoName()));
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
         try {
             audioMapper.selectList(null).forEach(a -> audioName.put(a.getAudioId(), a.getAudioName()));
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
 
         List<Map<String, Object>> list = new ArrayList<>();
         agg.entrySet().stream()
@@ -482,8 +482,8 @@ public class AdminOpsController {
         Map<Long, String> nm = nameMap();
         Map<Long, String> videoName = new HashMap<>();
         Map<Long, String> audioName = new HashMap<>();
-        try { videoMapper.selectList(null).forEach(v -> videoName.put(v.getVideoId(), v.getVideoName())); } catch (Exception ignored) { }
-        try { audioMapper.selectList(null).forEach(a -> audioName.put(a.getAudioId(), a.getAudioName())); } catch (Exception ignored) { }
+        try { videoMapper.selectList(null).forEach(v -> videoName.put(v.getVideoId(), v.getVideoName())); } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
+        try { audioMapper.selectList(null).forEach(a -> audioName.put(a.getAudioId(), a.getAudioName())); } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
 
         List<Map<String, Object>> rows = new ArrayList<>();
         for (PsyHistory h : p.getRecords()) {

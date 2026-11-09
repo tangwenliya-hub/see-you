@@ -129,7 +129,7 @@ public class CrisisAiJudge {
                 String c = choices.get(0).path("message").path("content").asText(null);
                 return c == null ? null : c.trim();
             }
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { log.warn("可忽略的异常，已跳过: {}", ignored.toString()); }
         return null;
     }
 

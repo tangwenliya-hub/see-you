@@ -15,6 +15,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import com.seeyou.see_you.util.PageLimit;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/diary")
 public class PsyDiaryController {
@@ -37,7 +40,8 @@ public class PsyDiaryController {
         try {
             riskAlertService.evaluateCrisis(userId, content);
         } catch (Exception ignored) {
-            // 静默：预警是附加能力，绝不能因为它的异常让日记保存失败
+            // 静默：预警是附加能力，绝不能因为它的异常让日记保存失败（只打 debug 便于排查）
+            log.debug("[日记] 危机词扫描失败，已忽略", ignored);
         }
     }
 
