@@ -46,7 +46,9 @@ upload:
 mybatis-plus:
   type-aliases-package: com.seeyou.see_you.entity
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 默认关闭 SQL 日志：StdOutImpl 会把每条 SQL 连同参数（含密码哈希、日记正文）打到控制台，
+    # 生产环境既吵又泄露数据。本地开发想看 SQL 时由 application-local.yml 单独打开。
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
     map-underscore-to-camel-case: true  # 🆕 数据库字段自动驼峰映射
 
 # AI 大模型配置（DeepSeek）

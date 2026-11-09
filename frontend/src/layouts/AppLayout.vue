@@ -265,6 +265,12 @@ const initWS = async () => {
   })
 }
 
+// 切换标签页回来时同步一次本地状态
+// 必须具名：匿名函数无法在 onBeforeUnmount 里 removeEventListener，会一直挂在 document 上
+function handleVisibilityChange() {
+  if (!document.hidden) syncFromStorage()
+}
+
 onMounted(() => {
   initWS()
   // 给底部 Tab 栏留出空间（只在手机上真的占位，见 mobile.css）
@@ -279,9 +285,7 @@ onMounted(() => {
   // 监听同标签页内的自定义事件（Profile 保存后立即生效）
   window.addEventListener('profile-updated', handleProfileUpdated)
   // 页面可见时刷新（切换标签页回来时同步）
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) syncFromStorage()
-  })
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onBeforeUnmount(() => {
@@ -294,6 +298,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('risk-alert-read', handleRiskRead)
   window.removeEventListener('storage', handleStorageChange)
   window.removeEventListener('profile-updated', handleProfileUpdated)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
   // 不要调 feedbackWS.disconnect()！WS 是全局单例，AdminLayout 也在用。
 })
 

@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppLayout from './layouts/AppLayout.vue'
 import CowLoading from './components/CowLoading.vue'
@@ -33,6 +33,9 @@ const router = useRouter()
 // ===== 路由切换加载页 =====
 const routeLoading = ref(false)
 let switchStart = 0
+// 保存定时器 id：连续快速切路由时，上一次的 setTimeout 必须清掉，
+// 否则它会在新页面加载中途把 routeLoading 置 false，加载页闪一下就消失
+let loadingTimer = null
 router.beforeEach((to, from, next) => {
   // from.name 为空说明是首次进站，交给首屏加载页处理
   if (from.name) {
@@ -45,7 +48,14 @@ router.afterEach(() => {
   if (!routeLoading.value) return
   // 最少显示 350ms，避免闪一下就消失
   const elapsed = Date.now() - switchStart
-  setTimeout(() => { routeLoading.value = false }, Math.max(0, 350 - elapsed))
+  if (loadingTimer) clearTimeout(loadingTimer)
+  loadingTimer = setTimeout(() => {
+    routeLoading.value = false
+    loadingTimer = null
+  }, Math.max(0, 350 - elapsed))
+})
+onBeforeUnmount(() => {
+  if (loadingTimer) clearTimeout(loadingTimer)
 })
 // 不套用户导航栏的页面：登录页、欢迎页（/ 与 /home 同一页面）、后台管理
 const noLayout = computed(() => {

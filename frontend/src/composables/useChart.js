@@ -498,7 +498,8 @@ export function withPerf(option) {
 }
 
 /* ============ 开发期排查助手 ============ */
-if (typeof window !== 'undefined') {
+// 只在开发/预览构建里挂载：生产包不暴露内部注册表，避免被控制台直接拿到实例对象
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   // 控制台执行 __seeCharts() 可查看存活实例，验证切换 tab 后无泄漏
   window.__seeCharts = () => {
     const alive = [...registry].filter(isAlive)

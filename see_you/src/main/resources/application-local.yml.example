@@ -30,6 +30,11 @@ upload:
   # 换机器部署时必须改这里，否则图片上传后前端访问不到
   front-path: 本机 frontend/public 的绝对路径
 
+# 本地开发把 SQL 打到控制台（application.yml 里默认是关闭的，生产不要打开）
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 app:
   # 开发态：验证码答案打到日志，方便自测；生产必须 false
   dev-captcha-log: true
