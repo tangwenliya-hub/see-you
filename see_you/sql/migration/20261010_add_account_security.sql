@@ -40,16 +40,3 @@ CREATE TABLE IF NOT EXISTS sys_pwd_reset (
   INDEX idx_token (token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='密码重置令牌';
 
--- 4. 第三方账号绑定（微信/QQ）
-CREATE TABLE IF NOT EXISTS sys_oauth_bind (
-  bind_id     BIGINT PRIMARY KEY AUTO_INCREMENT,
-  user_id     BIGINT       NOT NULL,
-  provider    VARCHAR(20)  NOT NULL COMMENT 'wechat / qq',
-  openid      VARCHAR(128) NOT NULL,
-  unionid     VARCHAR(128) DEFAULT NULL,
-  nickname    VARCHAR(64)  DEFAULT NULL,
-  avatar      VARCHAR(255) DEFAULT NULL,
-  create_time DATETIME     DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY uk_provider_openid (provider, openid),
-  INDEX idx_user (user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='第三方账号绑定';
