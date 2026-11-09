@@ -79,6 +79,16 @@ public class CorsConfig implements WebMvcConfigurer {
                         //    鉴权由 RiskAlertController.adminStream 手动完成（token + 会话 + 管理员角色
                         //    三重校验），通道是只读推送，未校验通过拿不到任何事件。勿照抄此模式到写接口。
                         "/risk/admin-stream",
+                        // 👇 网页托管放行：页面入口、前端构建产物、纯只读媒体（封面/头像/背景/图标）
+                        //    安全边界：/upload/file、/upload/list 写接口仍刻意不放行；
+                        //    与业务接口同名的 /video、/audio、/diary、/user、/banner 前缀也不放行，避免匿名触达业务接口。
+                        "/index.html",
+                        "/assets/**",
+                        "/vite.svg",
+                        "/cover/**",
+                        "/avatar/**",
+                        "/bg/**",
+                        "/img/**",
                         "/error",
                         "/doc.html",
                         "/webjars/**",

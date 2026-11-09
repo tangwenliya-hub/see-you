@@ -3,6 +3,9 @@ import axios from 'axios'
 import AdminLayout from '../layouts/AdminLayout.vue'
 import { useUserStore } from '../stores/user'
 
+// 与 src/api/index.js 同一套前缀约定：dev=/api（Vite 代理），prod=空（同源直连）
+const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
+
 const routes = [
   { path: '/', component: () => import('../views/Home.vue'), alias: '/home' },   /* 打开即欢迎页（奶牛落地页）；已登录访问会自动跳 /main */
   { path: '/main', component: () => import('../views/Main.vue') },
@@ -89,7 +92,7 @@ export async function isAdminFromServer(token) {
     return isAdminRole(serverRoleCache.role)
   }
   try {
-    const res = await axios.get('/api/user/info', {
+    const res = await axios.get(`${API_BASE}/user/info`, {
       headers: { Authorization: `Bearer ${token}` },
       timeout: 5000,
     })

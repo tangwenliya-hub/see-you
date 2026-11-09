@@ -2,6 +2,9 @@ import { ElNotification } from 'element-plus'
 import { useUserStore } from '../stores/user'
 import router from '../router'
 
+// 与 src/api/index.js 同一套前缀约定：dev=/api（Vite 代理），prod=空（同源直连）
+const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
+
 /**
  * 情绪预警 SSE 实时推送工具（管理端）
  *
@@ -38,7 +41,7 @@ class RiskSse {
 
     this.manualClose = false
     try {
-      this.es = new EventSource(`/api/risk/admin-stream?token=${encodeURIComponent(token)}`)
+      this.es = new EventSource(`${API_BASE}/risk/admin-stream?token=${encodeURIComponent(token)}`)
     } catch {
       this.es = null
       return

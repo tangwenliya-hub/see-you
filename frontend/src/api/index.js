@@ -3,7 +3,11 @@ import { ElMessage } from 'element-plus'
 import router from '../router'
 import { useUserStore } from '../stores/user'
 
-const request = axios.create({ baseURL: '/api', timeout: 10000 })
+// 请求前缀按环境区分：
+// 本地开发(npm run dev) 默认 /api，由 vite.config.js 代理去掉前缀转发到后端；
+// 生产构建由 Dockerfile 注入 VITE_API_BASE=""，前端以同源相对路径直连后端真实接口（同源无跨域）。
+const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
+const request = axios.create({ baseURL: API_BASE, timeout: 10000 })
 
 // 自动带 token：状态源是 Pinia store（localStorage 仅作兜底，避免极早期模块加载时 store 还没激活）
 request.interceptors.request.use((config) => {

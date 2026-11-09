@@ -1,0 +1,21 @@
+# Docker 构建上下文排除规则（减小上下文体积、避免本地产物污染云端构建）
+# 注意：不要排除 frontend/package*.json、frontend/src、see_you/src、see_you/pom.xml、Dockerfile
+
+# ---- 版本控制 / IDE ----
+.git
+.idea
+.vscode
+*.iml
+
+# ---- Node：依赖在镜像内由 npm ci 重装，本地 node_modules 不进入上下文 ----
+**/node_modules
+# 本地旧构建产物不进入上下文，前端 dist 由镜像内 npm run build 重新生成
+frontend/dist
+
+# ---- Maven 本地构建产物（fat jar 由镜像内重新打包）----
+see_you/target
+
+# ---- 日志 / 临时 ----
+**/*.log
+.workbuddy
+Temp

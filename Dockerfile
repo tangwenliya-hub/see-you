@@ -1,15 +1,30 @@
 # ============================================================
-# 绪见 · 根目录 Dockerfile
-# 作用：让 Railway 直接用 Docker 构建，绕开 Railpack 在仓库根目录
-#       探测不到 Java（后端在 see_you/ 子目录、根目录无 pom.xml）的问题。
-# 本地不使用，仅用于云端部署；不影响本地 mvn / IDEA 运行方式。
+# 绪见 · 根目录 Dockerfile（Railway 云端构建用，本地不使用）
+#
+# 三阶段构建：
+#   阶段零 fe-builder：Node 构建前端 Vite 产物 dist
+#   阶段一 build     ：Maven 打包后端 fat jar
+#   阶段二 run       ：仅 JRE 运行，同时挂载前端 dist 供后端同源托管
 # ============================================================
+
+# ---------- 阶段零：前端构建（Vite 打包到 /web/dist） ----------
+FROM node:20-alpine AS fe-builder
+WORKDIR /web
+
+# 先复制依赖清单，命中 Docker 层缓存（依赖不变时跳过 npm ci）
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+# 复制前端源码并构建；生产注入 VITE_API_BASE=""，使前端以同源相对路径直连后端真实接口
+COPY frontend/ ./
+ENV VITE_API_BASE=""
+RUN npm run build
 
 # ---------- 阶段一：Maven 编译打包，产出 fat jar ----------
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /build
 
-# 先复制 pom.xml，命中 Docker 层缓存（依赖不变时不必重新下载）
+# 先复制 pom.xml 命中层缓存（依赖不变时不必重新下载）
 COPY see_you/pom.xml ./pom.xml
 # 复制后端源码
 COPY see_you/src ./src
@@ -20,8 +35,11 @@ RUN mvn -B clean package -DskipTests
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# 从构建阶段拷出 fat jar（产物名见 pom：see_you-0.0.1-SNAPSHOT.jar）
+# 后端 fat jar（产物名见 pom：see_you-0.0.1-SNAPSHOT.jar）
 COPY --from=build /build/target/see_you-0.0.1-SNAPSHOT.jar app.jar
+
+# 前端构建产物：WebConfig 的 web.dist-path 默认指向 /app/web/dist，由后端同源托管
+COPY --from=fe-builder /web/dist /app/web/dist
 
 # 时区；Railway 运行时会把 $PORT、数据库连接等注入为环境变量
 ENV TZ=Asia/Shanghai
