@@ -135,7 +135,9 @@ cd frontend
 npm install && npm run dev     # http://localhost:5173，已代理 /api 到 8081
 ```
 
-默认管理员账号：`admin / ******`；测试账号：`test / ******`。
+> 🔐 **仓库不记录任何账号与密码**（本仓库为公开仓库）。管理员 = `sys_user` 表中 `role=1` 的账号，
+> 由你自己注册后提权；首次部署请务必设置 ≥12 位强口令，不要使用 `123456`、`111111` 这类字典口令。
+> 已有的演示账号请在部署前删除或改密。
 
 > ⚠️ **安全须知**：`application.yml` 只保留占位符，真实凭据放在**已被 Git 忽略**的 `application-local.yml`，或由环境变量注入。详见 `.env.example` 与 `docs/部署说明.md`。
 

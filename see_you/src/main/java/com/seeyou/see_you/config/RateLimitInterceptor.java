@@ -1,5 +1,6 @@
 package com.seeyou.see_you.config;
 
+import com.seeyou.see_you.util.ClientIp;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -130,13 +131,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     }
 
     private String clientIp(HttpServletRequest request) {
-        if (!trustProxy) {
-            // 未部署在反代后：不信任任何请求头，用 TCP 连接的真实来源地址
-            return request.getRemoteAddr();
-        }
-        // 信任模式：只取 nginx 强制覆盖的 X-Real-IP（$remote_addr），不碰可伪造的 X-Forwarded-For
-        String v = request.getHeader("X-Real-IP");
-        if (v != null && !v.isBlank() && !"unknown".equalsIgnoreCase(v)) return v.trim();
-        return request.getRemoteAddr();
+        // 统一走 ClientIp：未部署在反代后时不信任任何请求头；
+        // 反代后取 X-Forwarded-For 的最后一个值（代理追加、客户端改不了），其次 X-Real-IP。
+        // 与 AccountSecurityService 记录会话 IP 的逻辑保持同一真源，避免两处口径不一致。
+        return ClientIp.resolve(request, trustProxy);
     }
 }

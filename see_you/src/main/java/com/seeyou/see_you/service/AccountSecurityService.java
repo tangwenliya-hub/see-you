@@ -9,6 +9,7 @@ import com.seeyou.see_you.mapper.SysLoginAttemptMapper;
 import com.seeyou.see_you.mapper.SysPwdResetMapper;
 import com.seeyou.see_you.mapper.SysUserSessionMapper;
 import com.seeyou.see_you.util.CaptchaUtil;
+import com.seeyou.see_you.util.ClientIp;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,14 @@ public class AccountSecurityService {
     /** 开发联调用：置 true 时验证码会打印到后端日志（默认关闭） */
     @Value("${app.dev-captcha-log:false}")
     private boolean devCaptchaLog;
+
+    /**
+     * 是否部署在反向代理/云边缘之后（nginx、Railway 等）。
+     * 与限流器读同一个开关：开着才采信代理头，且只取不可伪造的那一端。
+     * 生产（application-prod.yml）为 true，本地直跑为 false。
+     */
+    @Value("${app.rate-limit.trust-proxy:false}")
+    private boolean trustProxy;
 
     private static final int MAX_FAIL = 5;
     private static final int LOCK_MINUTES = 10;
@@ -232,22 +241,15 @@ public class AccountSecurityService {
                 .eq(SysUserSession::getUserId, userId));
     }
 
-    private String getIp(HttpServletRequest request) {        String[] headers = {"X-Forwarded-For", "X-Real-IP"};
-        for (String h : headers) {
-            String v = request.getHeader(h);
-            if (v != null && !v.isBlank() && !"unknown".equalsIgnoreCase(v)) {
-                return normalizeIp(v.split(",")[0].trim());
-            }
-        }
-        return normalizeIp(request.getRemoteAddr());
-    }
-
-    /** IPv6 回环（0:0:0:0:0:0:0:1 / ::1 及带 zone 的变体）统一显示为 127.0.0.1，否则「登录设备」里会出现一串看不懂的鬼东西 */
-    private String normalizeIp(String ip) {
-        if (ip == null) return "";
-        String t = ip.split("%")[0].trim(); // 去掉 IPv6 zone 后缀（如 %0）
-        if (t.equals("::1") || t.equals("0:0:0:0:0:0:0:1")) return "127.0.0.1";
-        return t;
+    /**
+     * 客户端 IP：统一走 {@link ClientIp}，与限流器同一套抗伪造逻辑。
+     *
+     * <p>历史实现取的是 {@code X-Forwarded-For} 的<b>第一个</b>值——那是客户端可以自己填的位置，
+     * 结果是会话列表里能出现任意伪造 IP（排查入侵时完全不可信），按 IP 的统计也会被污染。
+     * 现在 trustProxy=true 时取 XFF 最后一个值（边缘代理追加、客户端改不了）。
+     */
+    private String getIp(HttpServletRequest request) {
+        return ClientIp.resolve(request, trustProxy);
     }
 
     private String parseDevice(String ua) {
