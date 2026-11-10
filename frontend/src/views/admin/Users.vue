@@ -460,6 +460,8 @@ const handleDelete = (u) => {
 const save = async () => {
   if (!form.value.username || !form.value.email) { ElMessage.warning('请填写完整信息'); return }
   if (form.value.password && form.value.password.length < 6) { ElMessage.warning('新密码至少 6 位'); return }
+  // 新增时密码必填（管理端专用接口 /user/add 要求），编辑时留空表示不修改密码
+  if (!form.value.userId && !form.value.password) { ElMessage.warning('请设置初始密码（至少 6 位）'); return }
   try {
     const payload = {
       userId: form.value.userId,
@@ -470,7 +472,8 @@ const save = async () => {
       status: form.value.active ? 1 : 0,
     }
     if (form.value.password) payload.password = form.value.password
-    const res = form.value.userId ? await request.put('/user/update', payload) : await request.post('/user/register', payload)
+    // 新增走管理端专用接口（无需验证码）；注册接口自防刷修复起强制校验验证码，后台弹窗不能再用
+    const res = form.value.userId ? await request.put('/user/update', payload) : await request.post('/user/add', payload)
     if (res.code === 200) {
       dialogVisible.value = false
       ElMessage.success('保存成功')

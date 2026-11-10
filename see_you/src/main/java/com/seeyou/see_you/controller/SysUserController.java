@@ -206,6 +206,42 @@ public class SysUserController {
         return b ? Result.success() : Result.error(500, "注册失败");
     }
 
+    /** 管理员在后台「新增用户」弹窗里建号专用（不走注册接口）：
+     *  注册接口自防刷修复起强制校验图形验证码，后台弹窗没有验证码输入框，
+     *  原先复用 /user/register 会导致管理员建号永远报"验证码不正确"。
+     *  管理面板本身已在登录态 + @RequireAdmin 之后，无需再次人机验证，
+     *  但用户名/邮箱/密码强度等校验与注册保持一致，且允许指定角色。 */
+    @PostMapping("/add")
+    @RequireAdmin
+    public Result<Boolean> add(@RequestBody SysUser sysUser) {
+        if (sysUser.getUsername() == null || sysUser.getUsername().isBlank()) {
+            return Result.error(400, "用户名不能为空");
+        }
+        boolean exists = sysUserService.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, sysUser.getUsername())) > 0;
+        if (exists) return Result.error(400, "用户名已被注册，请换一个或直接登录");
+        String email = sysUser.getEmail() == null ? "" : sysUser.getEmail().trim();
+        if (email.isBlank()) return Result.error(400, "邮箱不能为空（用于找回密码）");
+        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            return Result.error(400, "邮箱格式不正确");
+        }
+        boolean emailTaken = sysUserService.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getEmail, email)) > 0;
+        if (emailTaken) return Result.error(400, "该邮箱已被其他账号绑定");
+        sysUser.setEmail(email);
+        if (sysUser.getPassword() == null || sysUser.getPassword().length() < 6) {
+            return Result.error(400, "密码至少 6 位");
+        }
+        sysUser.setPassword(bCrypt.encode(sysUser.getPassword()));
+        Integer role = sysUser.getRole();
+        if (role == null || role < 0 || role > 2) sysUser.setRole(0);
+        if (sysUser.getStatus() == null) sysUser.setStatus(1);
+        if (sysUser.getAvatar() == null || sysUser.getAvatar().isBlank()) {
+            sysUser.setAvatar("/img/1 (1).png");
+        }
+        return sysUserService.save(sysUser) ? Result.success() : Result.error(500, "新增失败");
+    }
+
     /** 更新用户（编辑资料）
      *  越权防护：普通用户只能改自己的资料，且不能改 role / status / username；
      *           管理员可以改任何人（含改角色）。
