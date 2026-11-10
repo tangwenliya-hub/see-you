@@ -41,6 +41,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // ===== 1) 兼容旧链路：/upload/**（小程序端等历史入口）=====
+        // 注意：此处绝对不能 return，否则下面的前端产物与只读媒体处理器会被整段跳过。
         File legacyRoot = new File(System.getProperty("user.dir"), uploadPath);
         String legacyLoc = "file:" + legacyRoot.getAbsolutePath().replace('\\', '/') + "/";
 
@@ -49,10 +50,12 @@ public class WebConfig implements WebMvcConfigurer {
             if (frontDir.isDirectory()) {
                 registry.addResourceHandler("/upload/**")
                         .addResourceLocations(legacyLoc, fileLocation(frontDir));
-                return;
+            } else {
+                registry.addResourceHandler("/upload/**").addResourceLocations(legacyLoc);
             }
+        } else {
+            registry.addResourceHandler("/upload/**").addResourceLocations(legacyLoc);
         }
-        registry.addResourceHandler("/upload/**").addResourceLocations(legacyLoc);
 
         File distDir = new File(distPath);
 
