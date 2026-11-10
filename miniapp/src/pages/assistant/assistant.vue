@@ -317,10 +317,10 @@ onShow(() => {
   border-top-left-radius: 4rpx;
 }
 .bubble.user {
-  background: #3fae52;
+  background: #5aa96c;
   color: #ffffff;
   border-top-right-radius: 4rpx;
-  box-shadow: 0 10rpx 20rpx -12rpx rgba(63, 174, 82, 0.6);
+  box-shadow: 0 10rpx 20rpx -12rpx rgba(90, 169, 108, 0.6);
 }
 .bubble.typing {
   opacity: 0.7;
@@ -360,11 +360,11 @@ onShow(() => {
   height: 80rpx;
   line-height: 80rpx;
   text-align: center;
-  background: #3fae52;
+  background: #5aa96c;
   color: #ffffff;
   border-radius: 40rpx;
   font-size: 28rpx;
-  box-shadow: 0 10rpx 20rpx -12rpx rgba(63, 174, 82, 0.7);
+  box-shadow: 0 10rpx 20rpx -12rpx rgba(90, 169, 108, 0.7);
 }
 .send.sending { opacity: 0.6; }
 
@@ -410,7 +410,7 @@ onShow(() => {
 }
 .new-btn {
   padding: 12rpx 26rpx;
-  background: #3fae52;
+  background: #5aa96c;
   color: #fff;
   border-radius: 32rpx;
   font-size: 24rpx;
@@ -431,7 +431,7 @@ onShow(() => {
 }
 .sess-item.active {
   background: #eaf6ec;
-  border-color: rgba(63, 174, 82, 0.4);
+  border-color: rgba(90, 169, 108, 0.4);
 }
 .sess-info {
   flex: 1;

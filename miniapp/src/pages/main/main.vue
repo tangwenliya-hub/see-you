@@ -328,7 +328,7 @@ onPullDownRefresh(async () => {
   display: block;
   font-size: 44rpx;
   font-weight: 700;
-  color: #3fae52;
+  color: #5aa96c;
 }
 .stat-label {
   display: block;

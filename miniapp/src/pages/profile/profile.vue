@@ -169,7 +169,7 @@ onShow(() => { if (ensureLogin()) load() })
   display: block;
   font-size: 56rpx;
   font-weight: 700;
-  color: #3fae52;
+  color: #5aa96c;
 }
 .streak-sub {
   display: block;

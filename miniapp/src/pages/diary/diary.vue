@@ -151,9 +151,9 @@ onReachBottom(() => load(false))
   line-height: 96rpx;
   text-align: center;
   border-radius: 50rpx;
-  background: #3fae52;
+  background: #5aa96c;
   color: #ffffff;
   font-size: 56rpx;
-  box-shadow: 0 8rpx 20rpx rgba(63, 174, 82, 0.35);
+  box-shadow: 0 8rpx 20rpx rgba(90, 169, 108, 0.35);
 }
 </style>

@@ -39,22 +39,26 @@ page {
   font-size: 26rpx;
 }
 .btn-primary {
-  background: #3fae52;
+  background: linear-gradient(135deg, #9ed9a8 0%, #6fbf8f 100%);
   color: #ffffff;
   border-radius: 44rpx;
   height: 88rpx;
   line-height: 88rpx;
   font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
   text-align: center;
+  box-shadow: 0 14rpx 26rpx -14rpx rgba(111, 191, 143, 0.72);
 }
 .btn-ghost {
-  background: #ffffff;
-  color: #3fae52;
-  border: 2rpx solid #3fae52;
+  background: rgba(255, 255, 255, 0.86);
+  color: #5aa96c;
+  border: 1.5rpx solid #bfe3cc;
   border-radius: 44rpx;
   height: 88rpx;
   line-height: 88rpx;
   font-size: 30rpx;
+  font-weight: 600;
   text-align: center;
 }
 </style>

@@ -4,7 +4,7 @@
       "path": "pages/login/login",
       "style": {
         "navigationBarTitleText": "登录 · 绪见",
-        "navigationBarBackgroundColor": "#7bc47b",
+        "navigationBarBackgroundColor": "#5aa96c",
         "navigationBarTextStyle": "white"
       }
     },
@@ -12,7 +12,7 @@
       "path": "pages/main/main",
       "style": {
         "navigationBarTitleText": "绪见",
-        "navigationBarBackgroundColor": "#7bc47b",
+        "navigationBarBackgroundColor": "#5aa96c",
         "navigationBarTextStyle": "white",
         "enablePullDownRefresh": true
       }
@@ -21,7 +21,7 @@
       "path": "pages/diary/diary",
       "style": {
         "navigationBarTitleText": "我的日记",
-        "navigationBarBackgroundColor": "#7bc47b",
+        "navigationBarBackgroundColor": "#5aa96c",
         "navigationBarTextStyle": "white",
         "enablePullDownRefresh": true
       }
@@ -30,7 +30,7 @@
       "path": "pages/diary/write",
       "style": {
         "navigationBarTitleText": "写日记",
-        "navigationBarBackgroundColor": "#7bc47b",
+        "navigationBarBackgroundColor": "#5aa96c",
         "navigationBarTextStyle": "white"
       }
     },
@@ -38,7 +38,7 @@
       "path": "pages/assistant/assistant",
       "style": {
         "navigationBarTitleText": "AI 情绪陪伴",
-        "navigationBarBackgroundColor": "#7bc47b",
+        "navigationBarBackgroundColor": "#5aa96c",
         "navigationBarTextStyle": "white"
       }
     },
@@ -46,14 +46,14 @@
       "path": "pages/profile/profile",
       "style": {
         "navigationBarTitleText": "我的",
-        "navigationBarBackgroundColor": "#7bc47b",
+        "navigationBarBackgroundColor": "#5aa96c",
         "navigationBarTextStyle": "white"
       }
     }
   ],
   "tabBar": {
     "color": "#8a9a8a",
-    "selectedColor": "#3fae52",
+    "selectedColor": "#5aa96c",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
@@ -66,7 +66,7 @@
   "globalStyle": {
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "绪见",
-    "navigationBarBackgroundColor": "#7bc47b",
+    "navigationBarBackgroundColor": "#5aa96c",
     "backgroundColor": "#f2fbf4"
   }
 }

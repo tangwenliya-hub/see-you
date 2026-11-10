@@ -2,19 +2,20 @@
  * 小程序端运行配置
  *
  * 【三种运行场景，改一处即可】
- *  1. 开发者工具模拟器：不用配任何东西，默认就是 http://localhost:8081
+ *  1. 开发者工具模拟器（本地后端）：不配 ENV_BASE 即回退 http://localhost:8081
  *  2. 真机预览（同一 WiFi）：把 LOCAL_BASE 换成电脑局域网 IP，如 http://192.168.1.5:8081
- *  3. 体验版 / 上线（微信里真用）：在 miniapp/.env.production 里写
- *        VITE_API_BASE=https://你的域名/api
- *     构建时自动生效，无需改本文件，本地演示也不会被影响。
+ *  3. 对接云端（模拟器演示 / 体验版 / 上线）：在 miniapp/.env.production 里写
+ *        VITE_API_BASE=https://你的域名.com
+ *     构建时自动生效，无需改本文件；清空该行则回退本地 LOCAL_BASE。
  *
- * 【为什么线上地址要带 /api】
- *  服务器上的 nginx 把 /api/ 反代到后端并剥掉前缀，同时 /api/upload/xxx.jpg
- *  会被转成后端的 /upload/xxx.jpg（WebConfig 的静态映射），图片和接口同域，
- *  小程序只需要配置一个 request 合法域名即可。
+ * 【基址不要带 /api】
+ *  当前后端同源直连，控制器路径本身无前缀（/auth/captcha、/user/login ...）。
+ *  若基址加 /api，请求会变成 /api/auth/captcha，后端无此路由 → 404。
+ *  小程序 request 不走浏览器，不存在 CORS 跨域问题，直连 https 域名即可。
  *
- * 【微信的硬性要求】
- *  BASE_URL 必须是 https + 已 ICP 备案的域名，不能用 IP、不能用 localhost、不能带端口。
+ * 【微信硬性要求（仅真机预览 / 体验版 / 正式版）】
+ *  真机与正式版要求 https + 已 ICP 备案域名，并在微信后台配置 request 合法域名，
+ *  不能用 IP/localhost、不能带端口；开发者工具「模拟器」勾选“不校验合法域名”即可先演示。
  */
 
 /**

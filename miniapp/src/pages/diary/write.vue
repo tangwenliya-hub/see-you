@@ -164,11 +164,11 @@ async function save() {
   box-sizing: border-box;
 }
 .intensity-item.active {
-  background: #3fae52;
-  border-color: #3fae52;
+  background: #5aa96c;
+  border-color: #5aa96c;
   color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 12rpx 24rpx -12rpx rgba(63, 174, 82, 0.6);
+  box-shadow: 0 12rpx 24rpx -12rpx rgba(90, 169, 108, 0.6);
 }
 .editor {
   width: 100%;
