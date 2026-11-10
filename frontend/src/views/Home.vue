@@ -53,7 +53,6 @@
         <router-link to="/fm" class="feat">治愈FM</router-link>
         <router-link to="/classroom" class="feat">绪见学堂</router-link>
       </div>
-      <p class="foot-note">愿你被这个世界温柔以待</p>
     </footer>
   </div>
 </template>
@@ -309,21 +308,63 @@ onBeforeUnmount(() => {
   transition: transform .22s, background .22s;
 }
 .feat:hover { transform: translateY(-2px); background: #fff; }
-.foot-note {
-  margin: 0;
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  color: #3c5544;
-  text-shadow: 0 1px 2px rgba(255,255,255,1), 0 0 10px rgba(255,255,255,.95);
-  white-space: nowrap;
-}
 
 /* 窄屏适配 */
 @media (max-width: 768px) {
   .hero { left: 6vw; right: 6vw; max-width: none; }
   .headline { font-size: 42px; letter-spacing: 4px; }
-  .foot-note { display: none; }
+
+  /* 1. 小字加粗：浅色插画背景上 500 字重的小屏辨识度偏弱 */
+  .eyebrow { font-weight: 700; }
+  .sub { font-size: 15.5px; font-weight: 600; line-height: 1.85; }
+
+  /* 2. 底部功能按钮：改等宽 4 列网格，「绪见学堂」不再被挤到第二行，
+        四个按钮宽度一致、文字居中，视觉重心稳定 */
+  .feat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+  .feat {
+    padding: 9px 0;
+    font-size: 12.5px;
+    letter-spacing: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* 3. 背景让位给文字：手机上把柔光层加强（整屏更白、四角也盖到），
+        小牛插画退成隐约的底纹，文字对比度优先 */
+  .bg-veil {
+    background:
+      radial-gradient(760px 560px at 12% 44%, rgba(255,255,255,.98), rgba(255,255,255,.88) 55%, rgba(255,255,255,.4) 80%),
+      linear-gradient(180deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,.22) 42%, rgba(255,255,255,.45) 100%);
+  }
+
+  /* 4. 副标题垫一层极淡的白色蒙版：压在小牛图上也读得清，氛围不变 */
+  .sub {
+    display: inline-block;
+    background: rgba(255, 255, 255, .28);
+    border-radius: 14px;
+    padding: 10px 14px;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  /* 5. 顶栏两个按钮间距拉开，主次层级更清晰 */
+  .tb-actions { gap: 18px; }
+
+  /* 6. 开始记录 / 先听听 FM：等高等宽对齐，次要按钮字重与全页统一 */
+  .cta-row { gap: 12px; }
+  .cta-main,
+  .cta-ghost { flex: 1; text-align: center; padding: 13px 0; }
+  .cta-ghost { font-weight: 500; }
+}
+
+/* 超小屏（≤400px）：眉题字距收紧，避免「台」字单独换行 */
+@media (max-width: 400px) {
+  .eyebrow { font-size: 13px; letter-spacing: 2px; }
 }
 
 /* ===== 轮播 / 公告条 ===== */
@@ -360,6 +401,11 @@ onBeforeUnmount(() => {
   .banner-row { bottom: 150px; }
   .bn-card { padding: 12px 14px; }
   .bn-title { font-size: 14px; }
+  /* 卡片内两行文字行距放宽，读起来更松弛 */
+  .bn-title { line-height: 1.6; }
+  .bn-sub { line-height: 1.7; margin-top: 4px; }
+  /* 「去看看」小按钮改全圆角胶囊，与全局 feat/cta 按钮圆角统一 */
+  .bn-go { border-radius: 999px; }
 }
 
 </style>

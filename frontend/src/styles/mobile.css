@@ -385,11 +385,13 @@ p, li, span, td, th, div {
   html body .login-page .input-box input {
     font-size: 16px;
     height: 44px;
-    margin-bottom: 12px;
+    box-sizing: border-box;  /* 与验证码图片(border-box)严格同高，不再高低错开 */
+    margin-bottom: 16px;
   }
   html body .login-page .captcha-row input {
     font-size: 16px;
     height: 44px;
+    box-sizing: border-box;
   }
   html body .login-page .captcha-img,
   html body .login-page .captcha-loading {

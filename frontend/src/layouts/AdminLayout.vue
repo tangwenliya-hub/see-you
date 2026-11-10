@@ -203,6 +203,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { resetAdminCheck } from '../router'
 import { ElMessage } from 'element-plus'
 import { jellyConfirm } from '@/utils/confirm'
+import { AVATAR_FRAMES, FRAME_SCALES } from '@/lib/avatarFrames'
 import { feedbackWS, notifyFeedback } from '../utils/ws'
 import { riskSSE, notifyRiskAlert, notifyRiskMisreport } from '../utils/sse'
 import { getUserById, updateUser, changePassword, uploadFile } from '../api'
@@ -394,17 +395,8 @@ const themeColors = [
   { name: 'indigo', label: '靛青',   hex: '#6b7bd9', main: '#8c9aec', bg1: '#f2f4fc', bg2: '#e6e9fa' },
 ]
 
-// 头像框选项（img/scale 与前台个人中心 avatarFrames 保持一致）
-const avatarFrameOptions = [
-  { name: 'none',   label: '无',     img: '',                scale: 0 },
-  { name: 'flower', label: '小猫咪', img: '/img/头像框.png',  scale: 110 },
-  { name: 'leaf',   label: '生气',   img: '/img/头像框2.png', scale: 165 },
-  { name: 'crown',  label: '布丁狗', img: '/img/头像框3.png', scale: 140 },
-  { name: 'star',   label: '认识我', img: '/img/头像框4.png', scale: 150 },
-  { name: 'heart',  label: '雪球猫', img: '/img/头像框5.png', scale: 150 },
-  { name: 'halo',   label: '大耳狗', img: '/img/头像框6.png', scale: 165 },
-  { name: 'cloud',  label: '花环',   img: '/img/头像框7.png', scale: 165 },
-]
+// 头像框选项：名单/名字统一从 lib/avatarFrames.js 取（与前台个人中心同一份，改名字只改一处）
+const avatarFrameOptions = AVATAR_FRAMES.map(f => ({ ...f, scale: FRAME_SCALES[f.name] }))
 
 // 登录时 localStorage 存的 userInfo 只有基础字段，要拉完整信息
 const loadAdminInfo = async () => {

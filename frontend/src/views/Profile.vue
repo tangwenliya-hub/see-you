@@ -1068,6 +1068,7 @@ import { ref, reactive, computed, onMounted, nextTick, watch, onUnmounted } from
 import { EMOTIONS as emotions } from '@/utils/constants'  // 情绪字典唯一真源（utils/constants.js）
 import { getUserById, updateUser, changePassword, cancelLike, cancelCollect, getSessions, kickSession as apiKickSession, kickOtherSessions, deactivateAccount, getMyComments, getMyOverview } from '@/api'
 import { jellyConfirm } from '@/utils/confirm'
+import { AVATAR_FRAMES, FRAME_SCALES } from '@/lib/avatarFrames'
 import { clearUserPrefs } from '../utils/userPrefs'
 import { useUserStore } from '../stores/user'
 import { feedbackWS } from '../utils/ws'
@@ -1249,23 +1250,15 @@ const toggleDark = () => {
   notifyProfileUpdated()
 }
 
-// ===== 头像装饰框 =====
+// ===== 头像装饰框（名单与名字统一从 lib/avatarFrames.js 取，勿在此处再写死） =====
 const frameNameMap = { frame1: 'flower', frame2: 'leaf', frame3: 'crown', frame4: 'star', frame5: 'heart', frame6: 'halo', frame7: 'cloud' }
 const _rawFrame = localStorage.getItem('profile_frame') || 'none'
 const userFrame = ref(frameNameMap[_rawFrame] || _rawFrame)
 if (frameNameMap[_rawFrame]) localStorage.setItem('profile_frame', frameNameMap[_rawFrame])
 const avatarFrames = computed(() => {
   const topEmo = weekStat.value.topEmotionIcon
-  return [
-    { name: 'none',   label: '无',img: '',                       scale: 0,   recommend: false },
-    { name: 'flower', label: '小猫咪',img: '/img/头像框.png',     scale: 110, recommend: topEmo === '😄',   },
-    { name: 'leaf',   label: '生气',img: '/img/头像框2.png',      scale: 165, recommend: topEmo === '😌' },
-    { name: 'crown',  label: '冰淇淋云',img: '/img/头像框3.png',    scale: 205, recommend: topEmo === '😄' },
-    { name: 'star',   label: '认识我',img: '/img/头像框4.png',    scale: 150, recommend: topEmo === '😌' },
-    { name: 'heart',  label: '雪球猫',img: '/img/头像框5.png',    scale: 150, recommend: topEmo === '😄' },
-    { name: 'halo',   label: '猫咪花环',img: '/img/头像框6.png',    scale: 145, recommend: topEmo === '😌' },
-    { name: 'cloud',  label: '蔷薇花环',img: '/img/头像框7.png',      scale: 165, recommend: topEmo === '😴' },
-  ]
+  const recMap = { flower: topEmo === '😄', leaf: topEmo === '😌', crown: topEmo === '😄', star: topEmo === '😌', heart: topEmo === '😄', halo: topEmo === '😌', cloud: topEmo === '😴' }
+  return AVATAR_FRAMES.map(f => ({ ...f, scale: FRAME_SCALES[f.name], recommend: !!recMap[f.name] }))
 })
 const pickFrame = (name) => {
   userFrame.value = name

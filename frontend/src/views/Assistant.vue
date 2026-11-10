@@ -378,6 +378,7 @@ import { EMOTIONS as emotions } from '@/utils/constants'  // 情绪字典唯一�
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { jellyConfirm } from '@/utils/confirm'
+import { AVATAR_FRAMES, FRAME_SCALES } from '@/lib/avatarFrames'
 import {
   chatWithAi, getAiSessions, createAiSession, getAiSessionMessages, deleteAiSession,
   regenerateAiMessage, deleteAiChat, uploadFile,
@@ -930,16 +931,8 @@ const handleVisibilityChange = () => {
     loadUserInfo()
   }
 }
-const avatarFrames = [
-  { name: 'none',   label: '无',     img: '',                       scale: 0 },
-  { name: 'flower', label: '小猫咪', img: '/img/头像框.png',        scale: 110 },
-  { name: 'leaf',   label: '生气',   img: '/img/头像框2.png',       scale: 165 },
-  { name: 'crown',  label: '开心',   img: '/img/头像框3.png',       scale: 205 },
-  { name: 'star',   label: '粉色猫', img: '/img/头像框4.png',       scale: 150 },
-  { name: 'heart',  label: '雪球猫', img: '/img/头像框5.png',       scale: 150 },
-  { name: 'halo',   label: '大耳狗', img: '/img/头像框6.png',       scale: 145 },
-  { name: 'cloud',  label: '花环',   img: '/img/头像框7.png',       scale: 165 },
-]
+// 头像框名单统一从 lib/avatarFrames.js 取（与个人中心/后台同一份）
+const avatarFrames = AVATAR_FRAMES.map(f => ({ ...f, scale: FRAME_SCALES[f.name] }))
 const currentFrameImg = computed(() => {
   const f = avatarFrames.find(f => f.name === userFrame.value)
   return f?.img || ''

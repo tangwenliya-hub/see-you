@@ -16,8 +16,8 @@
       <div class="register-form" :class="{ 'form-hidden': flag }">
         <div class="title-box"><h1>注册</h1></div>
         <div class="input-box">
-          <input type="text" v-model="regForm.username" placeholder="用户名（2-20个字符）" maxlength="20" @keyup.enter="doRegister" />
-          <p class="reg-hint warn">⚠️ 用户名将作为登录账号，注册后不可修改</p>
+          <input type="text" v-model="regForm.username" placeholder="账号（2-20个字符）" maxlength="20" @keyup.enter="doRegister" />
+          <p class="reg-hint warn">⚠️ 仅用于登录，注册后不可修改，页面不会展示</p>
           <input type="text" v-model="regForm.nickname" placeholder="昵称（选填，页面里展示的名字）" maxlength="20" @keyup.enter="doRegister" />
           <!-- 邮箱必填：忘记密码靠它接收验证码，不绑邮箱的账号无法自助找回 -->
           <input type="email" v-model="regForm.email" placeholder="邮箱（必填，用于找回密码）" @keyup.enter="doRegister" />
@@ -55,8 +55,8 @@
           <label for="agreeChk">我已阅读并同意 <a @click.stop="agreeVisible = true">《用户协议与隐私政策》</a></label>
         </div>
         <div class="btn-box">
-          <button :disabled="regLoading" @click="doRegister">{{ regLoading ? '注册中…' : '注 册' }}</button>
-          <p @click="switchMode">已有账号？去登录</p>
+          <button :disabled="regLoading || !agreeChecked" @click="doRegister">{{ regLoading ? '注册中…' : '注 册' }}</button>
+          <p @click="switchMode">已有账号？<span class="switch-link">去登录</span></p>
         </div>
         <p class="privacy-note">🔒 您的情绪数据仅用于个人记录与分析</p>
       </div>
@@ -90,7 +90,7 @@
         </div>
         <div class="btn-box">
           <button :disabled="loginLoading" @click="doLogin">{{ loginLoading ? '登录中…' : '登 录' }}</button>
-          <p @click="switchMode">没有账号？去注册</p>
+          <p @click="switchMode">没有账号？<span class="switch-link">去注册</span></p>
         </div>
 
         <p class="privacy-note">🔒 您的情绪数据仅用于个人记录与分析</p>

@@ -459,7 +459,9 @@ const quickEntries = [
 ]
 
 const loadAll = async () => {
-  if (!isLoggedIn.value) { loadPublic(); return }
+  // 游客路径也必须 await：否则 loadAll 立即 resolve，initReveal 会在推荐卡渲染前跑完，
+  // 后出现的 .rv 卡片永远不会被浮现观察器接管 → opacity:0（表现为推荐区一片空白）
+  if (!isLoggedIn.value) { await loadPublic(); return }
   const uid = userId.value
   try {
     // 翻页拉全（后端单页封顶 100），主页 14 天趋势/连续天数/今日打卡都依赖这份列表

@@ -101,8 +101,8 @@
     margin-top: 150px;
     text-align: center;
     letter-spacing: 5px;
-    color: #ad83b3af;
-    text-shadow: 4px 4px 3px rgba(0,0,0,.1);
+    color: #4c7a5c;
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -122,8 +122,8 @@
     text-align: center;
     margin: 20px 0;
     font-weight: bold;
-    color: #ad83b3af;
-    text-shadow: 4px 4px 3px rgba(0,0,0,.1);
+    color: #6b8f78;
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
 }
 
 .login-page .img-box{
@@ -152,9 +152,10 @@
 
 .login-page .title-box h1{
     text-align: center;
-    color: #ad83b3af;
+    color: #444444;
+    font-weight: 600;
     letter-spacing: 5px;
-    text-shadow: 4px 4px 3px rgba(0,0,0,.1);
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
 }
 
 .login-page .input-box{
@@ -171,7 +172,7 @@
     /* 精致化：半透明白底 + 淡绿边框 + 圆角 + 柔和文字色 */
     background: rgba(255, 255, 255, 0.78);
     border: 1.5px solid #c6e0d2;
-    border-radius: 10px;
+    border-radius: 12px;
     color: #5a6b60;
     font-size: 14px;
     box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
@@ -225,12 +226,18 @@
     height: 30px;
     line-height: 30px;
     font-size: 14px;
-    color: #ad83b3af;
+    font-weight: 500;
+    color: #777777;
 }
 
 .login-page .btn-box p:hover{
     cursor: pointer;
-    border-bottom: 1px solid #ad83b3af;
+    border-bottom: 1px solid #777777;
+}
+/* 「去登录 / 去注册」主题绿高亮 */
+.login-page .btn-box .switch-link{
+    color: var(--c-hex);
+    font-weight: 600;
 }
 /* ===== 2026-10-09 登录/注册增强 ===== */
 /* 压缩标题区，给验证码/辅助行腾空间 */
@@ -239,7 +246,7 @@
     line-height: 150px;
 }
 .login-page .input-box input{
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 .login-page button{
     width: 130px;
@@ -286,7 +293,7 @@
     cursor: pointer; user-select: none;
 }
 .login-page .aux-row .remember input{ width: auto; margin: 0; }
-.login-page .forgot-link{ color: #ad83b3; cursor: pointer; }
+.login-page .forgot-link{ color: #4c8a66; font-weight: 500; cursor: pointer; }
 .login-page .forgot-link:hover{ text-decoration: underline; }
 
 /* 登录失败内联提示 */
@@ -312,13 +319,14 @@
 /* 注册表单字段提示（对齐 60% 输入框宽度，紧贴上方输入框） */
 .login-page .reg-hint{
     width: 60%;
-    margin: -14px 0 16px;
-    font-size: 11.5px;
-    line-height: 1.5;
+    margin: -10px 0 16px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.6;
     text-align: left;
-    color: #9aa79a;
+    color: #a3b0a3;
 }
-.login-page .reg-hint.warn{ color: #c98a4b; }
+.login-page .reg-hint.warn{ color: #c9a06b; }
 .login-page .reg-hint.err{ color: #e05a6a; }
 .login-page .reg-hint.ok{ color: var(--c-hex); }
 .login-page .pwd-strength .s-bars{ display: flex; gap: 4px; flex: 1; }
@@ -340,7 +348,7 @@
     font-size: 13px; color: var(--c-text-weak);
 }
 .login-page .agree-row input{ width: auto; margin: 0; }
-.login-page .agree-row a{ color: #69b3f0; cursor: pointer; }
+.login-page .agree-row a{ color: var(--c-hex); font-weight: 600; cursor: pointer; }
 .login-page .agree-row a:hover{ text-decoration: underline; }
 .login-page .agree-row.shake{ animation: agreeShake .45s; }
 @keyframes agreeShake{
@@ -362,18 +370,17 @@
 /* 非活动表单整体隐藏（防止内容穿透左侧滑动图） */
 .login-page .form-hidden{ visibility: hidden; }
 
-/* 忘记密码/记住我字号明确化 */
+/* 忘记密码/记住我/协议行：统一 flex 垂直居中（checkbox 不再偏上） */
 .login-page .aux-row .remember,
 .login-page .forgot-link{ font-size: 13px; }
 .login-page .agree-row label{ white-space: nowrap; font-size: 13px; }
-.login-page .agree-row{ display: block; text-align: center; line-height: 24px; }
-.login-page .agree-row input{ vertical-align: middle; margin: 0 4px 0 0; }
-.login-page .agree-row label{ display: inline; }
-.login-page .agree-row input,
-.login-page .aux-row input,
-.login-page .captcha-row input{ width: auto; height: auto; margin: 0; }
-.login-page .captcha-row input{ height: 40px; flex: 1; }
-.login-page .aux-row input{ transform: translateY(1px); }
+.login-page .agree-row input{
+    width: 15px; height: 15px; margin: 0; flex: 0 0 auto; transform: none;
+}
+.login-page .captcha-row input{
+    height: 40px; flex: 1; box-sizing: border-box;  /* 与验证码图片（40px border-box）严格同高 */
+}
+.login-page .aux-row .remember input{ transform: none; }
 
 /* ===== 移动端适配：窄屏下卡片撑满、间距收紧 ===== */
 @media (max-width: 480px) {
