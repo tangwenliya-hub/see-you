@@ -13,7 +13,10 @@ WORKDIR /web
 
 # 先复制依赖清单，命中 Docker 层缓存（依赖不变时跳过 npm ci）
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# --legacy-peer-deps：echarts-wordcloud@2.1.0 的对等依赖声明要求 echarts 5.x，
+# 与本项目 echarts 6.x 的 peer 声明冲突；npm ci 默认严格校验会直接 ERESOLVE 失败。
+# 这里保留 npm ci 按 lock 确定性安装，仅放宽对等依赖校验，不改业务依赖版本。
+RUN npm ci --no-audit --no-fund --legacy-peer-deps
 
 # 复制前端源码并构建；生产注入 VITE_API_BASE=""，使前端以同源相对路径直连后端真实接口
 COPY frontend/ ./
