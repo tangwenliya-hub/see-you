@@ -56,6 +56,16 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private boolean enabled;
 
     /**
+     * 是否信任代理头（部署在 nginx 反代后面时置 true）。
+     * 只信任 nginx 强制覆盖的 {@code X-Real-IP}（$remote_addr，客户端伪造不了）；
+     * 不信任 {@code X-Forwarded-For} 的第一个值——$proxy_add_x_forwarded_for 是"追加"模式，
+     * 客户端自带一个假 XFF 时第一个值就是假的，攻击者可以借此无限伪造 IP 绕过限流。
+     * 本地直跑后端（不经过 nginx）时保持 false，直接用 TCP 连接的真实地址。
+     */
+    @Value("${app.rate-limit.trust-proxy:false}")
+    private boolean trustProxy;
+
+    /**
      * 阈值覆盖，格式：{@code /user/login=20,/aiChat=60}。
      * 只写需要调整的项，未写的沿用默认值；窗口固定 60 秒。
      */
@@ -120,11 +130,13 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     }
 
     private String clientIp(HttpServletRequest request) {
-        String[] headers = {"X-Forwarded-For", "X-Real-IP"};
-        for (String h : headers) {
-            String v = request.getHeader(h);
-            if (v != null && !v.isBlank() && !"unknown".equalsIgnoreCase(v)) return v.split(",")[0].trim();
+        if (!trustProxy) {
+            // 未部署在反代后：不信任任何请求头，用 TCP 连接的真实来源地址
+            return request.getRemoteAddr();
         }
+        // 信任模式：只取 nginx 强制覆盖的 X-Real-IP（$remote_addr），不碰可伪造的 X-Forwarded-For
+        String v = request.getHeader("X-Real-IP");
+        if (v != null && !v.isBlank() && !"unknown".equalsIgnoreCase(v)) return v.trim();
         return request.getRemoteAddr();
     }
 }

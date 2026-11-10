@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <!-- 返回欢迎页：登录/注册中途也可以反悔 -->
-    <router-link to="/" class="back-home">← 返回首页</router-link>
+    <router-link to="/" class="back-home"><span class="bk-arrow">←</span>返回首页</router-link>
     <div class="login-card">
       <!-- 左侧滑动图 -->
       <div class="pre-box" :style="{ transform: flag ? 'translateX(0%)' : 'translateX(100%)', backgroundColor: flag ? '#e1f0e5' : '#ddeec7' }">
@@ -35,6 +35,19 @@
           <p v-if="regForm.confirm" class="reg-hint" :class="regForm.confirm === regForm.password ? 'ok' : 'err'">
             {{ regForm.confirm === regForm.password ? '✅ 两次密码一致' : '✗ 两次输入的密码不一致' }}
           </p>
+          <!-- 图形验证码：防脚本批量注册（后端强校验，与服务端共用同一套） -->
+          <div class="captcha-row">
+            <input type="text" v-model="captchaInput" placeholder="验证码" maxlength="4" @keyup.enter="doRegister" />
+            <img
+              class="captcha-img"
+              v-if="captchaImage"
+              :src="captchaImage"
+              title="点击刷新验证码"
+              alt="验证码"
+              @click="refreshCaptcha"
+            />
+            <span v-else class="captcha-loading" @click="refreshCaptcha">{{ captchaFailed ? '加载失败，点击重试' : '加载中…' }}</span>
+          </div>
         </div>
         <!-- 用户协议勾选 -->
         <div class="agree-row" :class="{ shake: agreeShake }">
@@ -52,7 +65,7 @@
       <div class="login-form" :class="{ 'form-hidden': !flag }">
         <div class="title-box"><h1>登录</h1></div>
         <div class="input-box">
-          <input type="text" v-model="loginForm.username" placeholder="用户名" maxlength="20" />
+          <input type="text" v-model="loginForm.username" placeholder="用户名 / 账号" maxlength="20" />
           <input type="password" v-model="loginForm.password" placeholder="密码" @keyup.enter="doLogin" />
           <!-- 图形验证码（服务端生成） -->
           <div class="captcha-row">
@@ -241,7 +254,8 @@ const acceptAgree = () => { agreeChecked.value = true; agreeVisible.value = fals
 const switchMode = () => {
   flag.value = !flag.value
   loginError.value = ''
-  if (flag.value) refreshCaptcha()
+  // 登录、注册都要验证码，来回切换时统一刷一张新图（旧 key 会被下次提交作废）
+  refreshCaptcha()
 }
 
 // ===== 忘记密码（邮箱验证码三步流程） =====
@@ -438,6 +452,11 @@ const doRegister = async () => {
     ElMessage.warning('请先阅读并勾选《用户协议与隐私政策》')
     return
   }
+  // 验证码：后端强校验，空着不提交
+  if (!captchaInput.value.trim()) {
+    ElMessage.warning('请输入验证码')
+    return
+  }
   regLoading.value = true
   try {
     const res = await register({
@@ -445,6 +464,8 @@ const doRegister = async () => {
       password: regForm.password,
       nickname: regForm.nickname.trim() || null,  // 不填就落 NULL，首页问候回落显示用户名
       email,
+      captchaKey: captchaKey.value,
+      captchaCode: captchaInput.value.trim(),
     })
     if (res.code === 200) {
       ElMessage.success('注册成功！先挑个形象吧')
@@ -459,9 +480,12 @@ const doRegister = async () => {
       if (rememberMe.value) localStorage.setItem('remember_username', name)
     } else {
       ElMessage.error(res.msg || '注册失败')
+      // 验证码一次性，失败（答错/过期）后必须换一张新图
+      refreshCaptcha()
     }
   } catch (e) {
     ElMessage.error('注册失败，请检查网络')
+    refreshCaptcha()
   } finally {
     regLoading.value = false
   }
@@ -529,22 +553,22 @@ onBeforeUnmount(() => { if (bubbleTimer) clearInterval(bubbleTimer) })
   /* 抵消 login.css `.login-page button` 的全局污染（宽100px/高30px/line-height/margin） */
   display: block; width: 100%; height: auto; min-height: 42px;
   margin: 16px 0 0; padding: 10px 0; line-height: normal;
-  border: none; border-radius: 10px;
+  border: none; border-radius: 12px;
   background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff;
   font-size: 14px; cursor: pointer; box-sizing: border-box;
 }
 .agree-ok:hover { opacity: 0.9; }
 
-/* 验证码图片 */
+/* 验证码图片：与输入框同高、同圆角、同软边框，点击可刷新（@click 已接 refreshCaptcha） */
 .captcha-img {
-  height: 42px; border-radius: 10px; cursor: pointer;
-  border: 1.5px solid #c6e0d2; flex: 0 0 120px;
+  height: 40px; box-sizing: border-box; border-radius: 12px; cursor: pointer;
+  border: 1.5px solid #c6e0d2; background: #fff; flex: 0 0 120px;
 }
 .captcha-img:hover { opacity: .85; }
 .captcha-loading {
-  flex: 0 0 120px; height: 42px; line-height: 42px; text-align: center;
+  flex: 0 0 120px; height: 40px; box-sizing: border-box; line-height: 37px; text-align: center;
   font-size: 12px; color: #8aa; cursor: pointer;
-  border: 1.5px dashed #c6e0d2; border-radius: 10px;
+  border: 1.5px dashed #c6e0d2; border-radius: 12px; background: rgba(255,255,255,.6);
 }
 
 /* 找回密码弹窗 */
@@ -553,7 +577,7 @@ onBeforeUnmount(() => { if (bubbleTimer) clearInterval(bubbleTimer) })
 .fp-dev { color: #c08a2e; }
 .fp-input {
   width: 100%; height: 40px; margin-bottom: 12px; padding: 0 12px;
-  border: 1.5px solid #c6e0d2; border-radius: 10px; background: rgba(255,255,255,.9);
+  border: 1.5px solid #c6e0d2; border-radius: 12px; background: rgba(255,255,255,.9);
   color: #5a6b60; font-size: 14px; box-sizing: border-box; outline: none;
 }
 .fp-input:focus { border-color: #9ccfb2; box-shadow: 0 0 0 3px rgba(140,194,105,.18); }

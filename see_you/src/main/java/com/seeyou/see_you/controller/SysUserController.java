@@ -158,8 +158,24 @@ public class SysUserController {
         return Result.success(p);
     }
 
+    /** 注册请求体：SysUser + 验证码字段（防脚本批量注册） */
+    public static class RegisterBody extends SysUser {
+        private String captchaKey;
+        private String captchaCode;
+        public String getCaptchaKey() { return captchaKey; }
+        public String getCaptchaCode() { return captchaCode; }
+        public void setCaptchaKey(String captchaKey) { this.captchaKey = captchaKey; }
+        public void setCaptchaCode(String captchaCode) { this.captchaCode = captchaCode; }
+    }
+
     @PostMapping("/register")
-    public Result<Boolean> register(@RequestBody SysUser sysUser){
+    public Result<Boolean> register(@RequestBody RegisterBody body){
+        // 验证码校验放最前面：注册入口曾被人用脚本批量刷垃圾账号（一天刷出上千个），
+        // 只靠 IP 限流不够（XFF 可伪造），必须走和登录一样的服务端图形验证码
+        if (!securityService.verifyCaptcha(body.getCaptchaKey(), body.getCaptchaCode())) {
+            return Result.error(400, "验证码不正确或已过期");
+        }
+        SysUser sysUser = body;
         // 用户名预检查：库里 username 有唯一索引，不拦的话会触发 DuplicateKeyException，
         // 被全局处理器笼统翻成"数据操作失败"，用户完全不知道是重名
         if (sysUser.getUsername() == null || sysUser.getUsername().isBlank()) {

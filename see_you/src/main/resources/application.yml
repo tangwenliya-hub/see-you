@@ -80,6 +80,10 @@ app:
   rate-limit:
     enabled: true
     rules: ""
+    # 部署在 nginx 反代后面时设为 true：只信任 nginx 强制覆盖的 X-Real-IP 识别真实 IP。
+    # 保持 false 时用 TCP 直连地址；千万别信 X-Forwarded-For 第一个值——客户端可以随便伪造，
+    # 本次注册被刷就是因为攻击者伪造 XFF 绕过了限流
+    trust-proxy: false
   # ---- 轻量无感记录模块 ----
   sense:
     enabled: true
