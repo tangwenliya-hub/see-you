@@ -173,7 +173,7 @@ p, li, span, td, th, div {
     max-width: 100%;
   }
 
-  /* ---- 2.6 顶部导航栏：手机没有 hover，改为常驻 + 横向滚动 ---- */
+  /* ---- 2.6 顶部导航栏：手机上只留「品牌 + 头像/退出」，导航全部下沉到底部 Tab ---- */
   .app-bar {
     top: 0 !important;
     height: 52px;
@@ -181,11 +181,19 @@ p, li, span, td, th, div {
     gap: 8px;
   }
   .app-bar-hover-zone { display: none; }
-  .app-bar .logo { font-size: 16px !important; letter-spacing: 1px; gap: 6px; }
+  /* 品牌区不许被压缩：之前「绪见」两个字会被挤成半个字 */
+  .app-bar .logo { flex-shrink: 0; font-size: 16px !important; letter-spacing: 1px; gap: 6px; }
   .app-bar .logo-cow { width: 26px !important; height: 26px !important; }
   .app-bar .back-btn { padding: 4px 10px !important; }
   .nav-greeting { display: none !important; }
-  .nav-links { justify-content: flex-start !important; }
+  /* 顶部 tab 与底部 Tab Bar 功能重复：手机端直接隐藏，入口只留底部一处 */
+  .nav-links { display: none !important; }
+
+  /* 头像框装饰在顶栏里收着点：装饰图按头像比例最高放大到 205%（≈90px），
+     会溢出 52px 的导航栏压住退出按钮，手机端统一钳到 46px 内 */
+  .app-bar .top-avatar-wrap { width: 34px !important; height: 34px !important; }
+  .app-bar .top-avatar-wrap .user-avatar { width: 34px !important; height: 34px !important; }
+  .app-bar .top-avatar-wrap .frame-ring-img { max-width: 46px; max-height: 46px; }
 
   /* ---- 2.7 底部安全距离：给底部 Tab 栏留出空间（由 AppLayout 动态加 class）---- */
   body.has-mobile-tabbar {
@@ -207,6 +215,51 @@ p, li, span, td, th, div {
     overflow-x: auto;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- 2.10 主页心情打卡：圆角更软萌 + 选中态主题色高亮（仅手机端，PC 端保持原样）---- */
+  .hp-root .mood-btn { border-radius: 22px !important; }
+  .hp-root .mood-btn.done {
+    background: color-mix(in srgb, var(--c-main) 26%, white) !important;
+    box-shadow: 0 0 0 2px var(--c-hex),
+                0 0 18px 2px color-mix(in srgb, var(--c-hex) 35%, transparent),
+                0 10px 18px -10px color-mix(in srgb, var(--c-hex) 80%, transparent) !important;
+  }
+  .hp-root .mood-btn.done img { transform: scale(1.16); }
+  .hp-root .mood-btn.done span { color: var(--c-hex) !important; font-weight: 700; }
+
+  /* ---- 2.11 主页问候区 + 按钮：手机端专属微调（PC 端保持原样）---- */
+  /* 问候语字距归零：原来的 1px 会放大全角逗号后的空隙，名字显得偏右 */
+  .hp-root .hero-hi { letter-spacing: 0 !important; }
+  /* 昵称吃掉全角逗号右侧的半格空隙，往问候语靠拢 */
+  .hp-root .hero-name { margin-left: -0.28em !important; }
+  /* 副标题竖条：只对齐第一行文字高度，加粗变短，不再像分割线 */
+  .hp-root .hero-quote::before {
+    top: 0.52em !important;
+    height: 0.85em !important;
+    width: 5px !important;
+    border-radius: 2.5px !important;
+  }
+  /* 主/次按钮锁同一高度 47px，不再一鼓一扁 */
+  .hp-root .hp-btn {
+    height: 47px !important;
+    padding: 0 27px !important;
+    box-sizing: border-box !important;
+    justify-content: center;
+  }
+  /* 「和绪见 AI 聊聊 →」箭头：固定主题色并加粗一档，醒目 */
+  .hp-root .btn-arrow { display: inline-flex; color: var(--c-hex) !important; }
+  .hp-root .btn-arrow .app-icon { stroke-width: 2.5; width: 1.15em; height: 1.15em; }
+
+  /* 顶栏退出按钮：浅橙描边 + 主题色文字（替换原粉色，仅手机端） */
+  html body .auth-btn.logout {
+    color: var(--c-hex) !important;
+    background: color-mix(in srgb, var(--c-hex) 10%, white) !important;
+    border-color: color-mix(in srgb, var(--c-hex) 45%, white) !important;
+  }
+  html body .auth-btn.logout:hover {
+    background: color-mix(in srgb, var(--c-hex) 22%, white) !important;
+    box-shadow: 0 10px 22px color-mix(in srgb, var(--c-hex) 30%, transparent) !important;
   }
 }
 
