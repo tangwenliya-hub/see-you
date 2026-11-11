@@ -26,12 +26,10 @@ dist-ssr
 *.sln
 *.sw?
 
-# ===== 运行期用户数据（体积大且属于内容数据，不入库）=====
-# public/video / public/audio / public/diary 下是资源中心的音视频与日记图片，
-# 由数据库记录路径、运行期上传产生，代码不直接引用。
-# 部署说明见 docs/静态资源说明.md
-public/video
-public/audio
+# ===== 资源目录分层（2026-11-11 调整）=====
+# video / audio / cover 是资源中心的「种子内容」（数据库记录其路径），
+# Railway 构建镜像里必须带上，否则线上视频/封面 404 —— 已改为入库。
+# diary / user 是运行期用户上传的个人数据（日记图片、头像），属于隐私内容，
+# 继续不入库；线上持久化依赖 Railway Volume（挂载到 FRONT_PATH=/app/frontend-public）。
 public/diary
 public/user
-public/cover

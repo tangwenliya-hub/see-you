@@ -23,6 +23,24 @@ public class JwtInterceptor implements HandlerInterceptor {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
+
+        // ---- 放行一：SPA 页面导航（Railway 后端直连托管时，刷新 /main、/diary 等路由
+        //      会先命中本拦截器，若不放行会被 401 拦住而不是返回 index.html）。
+        //      精准判据：本次请求解析出的 handler 就是 SpaForwardController —— 它只映射
+        //      「无扩展名的 GET 页面路由」（/、/main、/diary/write 等），业务接口的 handler
+        //      是各自的 Controller，不可能冒充页面导航，因此不存在绕过鉴权的口子。
+        if (handler instanceof org.springframework.web.method.HandlerMethod hm
+                && com.seeyou.see_you.controller.SpaForwardController.class.equals(hm.getBeanType())) {
+            return true;
+        }
+
+        // ---- 放行二：只读媒体文件（视频 / 音频 / 图片，如 /video/xxx.mp4、/bg/xxx.jpg）。
+        //      业务接口路径均无扩展名，按「最后一段带媒体扩展名」判断不会误放行；
+        //      资源本身由 WebConfig 的只读资源映射提供，只读、不触库。
+        if (isMediaFile(request.getRequestURI())) {
+            return true;
+        }
+
         // 获取 token
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
@@ -132,6 +150,25 @@ public class JwtInterceptor implements HandlerInterceptor {
             }
         }
         return true;
+    }
+
+    /** 视为静态媒体文件的扩展名（全小写）；命中即免登录只读放行 */
+    private static final java.util.Set<String> MEDIA_EXTS = java.util.Set.of(
+            "mp4", "webm", "mp3", "wav", "m4a", "ogg",
+            "jpg", "jpeg", "png", "gif", "webp", "svg", "ico", "bmp"
+    );
+
+    /**
+     * 判断请求路径最后一段是否是媒体文件（含扩展名）。
+     * 例：/video/拥抱你的情绪.mp4 → true；/video/list、/user/info → false。
+     */
+    private boolean isMediaFile(String uri) {
+        if (uri == null) return false;
+        String path = uri.toLowerCase();
+        int slash = path.lastIndexOf('/');
+        int dot = path.lastIndexOf('.');
+        // 点号必须出现在最后一段内（排除 /v1.2/list 这种段中带点的路径），且扩展名非空
+        return dot > slash + 1 && MEDIA_EXTS.contains(path.substring(dot + 1));
     }
 
     /**

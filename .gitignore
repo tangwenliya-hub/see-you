@@ -17,11 +17,10 @@ src/main/resources/application-local.yml
 !miniapp/.env.production.example
 
 # ===== 上传的文件（运行时生成，不入库）=====
+# 2026-11-11：cover/video/audio 是种子媒体，Railway 镜像必须包含，已改为入库；
+# banner/diary/user 仍是运行期用户数据，继续忽略（线上靠 Railway Volume 持久化）。
 upload/
 frontend/public/banner/*
-frontend/public/cover/*
-frontend/public/video/*
-frontend/public/audio/*
 frontend/public/diary/*
 !frontend/public/**/.gitkeep
 
