@@ -182,7 +182,6 @@ npm install && npm run dev     # http://localhost:5173，已代理 /api 到 8081
 | `docs/安全审计与优化记录.md` | 全量代码审计：P0 越权修复记录与剩余待办清单 |
 | `miniapp/README.md` | 小程序端运行方式与设计说明 |
 | `docs/小程序端方案.md` | 小程序端技术选型与页面范围 |
-| `docs/面试问答小抄.md` | 高频追问与标准答法 |
 
 ---
 
