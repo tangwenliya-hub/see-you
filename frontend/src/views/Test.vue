@@ -280,11 +280,12 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getTestPaperList, getRecordList, saveRecord, getQuestionList, getOptionList, matchResultGrade } from '../api'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()
+const router = useRouter()
 
 // ==================== 主题色跟随 ====================
 // 配色来源：个人中心  个性化设置  主题颜色（localStorage.profile_theme）。
@@ -839,6 +840,16 @@ const submitTest = async () => {
   try { await doSubmitTest() } finally { submitting.value = false }
 }
 const doSubmitTest = async () => {
+  // 登录门槛：测评分数只在登录后展示，并自动写入 psy_test_record。
+  // 游客可以完整体验答题流程，但提交时不给出分数，直接引导登录。
+  if (!getUid()) {
+    ElMessageBox.confirm(
+      '登录后才能查看测评分数，结果也会自动保存到你的测评记录里（支持历史与趋势）。现在去登录吗？',
+      '需要登录',
+      { confirmButtonText: '去登录', cancelButtonText: '再逛逛', type: 'info' }
+    ).then(() => router.push('/login')).catch(() => {})
+    return
+  }
   const score = answers.value.reduce((s, v) => s + (v || 0), 0)
   resultScore.value = score
   resultTotal.value = computeTotal()
@@ -895,12 +906,11 @@ const doSubmitTest = async () => {
     // 忽略：拿不到分级配置时继续用本地文案
   }
   // 保存测评记录（userId / testId 必须与后端实体一致，否则存不进去）
-  const uid = getUid()
+  // 能走到这里的一定是登录用户（游客在 doSubmitTest 入口已被拦截）
   let saved = false
   try {
-    if (!uid) throw new Error('未登录')
     const res = await saveRecord({
-      userId: uid,
+      userId: getUid(),
       testId: currentPaper.value?.testId,
       score,
       totalScore: resultTotal.value,
@@ -913,7 +923,7 @@ const doSubmitTest = async () => {
     console.error('[测评] 保存记录异常:', e)
   }
   if (!saved) {
-    ElMessage.warning('本次测评结果未能保存到记录（请确认已登录），结果仅在本页显示')
+    ElMessage.warning({ message: '本次测评结果暂时未能保存到记录，结果仅在本页显示', grouping: true })
   }
   showTest.value = false
   document.body.style.overflow = ''
