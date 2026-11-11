@@ -2,7 +2,10 @@
     font-family: "宋体", "Microsoft YaHei", sans-serif;
     color: #55606b;
     background-image:
-        linear-gradient(135deg, #e8d8f5 0%, #f8d5df 40%, #d0e8f5 100%);
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--c-main) 42%, #fff) 0%,
+            color-mix(in srgb, var(--c-hex) 20%, #fff) 40%,
+            var(--c-bg1) 100%);
     background-size: cover;
     background-attachment: fixed;
     width: 100%;

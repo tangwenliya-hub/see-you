@@ -844,9 +844,9 @@ watch(diaryList, async (list) => {
     repeating-linear-gradient(
       transparent 0px,
       transparent 27px,
-      rgba(135, 175, 200, 0.18) 28px
+      color-mix(in srgb, var(--c-hex) 22%, transparent) 28px
     ),
-    linear-gradient(180deg, #fefcf6 0%, #fef0f3 50%, #f0f4fb 100%);
+    linear-gradient(180deg, var(--c-bg1) 0%, color-mix(in srgb, var(--c-main) 28%, #fff) 50%, color-mix(in srgb, var(--c-bg2) 70%, #fff) 100%);
   z-index: -2;
 }
 .diary-page::after {
@@ -855,9 +855,9 @@ watch(diaryList, async (list) => {
   inset: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 15% 10%, rgba(255, 210, 220, 0.5) 0%, transparent 35%),
-    radial-gradient(circle at 85% 30%, rgba(200, 230, 210, 0.5) 0%, transparent 35%),
-    radial-gradient(circle at 50% 90%, rgba(210, 225, 250, 0.5) 0%, transparent 35%);
+    radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--c-main) 38%, transparent) 0%, transparent 35%),
+    radial-gradient(circle at 85% 30%, color-mix(in srgb, var(--c-hex) 30%, transparent) 0%, transparent 35%),
+    radial-gradient(circle at 50% 90%, color-mix(in srgb, var(--c-main) 24%, transparent) 0%, transparent 35%);
   z-index: -1;
   pointer-events: none;
 }

@@ -438,7 +438,9 @@
   position: fixed; inset: 0;
   background: rgba(0,0,0,.4);
   display: flex; align-items: center; justify-content: center;
-  z-index: 1000; padding: 20px;
+  /* 必须高于全屏播放器(.player-view z-index:1500)，否则在播放页点分享时
+     弹窗被压在播放器下面看不见，退出播放器（回到列表页）才"突然"弹出来 */
+  z-index: 2000; padding: 20px;
 }
 .fm-page .share-dialog {
   background: #fff; border-radius: 16px;

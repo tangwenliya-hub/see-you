@@ -1214,7 +1214,7 @@ onUnmounted(() => {
   height: 100vh;
   margin: 0;
   display: flex;
-  background: linear-gradient(180deg, #fef5f8 0%, #f0f7ff 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c-main) 20%, #fff) 0%, var(--c-bg1) 100%);
   overflow: hidden;
   box-sizing: border-box;
 }

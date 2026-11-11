@@ -282,6 +282,19 @@ const hexA = (hex, a) => {
   const n = parseInt(h, 16)
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`
 }
+/**
+ * 热力图色带：从主题主色动态生成 5 档由浅到深。
+ * 原来写死 GitHub 绿（#eef3e6→#3b6d11），换主题色后热力图依旧全绿不跟随；
+ * 每次 loadHeatmap 都会重新读取 accent()，配合 profile-updated 事件重渲染即实时跟随主题。
+ */
+const heatRamp = () => {
+  const h = accent().replace('#', '')
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16)
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255
+  const mixW = (t) => `rgb(${Math.round(r + (255 - r) * t)},${Math.round(g + (255 - g) * t)},${Math.round(b + (255 - b) * t)})`
+  const mixB = (t) => `rgb(${Math.round(r * (1 - t))},${Math.round(g * (1 - t))},${Math.round(b * (1 - t))})`
+  return [mixW(0.85), mixW(0.55), mixW(0.2), `rgb(${r},${g},${b})`, mixB(0.42)]
+}
 
 // 情绪字典唯一真源（utils/constants.js），color 字段用于图表配色
 
@@ -377,7 +390,7 @@ const loadHeatmap = async () => {
         min: 0, max: 100, orient: 'horizontal', left: 'center', top: 4,
         itemWidth: 12, itemHeight: 70,
         textStyle: { color: AXIS_COLOR(), fontSize: 11 },
-        inRange: { color: ['#eef3e6', '#c9e3a8', '#97c459', '#639922', '#3b6d11'] },
+        inRange: { color: heatRamp() },
       },
       calendar: {
         top: 70, left: 40, right: 20, cellSize: ['auto', 18],
