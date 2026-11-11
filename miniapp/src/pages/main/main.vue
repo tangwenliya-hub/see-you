@@ -63,7 +63,10 @@
 
     <!-- 情绪关怀提醒（非医疗诊断，声明必须保留） -->
     <view v-if="latestAlert" class="card alert-card">
-      <text class="alert-title">💛 绪见的关心</text>
+      <view class="alert-title">
+        <view class="alert-icon li-icon li-ic-heart"></view>
+        <text>绪见的关心</text>
+      </view>
       <text class="alert-text">{{ latestAlert.triggerDetail || latestAlert.advice }}</text>
       <text class="alert-desc">{{ latestAlert.disclaimer || disclaimer }}</text>
     </view>
@@ -343,11 +346,17 @@ onPullDownRefresh(async () => {
   border-color: rgba(230, 200, 140, 0.35);
 }
 .alert-title {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
   font-size: 30rpx;
   font-weight: 600;
   margin-bottom: 12rpx;
   color: #6b5a2f;
+}
+.alert-icon {
+  width: 30rpx;
+  height: 30rpx;
 }
 .alert-text {
   display: block;

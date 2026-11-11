@@ -3,7 +3,7 @@
     <view class="card user-card">
       <!-- 有头像就显示头像（sys_user.avatar 存的是 /user/xxx.jpg 相对路径，要拼后端地址），没有才用 emoji 兜底 -->
       <image v-if="avatarUrl" class="avatar-img" :src="avatarUrl" mode="aspectFill" />
-      <text v-else class="avatar">🐮</text>
+      <view v-else class="avatar li-icon li-ic-avatar"></view>
       <view class="user-meta">
         <text class="nickname">{{ nickname }}</text>
         <text class="muted">已记录 {{ diaryTotal }} 篇日记 · 共 {{ overview.totalDays || 0 }} 天</text>
@@ -113,8 +113,12 @@ onShow(() => { if (ensureLogin()) load() })
   align-items: center;
 }
 .avatar {
-  font-size: 80rpx;
+  width: 110rpx;
+  height: 110rpx;
   margin-right: 24rpx;
+  border-radius: 50%;
+  background-color: #eef7ee;
+  border: 2rpx solid rgba(255, 255, 255, 0.9);
 }
 .avatar-img {
   width: 110rpx;

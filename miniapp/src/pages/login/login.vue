@@ -16,7 +16,7 @@
     <!-- 登录卡片 -->
     <view class="login-card">
       <view class="field" :class="{ focused: focusKey === 'username' }">
-        <text class="field-icon">👤</text>
+        <view class="field-icon li-icon li-ic-user"></view>
         <input
           class="field-input"
           v-model="form.username"
@@ -29,7 +29,7 @@
       </view>
 
       <view class="field" :class="{ focused: focusKey === 'password' }">
-        <text class="field-icon">🔒</text>
+        <view class="field-icon li-icon li-ic-lock"></view>
         <input
           class="field-input"
           v-model="form.password"
@@ -45,7 +45,7 @@
 
       <view class="captcha-row">
         <view class="field captcha-field" :class="{ focused: focusKey === 'captcha' }">
-          <text class="field-icon">🛡️</text>
+          <view class="field-icon li-icon li-ic-shield"></view>
           <input
             class="field-input"
             v-model="form.captchaCode"
@@ -75,7 +75,10 @@
       </view>
     </view>
 
-    <text class="privacy-note">🔒 您的情绪数据仅用于个人记录与分析</text>
+    <view class="privacy-note">
+      <view class="privacy-icon li-icon li-ic-lock-note"></view>
+      <text>您的情绪数据仅用于个人记录与分析</text>
+    </view>
     <view v-if="isDev" class="dev-tip">接口地址：{{ baseUrl }}</view>
   </view>
 </template>
@@ -249,10 +252,9 @@ onMounted(() => refreshCaptcha())
   box-shadow: 0 0 0 6rpx rgba(127, 191, 157, 0.18);
 }
 .field-icon {
-  width: 40rpx;
-  font-size: 30rpx;
+  width: 36rpx;
+  height: 36rpx;
   margin-right: 16rpx;
-  flex-shrink: 0;
 }
 .field-input {
   flex: 1;
@@ -329,12 +331,18 @@ onMounted(() => refreshCaptcha())
 .privacy-note {
   position: relative;
   z-index: 1;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
   margin-top: 34rpx;
-  text-align: center;
   font-size: 22rpx;
   color: #9ab8a6;
   letter-spacing: 1rpx;
+}
+.privacy-icon {
+  width: 24rpx;
+  height: 24rpx;
 }
 .dev-tip {
   position: relative;

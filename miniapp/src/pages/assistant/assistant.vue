@@ -6,7 +6,7 @@
         <image class="brand-icon" src="/static/emo/q-ai.png" mode="aspectFit" />
         <view class="brand-info">
           <text class="brand-name">绪见AI</text>
-          <text class="brand-sub">💫 你的专属情绪陪伴助手</text>
+          <view class="brand-sub"><view class="sub-icon li-icon li-ic-sparkle"></view><text>你的专属情绪陪伴助手</text></view>
         </view>
       </view>
       <view class="sess-btn" @click="openSessions">会话</view>
@@ -16,7 +16,7 @@
     <scroll-view class="chat" scroll-y :scroll-top="scrollTop" scroll-with-animation>
       <!-- 欢迎条（与 H5 一致） -->
       <view class="welcome">
-        <text class="welcome-title">👋 你好，我是绪见AI</text>
+        <view class="welcome-title"><view class="title-icon li-icon li-ic-wave"></view><text>你好，我是绪见AI</text></view>
         <text class="welcome-sub">开心或难过都可以和我说说，我会认真听</text>
       </view>
 
@@ -249,10 +249,16 @@ onShow(() => {
   color: #3d5145;
 }
 .brand-sub {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
   margin-top: 2rpx;
   font-size: 22rpx;
   color: #8a9a8a;
+}
+.sub-icon {
+  width: 22rpx;
+  height: 22rpx;
 }
 .sess-btn {
   padding: 12rpx 28rpx;
@@ -282,10 +288,16 @@ onShow(() => {
   border-radius: 24rpx;
 }
 .welcome-title {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   font-size: 28rpx;
   font-weight: 700;
   color: #3d5145;
+}
+.title-icon {
+  width: 28rpx;
+  height: 28rpx;
 }
 .welcome-sub {
   display: block;

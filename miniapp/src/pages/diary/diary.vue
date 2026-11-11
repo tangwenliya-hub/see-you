@@ -1,7 +1,7 @@
 <template>
   <view class="page">
     <view v-if="list.length === 0 && loaded" class="empty">
-      <text class="empty-emoji">📔</text>
+      <view class="empty-emoji li-icon li-ic-book"></view>
       <text class="empty-text">还没有日记，写第一篇吧</text>
       <view class="btn-primary empty-btn" @click="goWrite">写日记</view>
     </view>
@@ -94,8 +94,9 @@ onReachBottom(() => load(false))
   text-align: center;
 }
 .empty-emoji {
-  display: block;
-  font-size: 90rpx;
+  width: 110rpx;
+  height: 110rpx;
+  margin: 0 auto;
 }
 .empty-text {
   display: block;

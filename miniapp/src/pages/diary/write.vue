@@ -42,8 +42,9 @@
       <text class="counter">{{ form.content.length }} / 2000</text>
     </view>
 
-    <view class="btn-primary" :class="{ disabled: saving || !form.content.trim() }" @click="save">
-      {{ saving ? '保存中…' : '✅ 保存日记' }}
+    <view class="btn-primary save-btn" :class="{ disabled: saving || !form.content.trim() }" @click="save">
+      <view v-if="!saving" class="save-icon li-icon li-ic-check"></view>
+      <text>{{ saving ? '保存中…' : '保存日记' }}</text>
     </view>
   </view>
 </template>
@@ -193,5 +194,15 @@ async function save() {
 }
 .disabled {
   opacity: 0.5;
+}
+.save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+}
+.save-icon {
+  width: 30rpx;
+  height: 30rpx;
 }
 </style>
