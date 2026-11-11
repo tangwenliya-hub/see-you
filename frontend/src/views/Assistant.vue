@@ -1503,6 +1503,11 @@ onUnmounted(() => {
   z-index: 3;
   object-fit: contain;
   display: block;
+  /* 顶栏白色胶囊只有 ~52px 高，40px 头像若按个人中心的 205% 渲染框图（82px）
+     会溢出胶囊压到「哞哞」和「AI 在线」徽章；钳到头像的 1.5 倍内。
+     max-* 优先级高于行内 style 的 width/height，竖版框图(433x577)由 contain 自动适配 */
+  max-width: 150%;
+  max-height: 150%;
 }
 
 .user-name {
@@ -2060,6 +2065,10 @@ onUnmounted(() => {
   z-index: 3;
   object-fit: contain;
   display: block;
+  /* 消息头像只有 38px，直接套个人中心的 205% 框图（78px，竖版图更高）
+     会比气泡还高、相邻两条消息的框连成长条；钳到头像的 1.7 倍内 */
+  max-width: 170%;
+  max-height: 170%;
 }
 
 .msg-bubble {
