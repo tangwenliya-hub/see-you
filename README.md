@@ -122,7 +122,7 @@ UGC 评论若全部人工审核，管理员负担大；若全部机器拦截，�
 # 1. 数据库
 mysql -u root -p -e "CREATE DATABASE see_you DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 # ① 先执行基础表结构，② 再按文件名日期从旧到新执行 see_you/sql/migration/ 下的迁移脚本，
-#    ③ 最后执行根目录 3 个初始化数据脚本（顺序不能反，详见 docs/部署说明.md）
+#    ③ 最后执行根目录 3 个初始化数据脚本（顺序不能反）
 
 # 2. 后端（JDK 17）
 cd see_you
@@ -139,7 +139,7 @@ npm install && npm run dev     # http://localhost:5173，已代理 /api 到 8081
 > 由你自己注册后提权；首次部署请务必设置 ≥12 位强口令，不要使用 `123456`、`111111` 这类字典口令。
 > 已有的演示账号请在部署前删除或改密。
 
-> ⚠️ **安全须知**：`application.yml` 只保留占位符，真实凭据放在**已被 Git 忽略**的 `application-local.yml`，或由环境变量注入。详见 `.env.example` 与 `docs/部署说明.md`。
+> ⚠️ **安全须知**：`application.yml` 只保留占位符，真实凭据放在**已被 Git 忽略**的 `application-local.yml`，或由环境变量注入，详见 `.env.example`。
 
 ---
 
@@ -161,31 +161,12 @@ npm install && npm run dev     # http://localhost:5173，已代理 /api 到 8081
 │       ├── config/           # CORS、JWT 拦截器、WebSocket
 │       └── sql/              # 数据库迁移与初始化脚本
 ├── miniapp/                  # 微信小程序（uni-app）：登录/主页/日记/写日记/AI/我的 6 页
-├── deploy/                   # Dockerfile、docker-compose、nginx 配置、一键部署脚本
-└── docs/                     # 设计与答辩文档
+└── deploy/                   # Dockerfile、docker-compose、nginx 配置、一键部署脚本
 ```
 
 ---
 
-## 八、文档索引
-
-| 文档 | 内容 |
-|---|---|
-| `docs/项目说明-正式版.md` | 完整功能清单与技术原理（论文/正式语气版） |
-| `docs/三大模块设计与实现.md` | 无感记录、情绪预警、移动端的方案与论文创新点 |
-| `docs/无感记录模块设计.md` | 算法细节与隐私设计 |
-| `docs/数据库说明.md` | 27 张业务表结构说明 |
-| `docs/架构与接口清单.md` | 系统架构图、ER 图、全量接口清单 |
-| `docs/部署说明.md` | 本地与生产部署步骤 |
-| `docs/模型评估报告.md` | KNN 情绪推测与预警规则的量化评估 |
-| `docs/安全与性能清单.md` | 越权防护、上传安全、索引与性能优化 |
-| `docs/安全审计与优化记录.md` | 全量代码审计：P0 越权修复记录与剩余待办清单 |
-| `miniapp/README.md` | 小程序端运行方式与设计说明 |
-| `docs/小程序端方案.md` | 小程序端技术选型与页面范围 |
-
----
-
-## 九、测试
+## 八、测试
 
 ```bash
 cd see_you
@@ -198,7 +179,7 @@ mvn test -DDB_PASSWORD=你的密码 -DDB_USERNAME=root
 （测试会直接读取 `frontend/src/utils/constants.js` 与后端 `EmotionConst` 比对，
 任何一端改漏都会失败——历史上这个错位曾导致全站统计出错）。
 
-另有模型评估报告生成器，跑完会写出 `docs/模型评估报告.md`：
+另有模型评估报告生成器，跑完会在 `docs/` 下生成 `模型评估报告.md`：
 
 ```bash
 mvn test -Dtest=ModelEvaluationTest -DDB_PASSWORD=你的密码
@@ -206,7 +187,7 @@ mvn test -Dtest=ModelEvaluationTest -DDB_PASSWORD=你的密码
 
 ---
 
-## 十、说明
+## 九、说明
 
 - 情绪预警功能**不属于医疗诊断**，不能替代专业心理评估，产品内三处均附免责声明。
 - 无感记录为**默认关闭的 opt-in 功能**，未授权不采集任何行为数据。
