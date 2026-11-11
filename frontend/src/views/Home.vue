@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
 .bg-layer {
   position: absolute;
   inset: 0;
-  background-image: url(/img/首页背景图.png),
+  background-image: url(/img/首页背景图.jpg),
     linear-gradient(180deg, #f4f8ee 0%, #e2efd8 55%, #cfe6c4 100%);
   background-size: cover;
   background-position: center;
