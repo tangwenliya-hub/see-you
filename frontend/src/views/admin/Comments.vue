@@ -28,7 +28,7 @@
         <div class="wl-group">
           <div class="wl-head">
             <span class="wl-name review">可疑词库</span>
-            <span class="wl-desc">命中 → 转人工审核（不是直接拒绝）</span>
+            <span class="wl-desc">命中 <AppIcon name="arrow-right" /> 转人工审核（不是直接拒绝）</span>
             <span class="wl-count">{{ reviewWords.length }} 个</span>
           </div>
           <div class="wl-tags">
@@ -47,9 +47,9 @@
     <!-- 批量操作栏 -->
     <div v-if="selectedIds.length > 0" class="batch-bar">
       <span class="batch-info">已选择 <b>{{ selectedIds.length }}</b> 条评论</span>
-      <button class="jelly-btn primary" @click="batchApprove">✓ 批量通过</button>
-      <button class="jelly-btn danger" @click="batchReject">✕ 批量拒绝</button>
-      <button class="jelly-btn danger" style="background:#ff6b6b" @click="batchDelete">🗑 批量删除</button>
+      <button class="jelly-btn primary" @click="batchApprove"><AppIcon name="check" /> 批量通过</button>
+      <button class="jelly-btn danger" @click="batchReject"><AppIcon name="close" /> 批量拒绝</button>
+      <button class="jelly-btn danger" style="background:#ff6b6b" @click="batchDelete"><AppIcon name="trash" /> 批量删除</button>
       <button class="jelly-btn ghost" @click="clearSelection">取消选择</button>
     </div>
 
@@ -174,11 +174,11 @@ const loadResourceMaps = async () => {
 const getTargetName = (resourceType, resourceId) => {
   if (resourceType === 2) {
     const name = videoMap.value[resourceId]
-    return name ? `🎬 ${name}` : `视频#${resourceId}`
+    return name ? ` ${name}` : `视频#${resourceId}`
   }
   if (resourceType === 1) {
     const name = audioMap.value[resourceId]
-    return name ? `🎵 ${name}` : `音频#${resourceId}`
+    return name ? ` ${name}` : `音频#${resourceId}`
   }
   return `#${resourceId}`
 }

@@ -12,7 +12,7 @@
   -->
   <div v-if="alert" class="rac-root" :class="['lv' + (alert.level || 1), { crisis: alert.crisis }]">
     <div class="rac-head" @click="open = !open">
-      <span class="rac-icon">{{ alert.crisis ? '🫂' : '🫧' }}</span>
+      <span class="rac-icon"><AppIcon :name="alert.crisis ? 'heart-hand' : 'sparkles'" /></span>
       <div class="rac-headline">
         <p class="rac-title">
           {{ alert.crisis ? '危机关怀提示 · 请先看这条' : ('情绪关怀提示 · ' + alert.levelName) }}

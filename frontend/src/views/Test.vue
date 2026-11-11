@@ -4,11 +4,11 @@
     <header class="hero">
       <div class="hero-blob b1"></div>
       <div class="hero-blob b2"></div>
-      <span class="hero-star s1">✦</span>
-      <span class="hero-star s2">✧</span>
-      <span class="hero-star s3">✦</span>
-      <span class="hero-cloud c1">☁</span>
-      <span class="hero-cloud c2">☁</span>
+      <span class="hero-star s1"><AppIcon name="sparkles" /></span>
+      <span class="hero-star s2"><AppIcon name="sparkles" /></span>
+      <span class="hero-star s3"><AppIcon name="sparkles" /></span>
+      <span class="hero-cloud c1"><AppIcon name="cloud" /></span>
+      <span class="hero-cloud c2"><AppIcon name="cloud" /></span>
       <div class="hero-inner">
         <div class="hero-title">
           <h1>测一测，更温柔地了解自己</h1>
@@ -20,7 +20,7 @@
           <div class="meta-chip"><b>{{ totalTests }}</b> 可用量表</div>
           <div class="meta-chip"><b>{{ myHistory.length }}</b> 我的测评</div>
           <div class="meta-chip"><b>{{ latestScore }}</b> 最近得分</div>
-          <button class="history-btn" @click="scrollToHistory">📋 我的测评记录</button>
+          <button class="history-btn" @click="scrollToHistory"><AppIcon name="clipboard" /> 我的测评记录</button>
         </div>
       </div>
       <svg class="hero-wave" viewBox="0 0 1440 70" preserveAspectRatio="none">
@@ -37,14 +37,14 @@
           :class="['quick-tile', { on: activeCat === cat.key }]"
           @click="activeCat = cat.key"
         >
-          <div class="tile-icon" :style="{ background: tileBg(i) }">{{ cat.icon }}</div>
+          <div class="tile-icon" :style="{ background: tileBg(i) }"><AppIcon :name="cat.icon" /></div>
           <span class="tile-name">{{ cat.label }}</span>
         </div>
       </div>
       <div class="search-box">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon"><AppIcon name="search" /></span>
         <input v-model="searchKeyword" type="text" placeholder="搜索量表名称..." class="search-input"/>
-        <button v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''">✕</button>
+        <button v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''"><AppIcon name="close" /></button>
       </div>
     </nav>
 
@@ -58,14 +58,14 @@
       >
         <!-- 头部：图标方块 + 标题 + 收藏 -->
         <div class="sc-head">
-          <span class="sc-icon">{{ paperIcon(paper.testName) }}</span>
+          <span class="sc-icon"><AppIcon :name="paperIcon(paper.testName)" /></span>
           <h2 class="scale-name">{{ paper.testName }}</h2>
           <button
             class="favorite-btn"
             :class="{ on: isFavorite(paper.testId) }"
             @click.stop="toggleFavorite(paper.testId)"
             :title="isFavorite(paper.testId) ? '取消收藏' : '收藏量表'"
-          >{{ isFavorite(paper.testId) ? '❤️' : '🤍' }}</button>
+          ><AppIcon :name="isFavorite(paper.testId) ? 'heart-solid' : 'heart'" /></button>
         </div>
 
         <!-- 元信息一行：规模徽章 · 题数 · 时长 -->
@@ -82,15 +82,15 @@
 
         <!-- 底部：参与人数 + 通栏主按钮 -->
         <div class="sc-foot">
-          <span class="sc-taken">👥 {{ paper.takenCount || 0 }} 人已测</span>
-          <button class="start-btn" @click.stop="showPaperDetail(paper)">✨ 开始测评</button>
+          <span class="sc-taken"><AppIcon name="users" /> {{ paper.takenCount || 0 }} 人已测</span>
+          <button class="start-btn" @click.stop="showPaperDetail(paper)"><AppIcon name="sparkles" /> 开始测评</button>
         </div>
       </article>
     </main>
 
     <!-- ===== 空状态 ===== -->
     <div v-if="filteredPapers.length === 0" class="empty">
-      <div class="empty-illus">🌸</div>
+      <div class="empty-illus"><AppIcon name="flower" /></div>
       <p v-if="searchKeyword">没有找到与 "<strong>{{ searchKeyword }}</strong>" 相关的量表</p>
       <p v-else>这个分类还没有量表哦~</p>
       <div class="empty-hint">
@@ -104,7 +104,7 @@
 
     <!-- ===== 趋势图 ===== -->
     <section v-if="trendData.length > 1" class="trend-area">
-      <h3 class="sec-title">📈 测评趋势 · {{ trendPaperName }}</h3>
+      <h3 class="sec-title"><AppIcon name="trending-up" /> 测评趋势 · {{ trendPaperName }}</h3>
       <div class="trend-card">
         <div class="trend-chart">
           <svg viewBox="0 0 600 200" preserveAspectRatio="none" class="trend-svg">
@@ -124,7 +124,7 @@
 
     <!-- ===== 我的测评记录 ===== -->
     <section v-if="myHistory.length > 0" id="history" class="history-area">
-      <h3 class="sec-title">📜 我的测评记录</h3>
+      <h3 class="sec-title"><AppIcon name="file-text" /> 我的测评记录</h3>
       <div class="history-grid">
         <div v-for="h in myHistory" :key="h.id" class="history-card">
           <div class="his-head">
@@ -138,8 +138,8 @@
             </div>
             <div class="his-level" :class="levelClass(h.level || '正常')">{{ h.level || '正常' }}</div>
           </div>
-          <p class="his-tip">{{ h.tip || '根据你的得分，建议继续关注自己的心理状态 💚' }}</p>
-          <button class="his-view" @click="viewDetail(h)">查看详情 →</button>
+          <p class="his-tip">{{ h.tip || '根据你的得分，建议继续关注自己的心理状态 ' }}</p>
+          <button class="his-view" @click="viewDetail(h)">查看详情 <AppIcon name="arrow-right" /></button>
         </div>
       </div>
     </section>
@@ -152,32 +152,32 @@
           <div>
             <h3 class="detail-title">{{ detailPaper?.testName }}</h3>
             <div class="detail-tags">
-              <span class="detail-tag">📝 {{ detailPaper?.questionCount || 10 }} 题</span>
-              <span class="detail-tag">⏱ 约 {{ estimateMinutes(detailPaper) }} 分钟</span>
-              <span class="detail-tag">👥 {{ detailPaper?.takenCount || 0 }} 人已测</span>
+              <span class="detail-tag"><AppIcon name="edit" /> {{ detailPaper?.questionCount || 10 }} 题</span>
+              <span class="detail-tag"><AppIcon name="timer" /> 约 {{ estimateMinutes(detailPaper) }} 分钟</span>
+              <span class="detail-tag"><AppIcon name="users" /> {{ detailPaper?.takenCount || 0 }} 人已测</span>
             </div>
           </div>
-          <button class="close-btn" @click="showDetail = false">✕</button>
+          <button class="close-btn" @click="showDetail = false"><AppIcon name="close" /></button>
         </div>
 
         <div class="detail-body">
           <div class="detail-section">
-            <h4>📋 量表介绍</h4>
+            <h4><AppIcon name="clipboard" /> 量表介绍</h4>
             <p>{{ detailPaper?.description || '专业心理测评量表，帮助你了解自己的心理状态。' }}</p>
           </div>
           <div class="detail-section">
-            <h4>👤 适用人群</h4>
+            <h4><AppIcon name="user" /> 适用人群</h4>
             <p>适用于关注自身{{ detailPaper?.category === 'depress' ? '情绪状态' : detailPaper?.category === 'anxiety' ? '焦虑水平' : detailPaper?.category === 'stress' ? '压力状况' : detailPaper?.category === 'sleep' ? '睡眠质量' : detailPaper?.category === 'self' ? '自我认知' : detailPaper?.category === 'personality' ? '性格特点' : '心理健康' }}的成年人。建议在安静的环境下独立完成。</p>
           </div>
           <div class="detail-section">
-            <h4>⚠️ 注意事项</h4>
+            <h4><AppIcon name="alert-triangle" /> 注意事项</h4>
             <p>本测评仅供参考，不能替代专业医疗诊断。如测评结果显示需要关注，建议寻求专业心理咨询师的帮助。</p>
           </div>
         </div>
 
         <div class="detail-foot">
           <button class="foot-btn" @click="showDetail = false">取消</button>
-          <button class="foot-btn primary" @click="confirmStartTest">✨ 开始答题</button>
+          <button class="foot-btn primary" @click="confirmStartTest"><AppIcon name="sparkles" /> 开始答题</button>
         </div>
       </div>
     </div>
@@ -187,15 +187,15 @@
       <div class="quiz-blob b1"></div>
       <div class="quiz-blob b2"></div>
       <div class="quiz-blob b3"></div>
-      <span class="quiz-star qs1">✦</span>
-      <span class="quiz-star qs2">♡</span>
-      <span class="quiz-star qs3">✧</span>
-      <span class="quiz-star qs4">♡</span>
+      <span class="quiz-star qs1"><AppIcon name="sparkles" /></span>
+      <span class="quiz-star qs2"><AppIcon name="heart" /></span>
+      <span class="quiz-star qs3"><AppIcon name="sparkles" /></span>
+      <span class="quiz-star qs4"><AppIcon name="heart" /></span>
 
       <header class="quiz-head">
         <button class="quiz-back" @click="closeTest">‹</button>
         <span class="quiz-name">{{ currentPaper?.testName }}</span>
-        <button class="quiz-close" @click="closeTest">✕</button>
+        <button class="quiz-close" @click="closeTest"><AppIcon name="close" /></button>
       </header>
 
       <div class="quiz-body">
@@ -212,7 +212,7 @@
           >
             <span class="opt-letter">{{ letterOf(i) }}</span>
             <span class="opt-text">{{ opt.label }}</span>
-            <span v-if="answers[currentQ] === opt.score" class="opt-check">✓</span>
+            <span v-if="answers[currentQ] === opt.score" class="opt-check"><AppIcon name="check" /></span>
           </button>
         </div>
       </div>
@@ -255,15 +255,15 @@
             <span v-for="tag in resultTags" :key="tag" class="poster-tag"># {{ tag }}</span>
           </div>
           <div class="poster-brand">
-            <span class="poster-brand-logo">🌿</span>
+            <span class="poster-brand-logo"><AppIcon name="leaf" /></span>
             <span class="poster-brand-name">绪见 · 心理测评馆</span>
             <span class="poster-date">{{ today }}</span>
           </div>
         </div>
         <div class="result-actions">
           <button class="foot-btn" @click="showResult = false; showTest = false">关闭</button>
-          <button class="foot-btn" @click="saveShareCard">📷 保存卡片</button>
-          <button class="foot-btn primary" @click="retakeTest">🔁 重新测评</button>
+          <button class="foot-btn" @click="saveShareCard"><AppIcon name="camera" /> 保存卡片</button>
+          <button class="foot-btn primary" @click="retakeTest"><AppIcon name="repeat" /> 重新测评</button>
         </div>
       </div>
     </div>
@@ -287,7 +287,7 @@ import { ElMessage } from 'element-plus'
 const route = useRoute()
 
 // ==================== 主题色跟随 ====================
-// 配色来源：个人中心 → 个性化设置 → 主题颜色（localStorage.profile_theme）。
+// 配色来源：个人中心  个性化设置  主题颜色（localStorage.profile_theme）。
 // 本页所有颜色（英雄区/答题页/结果海报/卡片/按钮/canvas 分享图）都从主题色实时推导，
 // 用户换主题色，这一页整体跟着变。Profile 切换时会派发 profile-updated 事件。
 const FALLBACK_THEME = { name: 'pink', label: '少女粉', hex: '#e59bb3', main: '#f2b8cd', bg1: '#fcf4f7', bg2: '#fae8ef' }
@@ -301,7 +301,7 @@ function loadTheme() {
 }
 const theme = ref(loadTheme())
 
-// ---- 颜色小工具（hex ↔ HSL、按比例混色），不引第三方库 ----
+// ---- 颜色小工具（hex  HSL、按比例混色），不引第三方库 ----
 function hexToRgb(hex) {
   const n = parseInt(hex.slice(1), 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
@@ -348,7 +348,7 @@ const tint = (hex, w) => mixColor(hex, '#ffffff', w)   // 变浅
 const shade = (hex, w) => mixColor(hex, '#000000', w)  // 变深
 
 /**
- * 主题派生色板 → 根元素 CSS 变量。
+ * 主题派生色板  根元素 CSS 变量。
  * 同一个 hex 推出：主色 / 深文字 / 中文字 / 弱文字、英雄区三段渐变、
  * 答题页三段渐变、结果海报三段渐变、五张卡片底色（色相微旋转制造层次）。
  */
@@ -388,7 +388,7 @@ const tileBg = (i) => {
   return `linear-gradient(135deg, ${tint(c, 0.72)}, ${tint(c, 0.5)})`
 }
 
-// Profile 里切了主题 → 立即换肤（同标签页事件 + 跨标签页 storage）
+// Profile 里切了主题  立即换肤（同标签页事件 + 跨标签页 storage）
 const onThemeChange = () => { theme.value = loadTheme() }
 
 // 统一取当前登录用户 ID（登录接口返回的是 userId，个别老数据可能只有 id）
@@ -399,13 +399,13 @@ const getUid = () => {
 
 // ===== 分类磁贴：第一个是「全部」，点击即筛选 =====
 const quickCats = [
-  { key: 'all',         label: '全部',  icon: '🌈' },
-  { key: 'anxiety',     label: '焦虑',  icon: '🫧' },
-  { key: 'depress',     label: '抑郁',  icon: '🌧' },
-  { key: 'stress',      label: '压力',  icon: '🍃' },
-  { key: 'sleep',       label: '睡眠',  icon: '🌙' },
-  { key: 'self',        label: '自我',  icon: '💫' },
-  { key: 'personality', label: '人格',  icon: '🎭' },
+  { key: 'all',         label: '全部',  icon: 'sparkles' },
+  { key: 'anxiety',     label: '焦虑',  icon: 'waves' },
+  { key: 'depress',     label: '抑郁',  icon: 'cloud-rain' },
+  { key: 'stress',      label: '压力',  icon: 'leaf' },
+  { key: 'sleep',       label: '睡眠',  icon: 'moon' },
+  { key: 'self',        label: '自我',  icon: 'heart' },
+  { key: 'personality', label: '人格',  icon: 'face-other' },
 ]
 const activeCat = ref('all')
 
@@ -497,8 +497,8 @@ const currentQ = ref(0)
 const quizMascotLine = computed(() => {
   const n = questions.value.length || 1
   const p = currentQ.value / Math.max(1, n - 1)
-  if (submitting.value) return '(๑•̀ㅂ•́)و✧ 正在生成你的结果…'
-  if (currentQ.value === 0) return '(´,,•ω•,,)♡ 我陪你一起做吧！'
+  if (submitting.value) return '(๑•̀ㅂ•́)و 正在生成你的结果…'
+  if (currentQ.value === 0) return '(´,,•ω•,,) 我陪你一起做吧！'
   if (currentQ.value === n - 1) return '٩(๑•̀ω•́๑)۶ 最后一题，冲呀！'
   if (p > 0.6) return '(๑˃̵ᴗ˂̵)و 已经过半啦，好棒！'
   return 'ฅ^•ﻌ•^ฅ 慢慢选，不用着急～'
@@ -678,22 +678,22 @@ const trendDirection = computed(() => {
   if (data.length < 2) return ''
   const first = data[0].score
   const last = data[data.length - 1].score
-  if (last < first) return '📉 你的得分呈下降趋势，状态在好转 ~'
-  if (last > first) return '📈 得分有所上升，建议多关注自己的状态 ~'
-  return '📊 得分保持平稳，持续关注就好 ~'
+  if (last < first) return ' 你的得分呈下降趋势，状态在好转 ~'
+  if (last > first) return ' 得分有所上升，建议多关注自己的状态 ~'
+  return ' 得分保持平稳，持续关注就好 ~'
 })
 
 // ===== 辅助 =====
 const paperIcon = (name) => {
-  if (!name) return '📋'
-  if (name.includes('焦虑')) return '🫧'
-  if (name.includes('抑郁')) return '🌧'
-  if (name.includes('压力')) return '🍃'
-  if (name.includes('失眠') || name.includes('睡眠')) return '🌙'
-  if (name.includes('自尊')) return '💫'
-  if (name.includes('躯体')) return '🫀'
-  if (name.includes('人格') || name.includes('内外向')) return '🎭'
-  return '📋'
+  if (!name) return 'notebook'
+  if (name.includes('焦虑')) return 'waves'
+  if (name.includes('抑郁')) return 'cloud-rain'
+  if (name.includes('压力')) return 'leaf'
+  if (name.includes('失眠') || name.includes('睡眠')) return 'moon'
+  if (name.includes('自尊')) return 'heart'
+  if (name.includes('躯体')) return 'heart-hand'
+  if (name.includes('人格') || name.includes('内外向')) return 'face-other'
+  return 'notebook'
 }
 // 卡片底色：五张一轮回，底色已由主题变量 --t-card1..5 派生
 const cardColor = (id) => {
@@ -847,32 +847,32 @@ const doSubmitTest = async () => {
   if (isPersonality) {
     const ratio = score / resultTotal.value
     if (ratio >= 0.75) {
-      resultLevelText.value = '典型外向 🌟'
+      resultLevelText.value = '典型外向 '
       resultLevelClass.value = 'lv-low'
       resultTip.value = '你是个十足的社交达人！热情开朗，喜欢与人交往，在人群中如鱼得水。你的能量来自外部世界，朋友和社交活动让你充满活力~'
     } else if (ratio >= 0.5) {
-      resultLevelText.value = '偏外向 🌻'
+      resultLevelText.value = '偏外向 '
       resultLevelClass.value = 'lv-low'
       resultTip.value = '你偏向外向性格，喜欢社交但也享受独处。既能在人群中发光，也懂得给自己充电的时间，是很平衡的状态~'
     } else if (ratio >= 0.25) {
-      resultLevelText.value = '偏内向 🌙'
+      resultLevelText.value = '偏内向 '
       resultLevelClass.value = 'lv-mid'
       resultTip.value = '你偏向内向性格，内心世界丰富而深刻。独处让你充满能量，深思熟虑是你的优势。不用勉强自己社交，按自己的节奏来就好~'
     } else {
-      resultLevelText.value = '典型内向 📖'
+      resultLevelText.value = '典型内向 '
       resultLevelClass.value = 'lv-mid'
-      resultTip.value = '你是典型的内向者，内心有一个丰富的小世界。深度思考、专注专注是你的超能力。记住：内向不是缺陷，是一种独特的力量 💚'
+      resultTip.value = '你是典型的内向者，内心有一个丰富的小世界。深度思考、专注专注是你的超能力。记住：内向不是缺陷，是一种独特的力量 '
     }
   } else {
     const ratio = score / resultTotal.value
-    if (ratio < 0.2) { resultLevelText.value = '状态良好 💚'; resultLevelClass.value = 'lv-low'
+    if (ratio < 0.2) { resultLevelText.value = '状态良好 '; resultLevelClass.value = 'lv-low'
       resultTip.value = '你的心理状态看起来很不错，继续保持规律作息和积极的心态吧！' }
-    else if (ratio < 0.45) { resultLevelText.value = '轻度波动 🌿'; resultLevelClass.value = 'lv-low'
+    else if (ratio < 0.45) { resultLevelText.value = '轻度波动 '; resultLevelClass.value = 'lv-low'
       resultTip.value = '有一些轻微的情绪波动，建议关注自己的感受，适当放松。' }
-    else if (ratio < 0.7) { resultLevelText.value = '中度关注 ⚠️'; resultLevelClass.value = 'lv-mid'
+    else if (ratio < 0.7) { resultLevelText.value = '中度关注 '; resultLevelClass.value = 'lv-mid'
       resultTip.value = '得分提示可能存在一些困扰，建议尝试放松技巧，或与信任的人聊聊。' }
-    else { resultLevelText.value = '建议干预 🏥'; resultLevelClass.value = 'lv-high'
-      resultTip.value = '得分较高，建议寻求专业心理咨询师的帮助。请记住，求助是勇敢的表现 💚' }
+    else { resultLevelText.value = '建议干预 '; resultLevelClass.value = 'lv-high'
+      resultTip.value = '得分较高，建议寻求专业心理咨询师的帮助。请记住，求助是勇敢的表现 ' }
   }
   // 优先采用后台为该量表配置的结果分级；未配置或接口异常时沿用上面的兜底文案
   try {
@@ -883,7 +883,7 @@ const doSubmitTest = async () => {
       if (g && g.gradeName) {
         resultLevelText.value = g.gradeName
         resultTip.value = [g.description, g.suggestion].filter(Boolean).join(' ')
-        // 后台配置的分级文案 → 配色同步切换（良好/轻度=主题色，中度=黄，重度/干预=红）
+        // 后台配置的分级文案  配色同步切换（良好/轻度=主题色，中度=黄，重度/干预=红）
         const name = g.gradeName
         if (/良好|正常|健康/.test(name)) resultLevelClass.value = 'lv-low'
         else if (/轻度/.test(name)) resultLevelClass.value = 'lv-low'
@@ -1047,7 +1047,7 @@ const saveShareCard = () => {
   // 底部品牌
   ctx.fillStyle = deep
   ctx.font = 'bold 22px "Microsoft YaHei", sans-serif'
-  ctx.fillText('🌿 绪见 · 心理测评馆', 320, 900)
+  ctx.fillText(' 绪见 · 心理测评馆', 320, 900)
 
   const link = document.createElement('a')
   link.download = `绪见测评报告_${today}.png`
@@ -1103,13 +1103,13 @@ onMounted(async () => {
   } catch (e) {
     // 量表列表拉取失败时降级使用默认数据
   }
-  // 深链支持：/test?testId=xx → 直接打开对应量表详情（主页推荐卡点进来）
+  // 深链支持：/test?testId=xx  直接打开对应量表详情（主页推荐卡点进来）
   const qId = Number(route.query.testId)
   if (qId) {
     const paper = papers.value.find(p => p.testId === qId)
     if (paper) showPaperDetail(paper)
   }
-  // 深链支持：/test?paper=名称 → 按量表名匹配打开（AI 推荐胶囊无 testId 时的兜底）
+  // 深链支持：/test?paper=名称  按量表名匹配打开（AI 推荐胶囊无 testId 时的兜底）
   const qName = route.query.paper
   if (qName && !qId) {
     const paper = papers.value.find(p =>
@@ -1410,11 +1410,15 @@ const pickCat = (name) => {
 }
 /* 右上角的小星星装饰 */
 .scale-card::after {
-  content: '✦';
+  content: '';
   position: absolute; top: 10px; right: 38px;
-  font-size: 13px; color: var(--t-poster2);
+  width: 13px; height: 13px; color: var(--t-poster2);
   opacity: 0.7;
   transition: all 0.25s;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Cpath d='M12 3.2l1.8 4.6 4.6 1.8-4.6 1.8L12 16l-1.8-4.6L5.6 9.6l4.6-1.8z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Cpath d='M12 3.2l1.8 4.6 4.6 1.8-4.6 1.8L12 16l-1.8-4.6L5.6 9.6l4.6-1.8z'/%3E%3C/svg%3E") center/contain no-repeat;
+
 }
 .scale-card:hover {
   transform: translateY(-6px) rotate(-1.2deg);
@@ -1848,11 +1852,14 @@ const pickCat = (name) => {
 }
 /* 海报角落的星星装饰 */
 .result-poster::after {
-  content: '✦ ✧ ✦';
+  content: '';
   position: absolute; bottom: 74px; left: 20px;
-  font-size: 12px; letter-spacing: 6px;
+  width: 60px; height: 12px;
   color: rgba(255,255,255,0.7);
   pointer-events: none;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Cpath d='M12 3.2l1.8 4.6 4.6 1.8-4.6 1.8L12 16l-1.8-4.6L5.6 9.6l4.6-1.8z'/%3E%3C/svg%3E") left center/12px 12px repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Cpath d='M12 3.2l1.8 4.6 4.6 1.8-4.6 1.8L12 16l-1.8-4.6L5.6 9.6l4.6-1.8z'/%3E%3C/svg%3E") left center/12px 12px repeat-x;
 }
 .poster-slogan {
   text-align: center;

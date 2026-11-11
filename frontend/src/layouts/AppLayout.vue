@@ -8,7 +8,7 @@
             @mouseenter="onBarEnter" @mouseleave="onBarLeave">
       <!-- 返回按钮（除了主页 /main 都显示） -->
       <router-link v-if="!isHome" to="/main" class="back-btn" title="返回主页">
-        ← 返回
+        <AppIcon name="arrow-left" /> 返回
       </router-link>
 
       <router-link to="/main" class="logo">
@@ -25,13 +25,13 @@
       </div>
       <!-- 已登录：显示头像 + 退出 -->
       <div v-else class="app-actions user-actions">
-        <span v-if="userInfo" class="nav-greeting">你好！{{ userInfo.nickname || userInfo.username || '用户' }} 👋</span>
+        <span v-if="userInfo" class="nav-greeting">你好！{{ userInfo.nickname || userInfo.username || '用户' }} </span>
         <router-link to="/profile" class="user-info" title="个人中心">
           <div class="top-avatar-wrap" :class="['frame-' + userFrame]">
             <img :src="topAvatarUrl" class="user-avatar" @error="onAvatarError" />
             <img v-if="currentFrameImg" :src="currentFrameImg" class="frame-ring-img" :style="{ width: currentFrameScale + '%', height: currentFrameScale + '%' }" @error="$event.target.style.display='none'" />
           </div>
-          <span v-if="isAdmin" class="role-badge" title="管理员">👑</span>
+          <span v-if="isAdmin" class="role-badge" title="管理员"><AppIcon name="crown" /></span>
         </router-link>
         <button class="auth-btn logout" @click="doLogout">退出</button>
       </div>
@@ -52,7 +52,7 @@
     <nav class="mobile-tabbar">
       <router-link v-for="t in mobileTabs" :key="t.to" :to="t.to"
                    class="mt-item" :class="{ active: isTabActive(t) }">
-        <span class="mt-emoji">{{ t.icon }}</span>
+        <span class="mt-emoji"><AppIcon :name="t.icon" /></span>
         <span>{{ t.label }}</span>
         <span v-if="t.badge && unreadAlerts > 0" class="mt-dot" :title="`${unreadAlerts} 条未读关怀提醒`"></span>
       </router-link>
@@ -174,7 +174,7 @@ const handleStorageChange = (e) => {
 // 同标签页同步：Profile 页面保存后立即触发（storage 事件只在跨标签页触发）
 const handleProfileUpdated = () => { syncFromStorage() }
 const handleSenseChange = () => { syncSenseState() }
-/** 用户在弹窗/卡片里点过「我知道了」→ 立刻把底部红点消掉 */
+/** 用户在弹窗/卡片里点过「我知道了」 立刻把底部红点消掉 */
 const handleRiskRead = () => { loadRiskBadge() }
 
 // 每次路由切换都刷新登录态和用户信息（防止其他页修改后这里不更新）
@@ -204,11 +204,11 @@ const doLogout = async () => {
 
 // ===== 移动端底部导航 =====
 const mobileTabs = [
-  { to: '/main',      label: '主页', icon: '🏠', match: (p) => p === '/main' || p === '/' || p === '/home' },
-  { to: '/diary',     label: '日记', icon: '📔', match: (p) => p.startsWith('/diary') },
-  { to: '/assistant', label: 'AI',   icon: '💬', match: (p) => p.startsWith('/assistant') },
-  { to: '/fm',        label: 'FM',   icon: '🎵', match: (p) => p.startsWith('/fm') },
-  { to: '/profile',   label: '我的', icon: '👤', badge: true, match: (p) => p.startsWith('/profile') },
+  { to: '/main',      label: '主页', icon: 'home', match: (p) => p === '/main' || p === '/' || p === '/home' },
+  { to: '/diary',     label: '日记', icon: 'notebook', match: (p) => p.startsWith('/diary') },
+  { to: '/assistant', label: 'AI',   icon: 'message', match: (p) => p.startsWith('/assistant') },
+  { to: '/fm',        label: 'FM',   icon: 'music', match: (p) => p.startsWith('/fm') },
+  { to: '/profile',   label: '我的', icon: 'user', badge: true, match: (p) => p.startsWith('/profile') },
 ]
 const isTabActive = (t) => t.match(route.path)
 

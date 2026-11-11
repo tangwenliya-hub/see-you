@@ -47,7 +47,7 @@
           <img src="/img/AI对话历史.png" class="header-icon" alt="" />
           <div class="header-info">
             <h2 class="header-title">绪见AI</h2>
-            <p class="header-sub">💫 你的专属情绪陪伴助手</p>
+            <p class="header-sub"><AppIcon name="sparkles" /> 你的专属情绪陪伴助手</p>
           </div>
         </div>
         <div class="header-right">
@@ -81,7 +81,7 @@
           <div class="welcome-avatar">
             <img src="/img/AI对话历史.png" alt="绪见AI" />
           </div>
-          <h3>你好呀~ 我是绪见AI 🌸</h3>
+          <h3>你好呀~ 我是绪见AI <AppIcon name="flower" /></h3>
           <p>有什么心事都可以和我说哦，我会一直陪着你的~</p>
           
           <!-- 功能入口 -->
@@ -107,8 +107,8 @@
         <div v-if="showDiaryPanel" class="diary-panel-wrap">
           <div class="diary-panel">
             <div class="diary-panel-header">
-              <h4>✍️ 写日记给AI</h4>
-              <button class="close-btn" @click="closeDiaryPanel">✕</button>
+              <h4><AppIcon name="edit" /> 写日记给AI</h4>
+              <button class="close-btn" @click="closeDiaryPanel"><AppIcon name="close" /></button>
             </div>
             
             <div class="diary-form">
@@ -144,7 +144,7 @@
                 @click="sendDiaryToAi"
               >
                 <span v-if="isSendingDiary">发送中...</span>
-                <span v-else>💌 保存并发送给AI</span>
+                <span v-else><AppIcon name="mail" /> 保存并发送给AI</span>
               </button>
             </div>
           </div>
@@ -244,12 +244,12 @@
         <div v-if="showDiaryPicker" class="bottom-picker-panel">
           <div class="picker-panel-header">
             <h4><img src="/img/绪见日记.png" class="picker-title-icon" alt="" /> 选择一篇日记发给AI</h4>
-            <button class="close-btn" @click="closeDiaryPicker">✕</button>
+            <button class="close-btn" @click="closeDiaryPicker"><AppIcon name="close" /></button>
           </div>
           <div class="picker-list">
             <div v-if="loadingDiary" class="loading-tip"><CowLoading size="sm" text="加载中" /></div>
             <div v-else-if="diaryList.length === 0" class="empty-tip">
-              <p>📭 还没有日记哦~</p>
+              <p><AppIcon name="inbox" /> 还没有日记哦~</p>
               <router-link to="/diary" class="link-btn" @click="closeDiaryPicker">去写一篇</router-link>
             </div>
             <div
@@ -265,7 +265,7 @@
                 <div class="item-text">{{ diary.diaryContent }}</div>
                 <div class="item-date">{{ diary.diaryDate }}</div>
               </div>
-              <span class="item-arrow">→</span>
+              <span class="item-arrow"><AppIcon name="arrow-right" /></span>
             </div>
           </div>
         </div>
@@ -274,12 +274,12 @@
         <div v-if="showTestPicker" class="bottom-picker-panel">
           <div class="picker-panel-header">
             <h4><img src="/img/测评报告.png" class="picker-title-icon" alt="" /> 选择一份测评发给AI</h4>
-            <button class="close-btn" @click="closeTestPicker">✕</button>
+            <button class="close-btn" @click="closeTestPicker"><AppIcon name="close" /></button>
           </div>
           <div class="picker-list">
             <div v-if="loadingTest" class="loading-tip"><CowLoading size="sm" text="加载中" /></div>
             <div v-else-if="testList.length === 0" class="empty-tip">
-              <p>📭 还没有测评记录哦~</p>
+              <p><AppIcon name="inbox" /> 还没有测评记录哦~</p>
               <router-link to="/test" class="link-btn" @click="closeTestPicker">去做测评</router-link>
             </div>
             <div
@@ -288,12 +288,12 @@
               class="picker-item test-item"
               @click="selectTest(record)"
             >
-              <div class="item-icon test-icon">📊</div>
+              <div class="item-icon test-icon"><AppIcon name="chart-bar" /></div>
               <div class="item-content">
                 <div class="item-title">{{ record.testName || '心理测评' }}</div>
                 <div class="item-desc">得分：{{ record.score }}分 · {{ formatDate(record.createTime) }}</div>
               </div>
-              <span class="item-arrow">→</span>
+              <span class="item-arrow"><AppIcon name="arrow-right" /></span>
             </div>
           </div>
         </div>
@@ -301,7 +301,7 @@
         <!-- 快捷功能按钮 -->
         <div class="quick-actions-bar">
           <button class="quick-action-btn" @click="showDiaryPanel = true">
-            <span class="qa-icon">✍️</span>
+            <span class="qa-icon"><AppIcon name="edit" /></span>
             <span class="qa-text">写日记</span>
           </button>
           <button class="quick-action-btn" @click="openDiaryPicker">
@@ -316,7 +316,7 @@
         <!-- 录音中指示器（替代突兀的 ElMessage 白色胶囊） -->
         <transition name="rec-fade">
           <div v-if="isRecording" class="recording-pill" @click="toggleVoiceInput">
-            <span class="rec-mic">🎙️</span>
+            <span class="rec-mic"><AppIcon name="mic" /></span>
             <span class="rec-bars"><i></i><i></i><i></i><i></i><i></i></span>
             <span class="rec-text">正在聆听，说出你的心情…</span>
             <span class="rec-stop">点击结束</span>
@@ -366,7 +366,7 @@
             发送
           </button>
         </div>
-        <p class="input-tip">💡 试着说"我今天心情不好"、"我好焦虑"...</p>
+        <p class="input-tip"><AppIcon name="bulb" /> 试着说"我今天心情不好"、"我好焦虑"...</p>
       </div>
     </div>
   </div>
@@ -627,7 +627,7 @@ const getTestRecommendations = (content) => {
   return [...new Set(recs)].slice(0, 3)
 }
 
-// 量表名称 → testId 映射：推荐胶囊点击时直达测评页对应量表详情
+// 量表名称  testId 映射：推荐胶囊点击时直达测评页对应量表详情
 const testNameIdMap = ref({})
 onMounted(async () => {
   try {

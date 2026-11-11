@@ -26,10 +26,10 @@
         <div class="hero-card">
           <!-- 情绪提醒（轻量版）：连续记录中断后才出现，点一下直达写日记；关掉后当天不再打扰 -->
           <div v-if="reminder" class="remind-bar">
-            <span class="rb-icon">🌱</span>
+            <span class="rb-icon"><AppIcon name="leaf" /></span>
             <span class="rb-text">{{ reminder.text }}</span>
             <router-link to="/diary/write" class="rb-btn">去记录</router-link>
-            <button class="rb-close" title="今天不再提醒" @click="dismissReminder">✕</button>
+            <button class="rb-close" title="今天不再提醒" @click="dismissReminder"><AppIcon name="close" /></button>
           </div>
 
           <div class="hc-top">
@@ -46,7 +46,7 @@
           <div class="hero-actions">
             <router-link to="/diary/write" class="hp-btn primary">写下今天的心情</router-link>
             <router-link to="/assistant" class="hp-btn ghost">
-              和绪见AI聊聊<span class="btn-arrow">→</span>
+              和绪见AI聊聊<span class="btn-arrow"><AppIcon name="arrow-right" /></span>
             </router-link>
           </div>
 
@@ -84,7 +84,7 @@
                 >
                   <b>{{ lv.label }}</b><i>{{ lv.desc }}</i>
                 </button>
-                <button class="ip-cancel" @click="pickTarget = null">✕</button>
+                <button class="ip-cancel" @click="pickTarget = null"><AppIcon name="close" /></button>
               </div>
             </div>
           </div>
@@ -119,7 +119,7 @@
                   <i class="dot neg"></i>消极 {{ moodRatio.negPct }}%
                 </span>
                 <span v-else class="mr-legend">写下日记后，这里会出现你的情绪天平</span>
-                <span class="mr-more">看图表 →</span>
+                <span class="mr-more">看图表 <AppIcon name="arrow-right" /></span>
               </div>
               <div v-if="moodRatio.total" class="mr-bar">
                 <i class="pos" :style="{ width: moodRatio.posPct + '%' }"></i>
@@ -148,7 +148,7 @@
           </div>
           <div class="sec-side">
             <img class="sec-mascot" src="/img/开心牛牛.png" alt="" />
-            <router-link to="/diary" class="sec-more">全部日记 <span>→</span></router-link>
+            <router-link to="/diary" class="sec-more">全部日记 <span><AppIcon name="arrow-right" /></span></router-link>
           </div>
         </header>
 
@@ -209,7 +209,7 @@
           </p>
           <div class="guest-actions">
             <router-link to="/login" class="hp-btn primary">立即登入</router-link>
-            <router-link to="/test" class="hp-btn ghost">先做个测评<span class="btn-arrow">→</span></router-link>
+            <router-link to="/test" class="hp-btn ghost">先做个测评<span class="btn-arrow"><AppIcon name="arrow-right" /></span></router-link>
           </div>
         </div>
       </section>
@@ -248,7 +248,7 @@
               <p class="rec-desc">{{ item.desc }}</p>
               <div class="rec-foot">
                 <span class="rec-meta">{{ item.meta }}</span>
-                <span class="rec-go">{{ item.go }}<i>→</i></span>
+                <span class="rec-go">{{ item.go }}<i><AppIcon name="arrow-right" /></i></span>
               </div>
             </div>
           </article>
@@ -273,7 +273,7 @@
           <article class="card rv">
             <div class="card-head">
               <h3>最近日记</h3>
-              <router-link to="/diary" class="card-more">全部 <span>→</span></router-link>
+              <router-link to="/diary" class="card-more">全部 <span><AppIcon name="arrow-right" /></span></router-link>
             </div>
             <ul v-if="recentDiaries.length" class="foot-list">
               <li v-for="d in recentDiaries" :key="d.id" class="foot-item" @click="$router.push('/diary')">
@@ -291,7 +291,7 @@
           <article class="card rv">
             <div class="card-head">
               <h3>最近测评</h3>
-              <router-link to="/test" class="card-more">去测评 <span>→</span></router-link>
+              <router-link to="/test" class="card-more">去测评 <span><AppIcon name="arrow-right" /></span></router-link>
             </div>
             <ul v-if="recentRecords.length" class="foot-list">
               <li v-for="r in recentRecords" :key="r.id" class="foot-item" @click="$router.push('/test')">
@@ -460,7 +460,7 @@ const quickEntries = [
 
 const loadAll = async () => {
   // 游客路径也必须 await：否则 loadAll 立即 resolve，initReveal 会在推荐卡渲染前跑完，
-  // 后出现的 .rv 卡片永远不会被浮现观察器接管 → opacity:0（表现为推荐区一片空白）
+  // 后出现的 .rv 卡片永远不会被浮现观察器接管  opacity:0（表现为推荐区一片空白）
   if (!isLoggedIn.value) { await loadPublic(); return }
   const uid = userId.value
   try {

@@ -10,7 +10,7 @@
     </div>
 
     <div class="ext-note">
-      ⚠️ {{ disclaimer }}
+      <AppIcon name="alert-triangle" /> {{ disclaimer }}
       这里的参数调整的是<b>统计层面的提示阈值</b>，不是医学判定标准；改动后立即生效，无需重启服务。
     </div>
 

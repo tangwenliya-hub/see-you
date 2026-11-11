@@ -1,9 +1,9 @@
 <template>
   <div class="write-page">
     <!-- 顶部横幅（动漫风，颜色跟随个人中心主题色） -->
-    <AnimeHero icon="/img/写日记.png" title="记录今日心情" sub="把今天的心情，轻轻放进来 💚">
+    <AnimeHero icon="/img/写日记.png" title="记录今日心情" sub="把今天的心情，轻轻放进来 ">
       <template #left>
-        <button class="back-btn" @click="$router.push('/diary')">← 返回</button>
+        <button class="back-btn" @click="$router.push('/diary')"><AppIcon name="arrow-left" /> 返回</button>
       </template>
       <template #right>
         <span class="write-today">{{ today }}</span>
@@ -19,7 +19,7 @@
       <div class="sf-sense" v-if="senseReady">
         <div class="sense-head">
           <div class="sense-titles">
-            <b>🔮 系统推测 <span class="sense-badge">推荐</span></b>
+            <b><AppIcon name="wand" /> 系统推测 <span class="sense-badge">推荐</span></b>
             <span>预测结果仅供参考，你可以随意修改或忽略，保存前都由你做主</span>
           </div>
         </div>
@@ -38,7 +38,7 @@
             </span>
           </div>
           <div class="sense-actions">
-            <button class="sense-adopt" @click="adoptSuggestion">✨ 采用并预填</button>
+            <button class="sense-adopt" @click="adoptSuggestion"><AppIcon name="sparkles" /> 采用并预填</button>
             <button class="sense-ignore" @click="ignoreSuggestion">不用了</button>
           </div>
           <!-- 历史推测（不是今天的）：说清采用后会记到哪天，避免用户以为是补记那天 -->
@@ -52,10 +52,10 @@
 
         <div v-else class="sense-actions sense-actions--entry">
           <button class="sense-guess" :disabled="guessing" @click="guessFromText">
-            <span v-if="guessing">推测中…</span><span v-else>🔮 帮我猜一下</span>
+            <span v-if="guessing">推测中…</span><span v-else><AppIcon name="wand" /> 帮我猜一下</span>
           </button>
           <button class="sense-textscan" :disabled="scanning || !form.content.trim()" @click="scanText">
-            <span v-if="scanning">识别中…</span><span v-else>🔍 从文字识别情绪</span>
+            <span v-if="scanning">识别中…</span><span v-else><AppIcon name="search" /> 从文字识别情绪</span>
           </button>
         </div>
         <p v-if="scanResult" class="sense-scan-result">{{ scanResult }}</p>
@@ -63,7 +63,7 @@
 
       <!-- 无感记录未开启：一行轻量引导（总开关开着才显示，避免后端没部署时也冒出来） -->
       <div class="sf-sense sense-guide" v-else-if="senseFeatureOn">
-        <span class="sg-text">🔮 开启「无感记录」后，系统可以帮你预填今日心情 —— 只是推荐，填什么仍由你做主</span>
+        <span class="sg-text"><AppIcon name="wand" /> 开启「无感记录」后，系统可以帮你预填今日心情 —— 只是推荐，填什么仍由你做主</span>
         <router-link to="/profile?tab=sense" class="sg-btn">去开启</router-link>
       </div>
 
@@ -126,7 +126,7 @@
           </div>
           <button v-if="form.sleepHours !== null && form.sleepHours !== ''" type="button" class="sf-sleep-clear" @click="form.sleepHours = null">不记了</button>
         </div>
-        <p class="sf-sleep-tip">不填不影响保存；填了才能在数据看板看到「睡眠 ↔ 情绪」的相关性</p>
+        <p class="sf-sleep-tip">不填不影响保存；填了才能在数据看板看到「睡眠 <AppIcon name="arrows-horizontal" /> 情绪」的相关性</p>
       </div>
 
       <!-- 文字记录 -->
@@ -152,7 +152,7 @@
         </div>
         <label v-else class="sf-img-placeholder sf-img-upload">
           <input type="file" accept="image/*" @change="onPickImage" hidden />
-          <span class="sf-ph-icon">🖼️</span>
+          <span class="sf-ph-icon"><AppIcon name="image" /></span>
           <span class="sf-ph-text">点击选择图片</span>
           <span class="sf-ph-sub">支持 JPG / PNG，不超过 5MB，保存后展示原图</span>
         </label>
@@ -165,7 +165,7 @@
         <button class="sf-save-btn" @click="saveDiary" :disabled="saving">
           <span v-if="saving">保存中...</span>
           <span v-else-if="!form.content.trim()">先写点什么，再保存</span>
-          <span v-else>✅ 保存日记</span>
+          <span v-else><AppIcon name="check" /> 保存日记</span>
         </button>
       </div>
     </div>
@@ -236,10 +236,10 @@ const onPickImage = async (e) => {
       if (res?.code === 200 && res.data?.url) {
         form.value.imageUrl = res.data.url
       } else {
-        ElMessage.error('❌ 上传失败：' + (res?.msg || '未知错误'))
+        ElMessage.error('上传失败：' + (res?.msg || '未知错误'))
       }
     } catch {
-      ElMessage.error('❌ 网络错误，上传失败')
+      ElMessage.error('网络错误，上传失败')
     } finally {
     e.target.value = ''
   }
@@ -281,7 +281,7 @@ async function loadTodaySuggestion() {
   } catch { /* 未开启 / 未登录：静默降级为纯手动录入 */ }
 }
 
-// 从「推测历史 → 去处理」跳过来：记录那条推测的归属日期（可能不是今天）
+// 从「推测历史  去处理」跳过来：记录那条推测的归属日期（可能不是今天）
 const predFromHistory = ref('')
 
 /**
@@ -323,7 +323,7 @@ async function guessFromText() {
     } else if (res?.code !== 200) {
       // 业务失败（如 403 未开启无感记录）：拦截器不 reject，data 为空，
       // 必须显式透出后端 msg，不能落进「给不出推测」的兜底文案误导用户
-      ElMessage.warning({ message: res?.msg || '无感记录未开启，可到「个人中心 → 无感记录」开启', grouping: true })
+      ElMessage.warning({ message: res?.msg || '无感记录未开启，可到「个人中心  无感记录」开启', grouping: true })
     } else {
       ElMessage.info({ message: res?.data?.reason || '暂时给不出推测', grouping: true })
     }
@@ -358,7 +358,7 @@ async function scanText() {
   }
 }
 
-/** 采用推测 → 预填充表单（此时仍不入库，等用户点保存） */
+/** 采用推测  预填充表单（此时仍不入库，等用户点保存） */
 function adoptSuggestion() {
   if (!suggestion.value) return
   form.value.emotion = suggestion.value.emotion
@@ -375,7 +375,7 @@ async function ignoreSuggestion() {
   try { await rejectPrediction(id) } catch { /* 忽略失败不影响用户继续写 */ }
 }
 
-/** 用户手动点了情绪/强度 → 视为「我自己决定的」，取消推测模式 */
+/** 用户手动点了情绪/强度  视为「我自己决定的」，取消推测模式 */
 function pickEmotion(val) { form.value.emotion = val; adoptedMode.value = false }
 function pickIntensity(val) { form.value.intensity = val; adoptedMode.value = false }
 
@@ -425,7 +425,7 @@ const saveDiary = async () => {
 
   saving.value = true
   try {
-    // 采用推测且未手动改动 → 走 confirm 接口，落一条 source=2 的日记（图表上标为「系统推测」）
+    // 采用推测且未手动改动  走 confirm 接口，落一条 source=2 的日记（图表上标为「系统推测」）
     if (adoptedMode.value && suggestion.value?.predictionId) {
       const res = await confirmPrediction(suggestion.value.predictionId, {
         emotion: form.value.emotion,
@@ -435,11 +435,11 @@ const saveDiary = async () => {
         diaryDate,
       })
       if (res?.code === 200) {
-        ElMessage.success('✅ 已记录（来自系统推测，你确认后的版本）')
+        ElMessage.success('已记录（来自系统推测，你确认后的版本）')
         router.push('/diary')
         return
       }
-      ElMessage.error('❌ ' + (res?.msg || '保存失败'))
+      ElMessage.error('' + (res?.msg || '保存失败'))
       return
     }
 
@@ -454,17 +454,17 @@ const saveDiary = async () => {
       sleepHours,
     })
     if (res.code === 200) {
-      ElMessage.success('✅ 日记已记录！')
+      ElMessage.success('日记已记录！')
       await router.push('/diary')
-      // 危机通道：后端保存时已扫描正文，命中危机词就生成了提示 →
+      // 危机通道：后端保存时已扫描正文，命中危机词就生成了提示 
       // 跳转完成后让全局关怀弹窗立刻拉一次（未命中时它什么也不做）。
       // 必须在跳转后派发：弹窗监听器挂在常驻的 AppLayout 上，跳转中派发可能被路由切换吞掉。
       window.dispatchEvent(new CustomEvent('risk-crisis-check'))
     } else {
-      ElMessage.error('❌ ' + (res.msg || '保存失败'))
+      ElMessage.error('' + (res.msg || '保存失败'))
     }
   } catch {
-    ElMessage.error('❌ 网络错误，请重试')
+    ElMessage.error('网络错误，请重试')
   } finally {
     saving.value = false
   }

@@ -16,7 +16,7 @@
       <!-- 批量操作条 -->
       <div v-if="selectedIds.length > 0" class="batch-bar">
         <span class="batch-info">已选择 <b>{{ selectedIds.length }}</b> 条视频</span>
-        <button class="jelly-btn danger" @click="batchDelete">🗑 批量删除</button>
+        <button class="jelly-btn danger" @click="batchDelete"><AppIcon name="trash" /> 批量删除</button>
       </div>
       <table v-if="list.length > 0" class="admin-table">
         <thead><tr>
@@ -36,7 +36,7 @@
             <td>{{ secondsToDuration(v.duration) || '-' }}</td>
             <td>{{ v.playCount || 0 }}</td>
             <td>
-                <button v-if="v.videoUrl" class="jelly-btn ghost" style="padding:4px 14px;font-size:13px" @click="playVideo(v)">▶ 播放</button>
+                <button v-if="v.videoUrl" class="jelly-btn ghost" style="padding:4px 14px;font-size:13px" @click="playVideo(v)"><AppIcon name="play" /> 播放</button>
                 <span v-else style="color:#ccc;font-size:12px">-</span>
               </td>
               <td>{{ v.createTime ? fmtTime(v.createTime).slice(0, 16) : '-' }}</td>
@@ -83,18 +83,18 @@
 
         <!-- 视频：网格选 + 上传 + 预览 -->
         <el-form-item label="视频">
-          <div style="font-size:12px;color:#8a9a8a;margin-bottom:4px">📂 已有视频（点击选中）：</div>
+          <div style="font-size:12px;color:#8a9a8a;margin-bottom:4px"><AppIcon name="folder-open" /> 已有视频（点击选中）：</div>
           <div v-if="videoList.length > 0" style="max-height:100px;overflow-y:auto;padding:6px;border:1px solid #eee;border-radius:8px;margin-bottom:6px">
             <div v-for="v in videoList" :key="v.name" @click="selectVideo(v)"
                  :style="{padding:'4px 8px',cursor:'pointer',borderRadius:'4px',marginBottom:'3px',fontSize:'12px',background: form.videoUrl === v.url ? '#e6f3e6' : 'transparent',border: form.videoUrl === v.url ? '1px solid #6a9a6a' : '1px solid transparent'}">
-              🎬 {{ v.name }}
+              <AppIcon name="video" /> {{ v.name }}
             </div>
           </div>
           <div v-else style="font-size:12px;color:#ccc;margin-bottom:6px">暂无视频文件，请先上传</div>
           <div style="display:flex;gap:8px;align-items:center">
             <input type="file" accept="video/*" @change="handleVideoPick" ref="videoInput" style="display:none" />
             <button type="button" class="jelly-btn ghost" @click="$refs.videoInput.click()" :disabled="uploadingVideo">
-              {{ uploadingVideo ? '上传中...' : '📁 上传新视频' }}
+              {{ uploadingVideo ? '上传中...' : ' 上传新视频' }}
             </button>
           </div>
         </el-form-item>
@@ -122,7 +122,7 @@
             <img :src="coverPreviewUrl" style="max-width:100%;max-height:100%;border-radius:8px" />
           </div>
           <div v-else style="width:100%;height:80px;border-radius:10px;background:#f8f8f8;border:2px dashed #ddd;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:13px;margin-bottom:8px">未选择封面</div>
-          <div style="font-size:12px;color:#8a9a8a;margin-bottom:4px">📂 已有封面（点击选中）：</div>
+          <div style="font-size:12px;color:#8a9a8a;margin-bottom:4px"><AppIcon name="folder-open" /> 已有封面（点击选中）：</div>
           <div v-if="coverList.length > 0" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:150px;overflow-y:auto;padding:4px;border:1px solid #eee;border-radius:8px;margin-bottom:6px">
             <div v-for="img in coverList" :key="img.name" @click="selectCover(img)"
                  :style="{border: form.coverImg === img.url ? '2px solid #6a9a6a' : '2px solid transparent', borderRadius:'6px', cursor:'pointer', padding:'2px'}">
@@ -132,14 +132,14 @@
           <div style="display:flex;gap:8px;align-items:center">
             <input type="file" accept="image/*" @change="handleCoverPick" ref="coverInput" style="display:none" />
             <button type="button" class="jelly-btn ghost" @click="$refs.coverInput.click()" :disabled="uploadingCover">
-              {{ uploadingCover ? '上传中...' : '📁 上传新封面' }}
+              {{ uploadingCover ? '上传中...' : ' 上传新封面' }}
             </button>
           </div>
         </el-form-item>
       </el-form>
       <template #footer>
         <button class="jelly-btn ghost" @click="dialogVisible=false">取消</button>
-        <button class="jelly-btn primary" @click="save">💾 保存</button>
+        <button class="jelly-btn primary" @click="save"><AppIcon name="save" /> 保存</button>
       </template>
     </el-dialog>
 
@@ -249,7 +249,7 @@ const selectVideo = (v) => {
 const selectCover = (img) => { form.value.coverImg = img.url }
 
 // ===== 时长换算：数据库 duration 是 int 秒，界面用 mm:ss 展示/输入 =====
-// "mm:ss" / "hh:mm:ss" / 纯数字(秒) → 秒；解析失败返回 0
+// "mm:ss" / "hh:mm:ss" / 纯数字(秒)  秒；解析失败返回 0
 const durationToSeconds = (val) => {
   if (val === null || val === undefined || val === '') return 0
   const s = String(val).trim()
@@ -260,7 +260,7 @@ const durationToSeconds = (val) => {
     ? parts[0] * 3600 + parts[1] * 60 + parts[2]
     : parts[0] * 60 + parts[1]
 }
-// 秒 → "mm:ss"（展示用）
+// 秒  "mm:ss"（展示用）
 const secondsToDuration = (sec) => {
   const n = parseInt(sec, 10)
   if (!isFinite(n) || n <= 0) return ''

@@ -1,7 +1,8 @@
 <template>
   <div class="login-page">
-    <!-- 返回欢迎页：登录/注册中途也可以反悔 -->
-    <router-link to="/" class="back-home"><span class="bk-arrow">←</span>返回首页</router-link>
+    <div class="login-wrap">
+    <!-- 返回欢迎页：贴在卡片顶部外侧，左缘与卡片对齐 -->
+    <router-link to="/" class="back-home"><span class="bk-arrow"><AppIcon name="arrow-left" /></span>返回首页</router-link>
     <div class="login-card">
       <!-- 左侧滑动图 -->
       <div class="pre-box" :style="{ transform: flag ? 'translateX(0%)' : 'translateX(100%)', backgroundColor: flag ? '#e1f0e5' : '#ddeec7' }">
@@ -14,15 +15,18 @@
 
       <!-- 注册表单 -->
       <div class="register-form" :class="{ 'form-hidden': flag }">
-        <div class="title-box"><h1>注册</h1></div>
+        <div class="title-box">
+          <h1>注册</h1>
+          <p class="form-sub">创建新账号，开始记录你的情绪 <AppIcon name="sparkles" /></p>
+        </div>
         <div class="input-box">
           <input type="text" v-model="regForm.username" placeholder="账号（2-20个字符）" maxlength="20" @keyup.enter="doRegister" />
-          <p class="reg-hint warn">⚠️ 仅用于登录，注册后不可修改，页面不会展示</p>
+          <p class="reg-hint warn"><AppIcon name="alert-triangle" /> 仅用于登录，注册后不可修改，页面不会展示</p>
           <input type="text" v-model="regForm.nickname" placeholder="昵称（选填，页面里展示的名字）" maxlength="20" @keyup.enter="doRegister" />
           <!-- 邮箱必填：忘记密码靠它接收验证码，不绑邮箱的账号无法自助找回 -->
           <input type="email" v-model="regForm.email" placeholder="邮箱（必填，用于找回密码）" @keyup.enter="doRegister" />
           <p v-if="regForm.email" class="reg-hint" :class="emailOk ? 'ok' : 'err'">
-            {{ emailOk ? '✅ 邮箱格式正确' : '✗ 邮箱格式不正确' }}
+            <AppIcon :name="emailOk ? 'check' : 'close'" /> {{ emailOk ? '邮箱格式正确' : '邮箱格式不正确' }}
           </p>
           <input type="password" v-model="regForm.password" placeholder="密码（至少6位）" @keyup.enter="doRegister" />
           <!-- 密码强度提示 -->
@@ -33,7 +37,7 @@
           </div>
           <input type="password" v-model="regForm.confirm" placeholder="确认密码" @keyup.enter="doRegister" />
           <p v-if="regForm.confirm" class="reg-hint" :class="regForm.confirm === regForm.password ? 'ok' : 'err'">
-            {{ regForm.confirm === regForm.password ? '✅ 两次密码一致' : '✗ 两次输入的密码不一致' }}
+            <AppIcon :name="regForm.confirm === regForm.password ? 'check' : 'close'" /> {{ regForm.confirm === regForm.password ? '两次密码一致' : '两次输入的密码不一致' }}
           </p>
           <!-- 图形验证码：防脚本批量注册（后端强校验，与服务端共用同一套） -->
           <div class="captcha-row">
@@ -58,12 +62,15 @@
           <button :disabled="regLoading || !agreeChecked" @click="doRegister">{{ regLoading ? '注册中…' : '注 册' }}</button>
           <p @click="switchMode">已有账号？<span class="switch-link">去登录</span></p>
         </div>
-        <p class="privacy-note">🔒 您的情绪数据仅用于个人记录与分析</p>
+        <p class="privacy-note"><AppIcon name="lock" /> 您的情绪数据仅用于个人记录与分析</p>
       </div>
 
       <!-- 登录表单 -->
       <div class="login-form" :class="{ 'form-hidden': !flag }">
-        <div class="title-box"><h1>登录</h1></div>
+        <div class="title-box">
+          <h1>登录</h1>
+          <p class="form-sub">欢迎回来，请登录你的账号 <AppIcon name="sparkles" /></p>
+        </div>
         <div class="input-box">
           <input type="text" v-model="loginForm.username" placeholder="用户名 / 账号" maxlength="20" />
           <input type="password" v-model="loginForm.password" placeholder="密码" @keyup.enter="doLogin" />
@@ -86,21 +93,22 @@
             <a class="forgot-link" @click="forgotPwd">忘记密码？</a>
           </div>
           <!-- 登录失败内联提示 -->
-          <p class="form-error" v-if="loginError">⚠️ {{ loginError }}</p>
+          <p class="form-error" v-if="loginError"><AppIcon name="alert-triangle" /> {{ loginError }}</p>
         </div>
         <div class="btn-box">
           <button :disabled="loginLoading" @click="doLogin">{{ loginLoading ? '登录中…' : '登 录' }}</button>
           <p @click="switchMode">没有账号？<span class="switch-link">去注册</span></p>
         </div>
 
-        <p class="privacy-note">🔒 您的情绪数据仅用于个人记录与分析</p>
+        <p class="privacy-note"><AppIcon name="lock" /> 您的情绪数据仅用于个人记录与分析</p>
       </div>
+    </div>
     </div>
 
     <!-- 忘记密码弹窗（三步：账号 → 验证码 → 新密码） -->
     <div class="agree-mask" v-if="forgotVisible" @click.self="forgotVisible = false">
       <div class="agree-dialog forgot-dialog">
-        <button class="dlg-close" title="关闭" @click="forgotVisible = false">✕</button>
+        <button class="dlg-close" title="关闭" @click="forgotVisible = false"><AppIcon name="close" /></button>
         <h3>找回密码</h3>
         <div class="agree-body">
           <template v-if="forgotStep === 1">
@@ -116,7 +124,7 @@
             <input class="fp-input" type="password" v-model="forgotForm.password" placeholder="新密码（至少 6 位）" />
           </template>
           <template v-else>
-            <p class="fp-done">✅ 密码已重置，请用新密码登录。</p>
+            <p class="fp-done"><AppIcon name="check" /> 密码已重置，请用新密码登录。</p>
           </template>
         </div>
         <button class="agree-ok" v-if="forgotStep === 1" :disabled="forgotLoading" @click="sendForgotCode">
@@ -132,7 +140,7 @@
     <!-- 注册成功引导：选头像 + 主题色 -->
     <div class="agree-mask onboard-mask" v-if="onboardVisible">
       <div class="agree-dialog onboard-dialog">
-        <button class="dlg-close" title="关闭" @click="skipOnboard">✕</button>
+        <button class="dlg-close" title="关闭" @click="skipOnboard"><AppIcon name="close" /></button>
         <h3>欢迎加入绪见</h3>
         <p class="ob-sub">挑一个你喜欢的形象和主题色，马上开始记录</p>
         <div class="ob-block">
@@ -166,7 +174,7 @@
     <!-- 用户协议弹窗 -->
     <div class="agree-mask" v-if="agreeVisible" @click.self="agreeVisible = false">
       <div class="agree-dialog">
-        <button class="dlg-close" title="关闭" @click="agreeVisible = false">✕</button>
+        <button class="dlg-close" title="关闭" @click="agreeVisible = false"><AppIcon name="close" /></button>
         <h3>用户协议与隐私政策</h3>
         <div class="agree-body">
           <p><b>1. 数据用途</b>：您的情绪数据仅用于个人记录与分析，不会用于任何商业用途，也不会提供给任何第三方。</p>
@@ -347,7 +355,7 @@ const finishOnboard = async () => {
   onboardVisible.value = false
   flag.value = true      // 回到登录模式
   refreshCaptcha()
-  ElMessage.success('设置已保存，登录后立即生效 💚')
+  ElMessage.success('设置已保存，登录后立即生效 ')
 }
 
 // 跳过引导：同样暂存偏好，等登录后生效
@@ -497,31 +505,24 @@ onMounted(() => {
   // 支持 /login?mode=register 直达注册表单（顶栏"注册"入口）
   if (route.query.mode === 'register' && flag.value) switchMode()
   const body = document.querySelector('.login-page')
-  // 光斑泡泡（原始动效）
+  // 光斑泡泡：桌面端保持原样；手机屏上纯装饰且显乱，直接不生成
   const bubleCreate = () => {
+    if (window.innerWidth <= 768) return
     const buble = document.createElement('span')
-    const r = Math.random() * 5 + 25
+    const r = Math.random() * 12 + 8
     buble.style.width = r + 'px'
     buble.style.height = r + 'px'
     buble.style.left = Math.random() * innerWidth + 'px'
     body.appendChild(buble)
     setTimeout(() => buble.remove(), 4000)
   }
-  bubbleTimer = setInterval(bubleCreate, 200)
+  bubbleTimer = setInterval(bubleCreate, 480)
   refreshCaptcha()
 })
 onBeforeUnmount(() => { if (bubbleTimer) clearInterval(bubbleTimer) })
 </script>
 
 <style scoped>
-.login-page {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  background: linear-gradient(to right, rgb(247, 209, 215), rgb(191, 227, 241));
-}
 /* 弹窗右上角关闭按钮 + ESC 关闭 */
 .dlg-close {
   position: absolute; top: 12px; right: 14px;
@@ -559,17 +560,7 @@ onBeforeUnmount(() => { if (bubbleTimer) clearInterval(bubbleTimer) })
 }
 .agree-ok:hover { opacity: 0.9; }
 
-/* 验证码图片：与输入框同高、同圆角、同软边框，点击可刷新（@click 已接 refreshCaptcha） */
-.captcha-img {
-  height: 40px; box-sizing: border-box; border-radius: 12px; cursor: pointer;
-  border: 1.5px solid #c6e0d2; background: #fff; flex: 0 0 120px;
-}
-.captcha-img:hover { opacity: .85; }
-.captcha-loading {
-  flex: 0 0 120px; height: 40px; box-sizing: border-box; line-height: 37px; text-align: center;
-  font-size: 12px; color: #8aa; cursor: pointer;
-  border: 1.5px dashed #c6e0d2; border-radius: 12px; background: rgba(255,255,255,.6);
-}
+/* 验证码图样式统一在 styles/login.css 里维护（同高同圆角、宽度约内容列 1/3） */
 
 /* 找回密码弹窗 */
 .forgot-dialog { max-width: 420px; }

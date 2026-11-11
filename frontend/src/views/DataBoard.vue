@@ -1,7 +1,7 @@
 <template>
   <div :class="['board-page', { embedded }]">
     <!-- ===== 顶部（内嵌时不显示）===== -->
-    <AnimeHero v-if="!embedded" emoji="📊" title="我的数据看板" sub="把每天的情绪攒起来，慢慢看清自己的曲线 💚">
+    <AnimeHero v-if="!embedded" glyph="chart-bar" title="我的数据看板" sub="把每天的情绪攒起来，慢慢看清自己的曲线 ">
       <template #right>
         <div class="hero-right">
           <div class="range-switch">
@@ -13,7 +13,7 @@
             <option v-for="y in yearOptions" :key="y" :value="y">{{ y }} 年</option>
           </select>
           <button class="export-btn" :disabled="exporting" @click="exportBoardCsv" title="导出近一年每日情绪指数为 CSV">
-            {{ exporting ? '导出中…' : '⬇ 导出数据' }}
+            <template v-if="exporting">导出中…</template><template v-else><AppIcon name="download" /> 导出数据</template>
           </button>
         </div>
       </template>
@@ -24,7 +24,7 @@
 
     <!-- 接口异常时给出可见提示，避免"图表空白但用户不知道为什么" -->
     <div v-if="loadErr" class="board-alert">
-      ⚠️ 「{{ loadErr }}」加载失败，其余图表不受影响。
+      <AppIcon name="alert-triangle" /> 「{{ loadErr }}」加载失败，其余图表不受影响。
       <button class="alert-retry" @click="loadErr = ''; loadAll()">重试</button>
     </div>
 
@@ -130,7 +130,7 @@
       <section class="panel glass flex-1">
         <div class="panel-head">
           <h2>一周情绪流向</h2>
-          <span class="panel-tip">星期 → 情绪 · 线越宽表示这天出现得越多</span>
+          <span class="panel-tip">星期 <AppIcon name="arrow-right" /> 情绪 · 线越宽表示这天出现得越多</span>
         </div>
         <div ref="sankeyRef" class="chart sankey-chart"></div>
       </section>
@@ -149,7 +149,7 @@
     <div class="panel-row">
       <section class="panel glass flex-2 sense-highlight">
         <div class="panel-head">
-          <h2>✍️ 手记 vs 🤖 推测</h2>
+          <h2><AppIcon name="edit" /> 手记 vs <AppIcon name="bot" /> 推测</h2>
           <span class="panel-tip">
             实线=你亲手记录的真实情绪，虚线=系统推测后经你确认的记录 · 近 {{ senseDays }} 天
           </span>
@@ -183,7 +183,7 @@
           <span class="panel-tip">{{ corrDays }} 天内 {{ corrScatter.length }} 个样本点</span>
         </div>
         <div ref="behScatterRef" class="chart"></div>
-        <p v-if="!corrScatter.length" class="chart-empty">采集到若干天行为数据后，这里会画出你的「使用时长 ↔ 心情」散点。</p>
+        <p v-if="!corrScatter.length" class="chart-empty">采集到若干天行为数据后，这里会画出你的「使用时长 <AppIcon name="arrows-horizontal" /> 心情」散点。</p>
       </section>
 
       <section class="panel glass flex-1 sense-highlight">
@@ -531,7 +531,7 @@ const loadScatter = async () => {
   try {
     const res = await getMyScatter(90)
     const pts = res?.data || []
-    if (!pts.length) { scatterTip.value = '暂无带睡眠时长的日记数据 · 去「绪见日记」页点「🌙 补睡眠」可批量补录'; return }
+    if (!pts.length) { scatterTip.value = '暂无带睡眠时长的日记数据 · 去「绪见日记」页点「 补睡眠」可批量补录'; return }
     // 最小二乘回归：y = a + b·x
     const n = pts.length
     const sx = pts.reduce((s, p) => s + p.sleep, 0)
@@ -663,7 +663,7 @@ const loadSankey = async () => {
       tooltip: {
         trigger: 'item',
         formatter: (p) => p.dataType === 'edge'
-          ? `${p.data.source} → ${p.data.target}<br/><b>${p.data.value}</b> 篇`
+          ? `${p.data.source}  ${p.data.target}<br/><b>${p.data.value}</b> 篇`
           : `${p.name}<br/>共 <b>${p.value}</b> 篇`,
         backgroundColor: TOOLTIP_BG(), borderColor: hexA(accent(), 0.45), textStyle: { color: TOOLTIP_TEXT() },
       },
@@ -689,7 +689,7 @@ const loadSankey = async () => {
  * 它靠 `import 'echarts/lib/echarts'` 打到内部注册表，目前能用，但这属于
  * 「官方没承诺」的路径：换依赖版本就可能变成「图表区域一片空白 + 控制台只有
  * 一行看不懂的 warning」。所以这里加一个运行时探针 + 降级方案：
- *   setOption 后若 zrender 里连一个图元都没有 → 判定词云不可用，
+ *   setOption 后若 zrender 里连一个图元都没有  判定词云不可用，
  *   改用词频条形图（同样的数据、同样的信息量），并在标题里说明已降级。
  * 降级只会发生一次（wordCloudBroken 缓存），不影响其它图表。
  */
@@ -732,7 +732,7 @@ const loadKeywords = async () => {
     if (!words.length) {
       wordChart.set({
         series: [{ type: 'bar', data: [] }],
-        graphic: [{ type: 'text', left: 'center', top: 'middle', style: { text: '日记再多写几篇，关键词就会长出来 🌱', fill: AXIS_COLOR(), fontSize: 13 } }],
+        graphic: [{ type: 'text', left: 'center', top: 'middle', style: { text: '日记再多写几篇，关键词就会长出来 ', fill: AXIS_COLOR(), fontSize: 13 } }],
       }, { notMerge: true })
       return
     }

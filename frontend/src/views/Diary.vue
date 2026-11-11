@@ -19,8 +19,8 @@
               <span class="meta-label">本周主打</span>
             </div>
           </div>
-          <button class="write-fab ghost-fab" @click="sleepBackfillVisible = true" title="批量补录近 7 天昨晚睡眠（数据看板散点用）">🌙 补睡眠</button>
-          <button class="write-fab ghost-fab" @click="exportDiaryCsv" title="导出全部日记为 CSV">⬇ 导出</button>
+          <button class="write-fab ghost-fab" @click="sleepBackfillVisible = true" title="批量补录近 7 天昨晚睡眠（数据看板散点用）"><AppIcon name="moon" /> 补睡眠</button>
+          <button class="write-fab ghost-fab" @click="exportDiaryCsv" title="导出全部日记为 CSV"><AppIcon name="download" /> 导出</button>
           <button class="write-fab" @click="scrollToWrite"><img class="fab-icon" src="/img/写日记.png" alt="" /> 写日记</button>
         </div>
       </template>
@@ -110,7 +110,7 @@
               <div class="sum-tags">
                 <span class="tag" :style="{background:getEmotionBg(todayDiary.emotion)}">{{ getEmotionLabel(todayDiary.emotion) }}</span>
                 <span v-if="todayDiary.intensity" class="tag intensity-tag">{{ getIntensityLabel(todayDiary.intensity) }}</span>
-                <span v-if="isAutoFilled(todayDiary)" class="tag auto-tag">🌙 系统代记</span>
+                <span v-if="isAutoFilled(todayDiary)" class="tag auto-tag"><AppIcon name="moon" /> 系统代记</span>
                 <span v-for="k in extractKeywords(todayDiary.diaryContent)" :key="k" class="tag kw">#{{ k }}</span>
               </div>
             </div>
@@ -119,12 +119,12 @@
             <!-- 代记的意义是「不开 App 也不断签」，但不能让它一直是机器写的 -->
             <div v-if="isAutoFilled(todayDiary)" class="sum-auto-note">
               <span>今天你没打开也没关系，系统按使用痕迹替你记了一条，连续打卡不会断。</span>
-              <button class="sum-auto-btn" @click="editDiary(todayDiary)">✎ 补一句，变成我的日记</button>
+              <button class="sum-auto-btn" @click="editDiary(todayDiary)"><AppIcon name="pen" /> 补一句，变成我的日记</button>
             </div>
           </template>
           <div v-else class="sum-empty">
             <p>今天还没有记录哦~</p>
-            <p class="sum-hint">写下第一篇，让心情被温柔接住 💚</p>
+            <p class="sum-hint">写下第一篇，让心情被温柔接住 <AppIcon name="heart" /></p>
           </div>
         </div>
 
@@ -181,7 +181,7 @@
               <div class="nb-pages">
                 <div v-if="diaryList.length === 0" class="nb-empty">
                   <p>还没有写过日记哦~</p>
-                  <p class="nb-empty-hint">写下第一篇吧 💚</p>
+                  <p class="nb-empty-hint">写下第一篇吧 <AppIcon name="heart" /></p>
                 </div>
                 <template v-else>
                   <div class="nb-entry page-current" :key="currentDiary?.diaryId" @click="openDiaryOfDay(currentDiary?.diaryDate)">
@@ -189,16 +189,16 @@
                       <span class="nb-entry-date">{{ currentDiary?.diaryDate }}</span>
                       <img class="nb-entry-emoji" :src="getEmotionIcon(currentDiary?.emotion)" alt="" />
                       <span class="nb-entry-mood" :style="{background:getEmotionBg(currentDiary?.emotion)}">{{ getEmotionLabel(currentDiary?.emotion) }}</span>
-                      <span v-if="isAutoFilled(currentDiary)" class="nb-auto-tag">🌙 代记</span>
+                      <span v-if="isAutoFilled(currentDiary)" class="nb-auto-tag"><AppIcon name="moon" /> 代记</span>
                     </div>
                     <p class="nb-entry-text">{{ currentDiary?.diaryContent || '' }}</p>
                     <img v-if="currentDiary?.imageUrl" :src="currentDiary?.imageUrl" class="nb-entry-img" alt="" />
                   </div>
                   <!-- 翻页控件 -->
                   <div class="nb-pager">
-                    <button class="nb-page-btn" :disabled="diaryPageIndex >= diaryList.length - 1" @click="diaryPageIndex++">← 上一篇</button>
+                    <button class="nb-page-btn" :disabled="diaryPageIndex >= diaryList.length - 1" @click="diaryPageIndex++"><AppIcon name="arrow-left" /> 上一篇</button>
                     <span class="nb-page-num">{{ diaryList.length - diaryPageIndex }} / {{ diaryList.length }}</span>
-                    <button class="nb-page-btn" :disabled="diaryPageIndex <= 0" @click="diaryPageIndex--">下一篇 →</button>
+                    <button class="nb-page-btn" :disabled="diaryPageIndex <= 0" @click="diaryPageIndex--">下一篇 <AppIcon name="arrow-right" /></button>
                   </div>
                 </template>
               </div>
@@ -216,13 +216,13 @@
           <img class="sum-emoji" :src="getEmotionIcon(dayDiaryTarget.emotion)" alt="" />
           <span class="tag" :style="{background:getEmotionBg(dayDiaryTarget.emotion)}">{{ getEmotionLabel(dayDiaryTarget.emotion) }}</span>
           <span v-if="dayDiaryTarget.intensity" class="tag intensity-tag">{{ getIntensityLabel(dayDiaryTarget.intensity) }}</span>
-          <span v-if="isAutoFilled(dayDiaryTarget)" class="tag auto-tag">🌙 系统代记</span>
+          <span v-if="isAutoFilled(dayDiaryTarget)" class="tag auto-tag"><AppIcon name="moon" /> 系统代记</span>
         </div>
         <p class="sum-text">{{ dayDiaryTarget.diaryContent }}</p>
         <img v-if="dayDiaryTarget.imageUrl" :src="dayDiaryTarget.imageUrl" class="sum-img" alt="" />
         <div class="modal-actions">
-          <button class="save-btn" @click="editDiary(dayDiaryTarget); dayDiaryTarget = null">{{ isAutoFilled(dayDiaryTarget) ? '✎ 补一句' : '✎ 编辑' }}</button>
-          <button class="cancel-btn danger-btn" @click="delDiary(dayDiaryTarget)">🗑 删除</button>
+          <button class="save-btn" @click="editDiary(dayDiaryTarget); dayDiaryTarget = null"><template v-if="isAutoFilled(dayDiaryTarget)"><AppIcon name="pen" /> 补一句</template><template v-else><AppIcon name="pen" /> 编辑</template></button>
+          <button class="cancel-btn danger-btn" @click="delDiary(dayDiaryTarget)"><AppIcon name="trash" /> 删除</button>
           <button class="cancel-btn" @click="dayDiaryTarget = null">关闭</button>
         </div>
       </div>
@@ -234,7 +234,7 @@
     <!-- ===== 编辑弹窗 ===== -->
     <div v-if="editTarget" class="modal-mask" @click.self="editTarget = null">
       <div class="modal-card glass">
-        <h3>✎ {{ isAutoFilled(editTarget) ? '把这条变成我的日记' : '编辑日记' }}</h3>
+        <h3><AppIcon name="pen" /> {{ isAutoFilled(editTarget) ? '把这条变成我的日记' : '编辑日记' }}</h3>
         <p v-if="isAutoFilled(editTarget)" class="edit-auto-hint">
           这条是系统按使用痕迹代记的。写上你的真实感受并保存，它就会变成为你亲笔记录，同时获得经验值。
         </p>
@@ -248,14 +248,14 @@
         </div>
         <!-- 补记昨晚睡眠（生活因子，喂给数据看板「睡眠 × 情绪」散点） -->
         <div class="edit-sleep-row">
-          <span class="es-label">🌙 昨晚睡眠</span>
+          <span class="es-label"><AppIcon name="moon" /> 昨晚睡眠</span>
           <input v-model.number="editSleep" type="number" min="0" max="24" step="0.5" placeholder="不填" class="es-input" />
           <span class="es-unit">小时</span>
           <span class="es-tip">可选，用于睡眠与情绪分析</span>
         </div>
         <div class="modal-actions">
           <button class="cancel-btn" @click="editTarget = null">取消</button>
-          <button class="save-btn" @click="confirmEdit">💾 保存</button>
+          <button class="save-btn" @click="confirmEdit"><AppIcon name="save" /> 保存</button>
         </div>
       </div>
     </div>
@@ -295,25 +295,25 @@ const router = useRouter()
 const route = useRoute()
 
 // ===== 情绪配置 =====
-const getEmotionIcon = (v) => emotions.find(e => e.val === v)?.icon || '❓'
+const getEmotionIcon = (v) => emotions.find(e => e.val === v)?.icon || ''
 const getEmotionBg = (v) => emotions.find(e => e.val === v)?.bg || '#e0f5df'
 const getEmotionLabel = (v) => emotions.find(e => e.val === v)?.label || '未知'
 const getIntensityLabel = (v) => ({ 1: '轻度', 2: '中度', 3: '重度' }[v] || '')
 
 // ===== 情绪极性（用于图表，9种情绪全覆盖）=====
-const positiveEmos = [1, 2, 7, 8]  // 开心 平静 兴奋 满足 → 积极
-const neutralEmos = [3, 6, 9]      // 疲惫 焦虑 其他 → 中性
-const negativeEmos = [4, 5]        // 难过 生气 → 消极
+const positiveEmos = [1, 2, 7, 8]  // 开心 平静 兴奋 满足  积极
+const neutralEmos = [3, 6, 9]      // 疲惫 焦虑 其他  中性
+const negativeEmos = [4, 5]        // 难过 生气  消极
 
 // ===== AI 寄语库 =====
 const whisperPool = {
-  good: ['今天的心情被温柔接住啦 🌿', '你值得所有美好，慢慢来也没关系 ✨', '愿今天的阳光都为你而洒 ☀️'],
-  calm: ['平静是一种难得的力量 🍃', '呼吸放缓，世界会变柔软 🌊', '在喧嚣中守住自己的节奏 💚'],
-  tired: ['今天辛苦了，好好休息是对自己最好的奖励 🌙', '累了就停下来，你不是机器 🛌', '疲惫是身体在提醒你要好好爱自己 💤'],
-  sad: ['眼泪是情绪在洗澡，洗完就会好起来的 🫧', '难过的时候不要一个人扛，说出来会轻一点 💗', '黑夜会过去，你值得被拥抱 🌸'],
-  angry: ['深呼吸三分钟，世界会安静下来 ☁️', '生气时别做决定，先喝杯温水 🍵', '情绪没有对错，重要的是如何与之相处 🫂'],
-  anxious: ['焦虑是因为你想变得更好，谢谢你的认真 🫶', '一步一步来，不必什么都今天做完 🎯', '把大目标拆小，每一小步都算数 🌱'],
-  default: ['记录心情本身就是一种疗愈 💚', '每一天都是独一无二的礼物 🎁', '你已经做得很好了，继续加油 ✨']
+  good: ['今天的心情被温柔接住啦 ', '你值得所有美好，慢慢来也没关系 ', '愿今天的阳光都为你而洒 '],
+  calm: ['平静是一种难得的力量 ', '呼吸放缓，世界会变柔软 ', '在喧嚣中守住自己的节奏 '],
+  tired: ['今天辛苦了，好好休息是对自己最好的奖励 ', '累了就停下来，你不是机器 ', '疲惫是身体在提醒你要好好爱自己 '],
+  sad: ['眼泪是情绪在洗澡，洗完就会好起来的 ', '难过的时候不要一个人扛，说出来会轻一点 ', '黑夜会过去，你值得被拥抱 '],
+  angry: ['深呼吸三分钟，世界会安静下来 ', '生气时别做决定，先喝杯温水 ', '情绪没有对错，重要的是如何与之相处 '],
+  anxious: ['焦虑是因为你想变得更好，谢谢你的认真 ', '一步一步来，不必什么都今天做完 ', '把大目标拆小，每一小步都算数 '],
+  default: ['记录心情本身就是一种疗愈 ', '每一天都是独一无二的礼物 ', '你已经做得很好了，继续加油 ']
 }
 
 // ===== 状态 =====
@@ -495,13 +495,13 @@ const topEmotionMonth = computed(() => {
   return emotions.find(e => e.val === top) || emotions[0]
 })
 const monthSummary = computed(() => {
-  if (monthDiaries.value.length === 0) return '本月还没有记录，期待你的第一篇 💚'
+  if (monthDiaries.value.length === 0) return '本月还没有记录，期待你的第一篇 '
   const top = topEmotionMonth.value
   const pos = monthPosRate.value
   // 注意：top.icon 是图片路径（/img/xx.png），不能拼进文案里，只用文字 label
-  if (pos >= 60) return `本月「${top.label}」情绪居多，整体状态很不错！继续保持 ✨`
-  if (pos >= 40) return `本月情绪起伏较多，主打「${top.label}」。记得照顾好自己 🌿`
-  return `本月「${top.label}」偏多，心情有点低落，会好起来的 💪`
+  if (pos >= 60) return `本月「${top.label}」情绪居多，整体状态很不错！继续保持 `
+  if (pos >= 40) return `本月情绪起伏较多，主打「${top.label}」。记得照顾好自己 `
+  return `本月「${top.label}」偏多，心情有点低落，会好起来的 `
 })
 
 // ===== 日期工具 =====
@@ -659,7 +659,7 @@ const renderChart = () => {
 // ===== AI 智能寄语（先调后端 AI 接口，失败则兜底本地池）=====
 const pickWhisper = async () => {
   const info = JSON.parse(localStorage.getItem('userInfo') || 'null')
-  aiWhisper.value = '🪄 绪见 AI 正在为你生成...'
+  aiWhisper.value = ' 绪见 AI 正在为你生成...'
   try {
     const res = await generateWhisper(info?.userId)
     if (res?.code === 200 && res.data) {
@@ -671,13 +671,13 @@ const pickWhisper = async () => {
   }
   // 兜底：本地随机文案池（9种情绪全覆盖）
   const emoToPool = (e) => {
-    if ([1, 7, 8].includes(e)) return whisperPool.good      // 开心 兴奋 满足 → good
-    if (e === 2) return whisperPool.calm                   // 平静 → calm
-    if (e === 3) return whisperPool.tired                  // 疲惫 → tired
-    if (e === 4) return whisperPool.sad                    // 难过 → sad
-    if (e === 5) return whisperPool.angry                  // 生气 → angry
-    if (e === 6) return whisperPool.anxious                // 焦虑 → anxious
-    return whisperPool.default                              // 其他/未知 → default
+    if ([1, 7, 8].includes(e)) return whisperPool.good      // 开心 兴奋 满足  good
+    if (e === 2) return whisperPool.calm                   // 平静  calm
+    if (e === 3) return whisperPool.tired                  // 疲惫  tired
+    if (e === 4) return whisperPool.sad                    // 难过  sad
+    if (e === 5) return whisperPool.angry                  // 生气  angry
+    if (e === 6) return whisperPool.anxious                // 焦虑  anxious
+    return whisperPool.default                              // 其他/未知  default
   }
   let pool = whisperPool.default
   if (todayDiary.value) {
@@ -713,10 +713,10 @@ const onPickImage = async (e) => {
     if (res?.code === 200 && res.data?.url) {
       form.value.imageUrl = res.data.url   // 存 /diary/xxx.jpg
     } else {
-      alert('❌ 上传失败：' + (res?.msg || '未知错误'))
+      alert(' 上传失败：' + (res?.msg || '未知错误'))
     }
   } catch {
-    alert('❌ 网络错误，上传失败')
+    alert(' 网络错误，上传失败')
   } finally {
     e.target.value = ''
   }
@@ -741,15 +741,15 @@ const saveDiary = async () => {
       form.value.emotion = 1
       form.value.imageUrl = ''
       await loadDiaries()
-      alert('✅ 日记已记录！')
-      // 危机通道：后端在保存时已扫描正文，命中危机词就会生成提示 →
+      alert(' 日记已记录！')
+      // 危机通道：后端在保存时已扫描正文，命中危机词就会生成提示 
       // 这里让全局弹窗立刻重新拉一次（没有命中时它什么也不做）
       window.dispatchEvent(new CustomEvent('risk-crisis-check'))
     } else {
-      alert('❌ ' + (res.msg || '保存失败'))
+      alert(' ' + (res.msg || '保存失败'))
     }
   } catch (e) {
-    alert('❌ 网络错误，请重试')
+    alert(' 网络错误，请重试')
   }
 }
 
@@ -767,7 +767,7 @@ const confirmEdit = async () => {
   let sleepHours
   if (editSleep.value !== '' && editSleep.value !== null) {
     const n = Number(editSleep.value)
-    if (Number.isNaN(n) || n < 0 || n > 24) { alert('⚠️ 睡眠时长请填 0 ~ 24 之间的数字（可带 .5）'); return }
+    if (Number.isNaN(n) || n < 0 || n > 24) { alert(' 睡眠时长请填 0 ~ 24 之间的数字（可带 .5）'); return }
     sleepHours = Math.round(n * 2) / 2
   }
   const payload = {
@@ -788,10 +788,10 @@ const confirmEdit = async () => {
       await loadDiaries()
       window.dispatchEvent(new CustomEvent('risk-crisis-check'))
     } else {
-      alert('❌ ' + (res.msg || '修改失败'))
+      alert(' ' + (res.msg || '修改失败'))
     }
   } catch {
-    alert('❌ 网络错误')
+    alert(' 网络错误')
   }
 }
 // 入参可以是 diaryId，也可以是日记对象
@@ -805,8 +805,8 @@ const delDiary = async (d) => {
     dayDiaryTarget.value = null
     editTarget.value = null
     await loadDiaries()
-    alert('✅ 日记已删除')
-  } catch { alert('❌ 删除失败') }
+    alert(' 日记已删除')
+  } catch { alert(' 删除失败') }
 }
 
 onMounted(async () => {
@@ -953,11 +953,15 @@ watch(diaryList, async (list) => {
 }
 /* 角落小花朵装饰 */
 .hero-title::before {
-  content: '❀';
+  content: '';
   position: absolute;
   top: -2px; left: -16px;
-  font-size: 16px;
+  width: 16px; height: 16px;
   color: rgba(255,255,255,0.8);
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z'/%3E%3Cpath d='M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5 4.5 4.5 0 1 1 16.5 12 4.5 4.5 0 1 1 12 16.5z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z'/%3E%3Cpath d='M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5 4.5 4.5 0 1 1 16.5 12 4.5 4.5 0 1 1 12 16.5z'/%3E%3C/svg%3E") center/contain no-repeat;
+
 }
 .hero-title {
   position: relative;

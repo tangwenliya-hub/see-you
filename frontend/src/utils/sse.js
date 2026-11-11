@@ -1,4 +1,6 @@
+import { h } from 'vue'
 import { ElNotification } from 'element-plus'
+import AppIcon from '../components/AppIcon.vue'
 import { useUserStore } from '../stores/user'
 import router from '../router'
 
@@ -48,7 +50,7 @@ class RiskSse {
     }
 
     this.es.addEventListener('connected', () => {
-      console.log('[RiskSSE] ✅ 预警实时通道已连接')
+      console.log('[RiskSSE] 预警实时通道已连接')
     })
 
     // 预警事件由后端按 name=risk-alert 推送
@@ -106,10 +108,12 @@ export function notifyRiskAlert(callback) {
   notifyCb = (data) => {
     const lv = Number(data?.level || 0)
     const type = lv >= 3 ? 'error' : lv === 2 ? 'warning' : 'info'
-    const icon = data?.crisis ? '🆘' : lv >= 3 ? '🚨' : '⚠️'
+    // 通知图标同样走全站统一线性图标（h() 渲染，颜色跟随通知文字）
+    const icon = h(AppIcon, { name: data?.crisis ? 'heart-hand' : lv >= 3 ? 'alert-circle' : 'alert-triangle', size: 18 })
     // 点击通知直接跳预警页处理（duration=0 的常驻通知尤其需要一条退出路径）
     const n = ElNotification({
-      title: `${icon} 情绪预警 · ${data?.levelName || '关注'}`,
+      title: `情绪预警 · ${data?.levelName || '关注'}`,
+      icon,
       message: `${data?.userName || '用户'} · ${data?.triggerRuleName || data?.triggerRule || '触发预警'}（点击查看）`,
       type,
       duration: data?.crisis || lv >= 3 ? 0 : lv === 2 ? 20000 : 12000,
@@ -144,7 +148,8 @@ export function notifyRiskMisreport(callback) {
   if (misreportCb) riskSSE.off('risk-misreport', misreportCb)
   misreportCb = (data) => {
     const n = ElNotification({
-      title: '📮 用户反馈：这条预警与实际不符',
+      title: '用户反馈：这条预警与实际不符',
+      icon: h(AppIcon, { name: 'mail', size: 18 }),
       message: `${data?.userName || '用户'} 把「${data?.triggerRuleName || data?.triggerRule || '预警'}」标记为误报（点击核实）`,
       type: 'info',
       duration: 15000,

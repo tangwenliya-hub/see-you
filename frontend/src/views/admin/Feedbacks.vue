@@ -21,7 +21,7 @@
         <!-- 批量操作条 -->
         <div v-if="selectedIds.length > 0" class="batch-bar">
           <span class="batch-info">已选择 <b>{{ selectedIds.length }}</b> 条反馈</span>
-          <button class="jelly-btn danger" @click="batchDelete">🗑 批量删除</button>
+          <button class="jelly-btn danger" @click="batchDelete"><AppIcon name="trash" /> 批量删除</button>
         </div>
         <table v-if="pagedList.length > 0" class="admin-table">
         <thead>

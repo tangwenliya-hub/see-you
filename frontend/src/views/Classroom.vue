@@ -1,7 +1,7 @@
 <template>
   <div class="classroom-page">
     <!-- 顶部标题（动漫风横幅，颜色跟随个人中心主题色） -->
-    <AnimeHero emoji="🎬" title="绪见学堂" sub="心理疗愈视频播放" />
+    <AnimeHero glyph="video" title="绪见学堂" sub="心理疗愈视频播放" />
 
     <!-- ========== 列表视图（封面卡片网格，与心理FM同构） ========== -->
     <div class="list-view" v-if="!showPlayer">
@@ -20,14 +20,14 @@
           <div v-for="(v, idx) in list" :key="v.videoId" class="video-card" @click="openPlayer(idx)">
             <div class="card-cover-wrap">
               <img v-if="v.coverImg" :src="getCover(v.coverImg)" @error="onCoverErr" class="card-cover" />
-              <div v-else class="card-cover card-ph">🎬</div>
-              <div class="card-play-overlay"><span class="card-play-icon">▶</span></div>
-              <span class="card-dur" v-if="v.duration">⏱ {{ fmtDuration(v.duration) }}</span>
+              <div v-else class="card-cover card-ph"><AppIcon name="video" /></div>
+              <div class="card-play-overlay"><span class="card-play-icon"><AppIcon name="play" /></span></div>
+              <span class="card-dur" v-if="v.duration"><AppIcon name="timer" /> {{ fmtDuration(v.duration) }}</span>
             </div>
             <div class="card-info">
               <div class="card-title">{{ v.videoName }}</div>
               <div class="card-cat">
-                {{ v.category }} · ▶ {{ v.playCount || 0 }}次
+                {{ v.category }} · <AppIcon name="play" /> {{ v.playCount || 0 }}次
                 <span v-if="getSavedProgress(v.videoId)" class="card-progress">· 上次看到 {{ fmtTime(getSavedProgress(v.videoId)) }}</span>
               </div>
             </div>
@@ -44,7 +44,7 @@
 
       <!-- 顶栏：返回 + 页面名（播放控制在视频下方，优酷式） -->
       <div class="player-top">
-        <button class="back-btn" @click="closePlayer" title="返回列表">← 返回</button>
+        <button class="back-btn" @click="closePlayer" title="返回列表"><AppIcon name="arrow-left" /> 返回</button>
         <div class="player-title">
           <div class="pt-name">绪见学堂</div>
           <div class="pt-cat">正在播放 · 共 {{ list.length }} 个视频</div>
@@ -63,7 +63,7 @@
                      @loadedmetadata="onVideoLoad"
                      @error="onVideoError"></video>
               <div class="resume-bar" v-if="savedProgress > 0 && !resumed">
-                <span>📌 上次看到 {{ fmtTime(savedProgress) }}</span>
+                <span><AppIcon name="pin" /> 上次看到 {{ fmtTime(savedProgress) }}</span>
                 <button @click="resumePlay">继续观看</button>
                 <button class="skip" @click="skipResume">从开头</button>
               </div>
@@ -76,7 +76,7 @@
                 <div class="vh-left">
                   <h1 class="vh-name">{{ current.videoName }}</h1>
                   <span class="tag">{{ current.category }}</span>
-                  <span class="vh-plays">▶ {{ current.playCount || 0 }}次播放</span>
+                  <span class="vh-plays"><AppIcon name="play" /> {{ current.playCount || 0 }}次播放</span>
                 </div>
 
                 <div class="video-ctrl">
@@ -110,7 +110,7 @@
                 <transition name="rate-fade">
                   <div v-if="rateMenu" class="rate-menu" @click.stop>
                     <button v-for="r in RATES" :key="r" :class="{ on: playRate === r }" @click="setRate(r)">
-                      {{ fmtRate(r) }}<span v-if="playRate === r" class="rate-check">✓</span>
+                      {{ fmtRate(r) }}<span v-if="playRate === r" class="rate-check"><AppIcon name="check" /></span>
                     </button>
                   </div>
                 </transition>
@@ -118,12 +118,12 @@
               </div>
                 <div class="info-actions">
                   <button class="act-btn" :class="{ on: liked }" @click="toggleLike">
-                    {{ liked ? '❤️' : '🤍' }} 点赞 <span class="act-num">{{ likeCount }}</span>
+                    <AppIcon :name="liked ? 'heart-solid' : 'heart'" /> 点赞 <span class="act-num">{{ likeCount }}</span>
                   </button>
                   <button class="act-btn" :class="{ on: favorited }" @click="toggleFav">
-                    {{ favorited ? '⭐' : '☆' }} 收藏 <span class="act-num">{{ favCount }}</span>
+                    <AppIcon :name="favorited ? 'star-solid' : 'star'" /> 收藏 <span class="act-num">{{ favCount }}</span>
                   </button>
-                  <button class="act-btn" @click="openShare">🔗 分享</button>
+                  <button class="act-btn" @click="openShare"><AppIcon name="link" /> 分享</button>
                 </div>
               </div>
           </div>
@@ -139,23 +139,23 @@
           <div class="side-scroll">
             <template v-if="sideTab === 'intro'">
               <div class="video-desc" v-if="current.description">
-                <div class="desc-label">📖 视频简介</div>
+                <div class="desc-label"><AppIcon name="book" /> 视频简介</div>
                 <div class="desc-text" :class="{ collapsed: !descExpanded && shouldCollapseDesc }">{{ current.description }}</div>
                 <button v-if="shouldCollapseDesc" class="desc-toggle" @click="descExpanded = !descExpanded">
-                  {{ descExpanded ? '收起 ▲' : '展开 ▼' }}
+                  <template v-if="descExpanded">收起 <AppIcon name="chevron-up" /></template><template v-else>展开 <AppIcon name="chevron-down" /></template>
                 </button>
               </div>
-              <div class="side-sec-title" v-if="relatedVideos.length">✨ 相关推荐</div>
+              <div class="side-sec-title" v-if="relatedVideos.length"><AppIcon name="sparkles" /> 相关推荐</div>
               <div class="rel-list" v-if="relatedVideos.length">
                 <div v-for="v in relatedVideos" :key="'rel-' + v.videoId" class="rel-item" @click="playRelated(v)">
                   <div class="rel-thumb">
                     <img v-if="v.coverImg" :src="getCover(v.coverImg)" @error="onCoverErr" />
-                    <span v-else class="rel-ph">🎬</span>
+                    <span v-else class="rel-ph"><AppIcon name="video" /></span>
                     <span class="rel-dur" v-if="v.duration">{{ fmtDuration(v.duration) }}</span>
                   </div>
                   <div class="rel-info">
                     <div class="rel-name">{{ v.videoName }}</div>
-                    <div class="rel-meta">{{ v.category }} · ▶ {{ v.playCount || 0 }}次播放</div>
+                    <div class="rel-meta">{{ v.category }} · <AppIcon name="play" /> {{ v.playCount || 0 }}次播放</div>
                   </div>
                 </div>
               </div>
@@ -170,7 +170,7 @@
                 <div v-for="(c, i) in comments" :key="c.commentId || i" class="comment-item" :class="{ pending: c.status === 0, rejected: c.status === -1 }">
                   <div class="c-avatar">
                     <img v-if="c.avatar" :src="getAvatarUrl(c.avatar)" />
-                    <span v-else>🧑</span>
+                    <span v-else><AppIcon name="user" /></span>
                   </div>
                   <div class="c-body">
                     <div class="c-user">
@@ -201,17 +201,17 @@
     <!-- 分享弹窗 -->
     <div v-if="shareVisible" class="share-mask" @click.self="shareVisible = false">
       <div class="share-dialog">
-        <h3>🔗 分享给朋友</h3>
+        <h3><AppIcon name="link" /> 分享给朋友</h3>
         <p class="share-title">{{ current?.videoName }}</p>
         <div class="share-link-row">
           <input ref="shareLinkRef" :value="shareLink" readonly />
-          <button @click="copyLink">{{ copied ? '✅ 已复制' : '复制' }}</button>
+          <button @click="copyLink"><template v-if="copied"><AppIcon name="check" /> 已复制</template><template v-else>复制</template></button>
         </div>
         <div class="share-platforms">
-          <button @click="shareTo('weibo')">🟧 微博</button>
-          <button @click="shareTo('qq')">💬 QQ</button>
-          <button @click="shareTo('wechat')">💚 微信</button>
-          <button @click="nativeShare">📤 系统分享</button>
+          <button @click="shareTo('weibo')"><AppIcon name="send" /> 微博</button>
+          <button @click="shareTo('qq')"><AppIcon name="message-square" /> QQ</button>
+          <button @click="shareTo('wechat')"><AppIcon name="heart" /> 微信</button>
+          <button @click="nativeShare"><AppIcon name="upload" /> 系统分享</button>
         </div>
         <div class="share-close" @click="shareVisible = false">关闭</div>
       </div>
@@ -234,7 +234,7 @@ const route = useRoute()
 onMounted(async () => {
   await Promise.all([loadFavIds(), loadLikeIds()])
   await loadData(true) // true = 是首次加载，需要提取分类（await：深链定位需要列表就绪）
-  // 深链支持：/classroom?videoId=xx → 直接播放对应视频（主页推荐卡点进来）
+  // 深链支持：/classroom?videoId=xx  直接播放对应视频（主页推荐卡点进来）
   const qId = Number(route.query.videoId)
   if (qId) {
     const idx = list.value.findIndex(v => v.videoId === qId)
@@ -644,7 +644,7 @@ const skipResume = () => {
 const onEnded = () => {
   playing.value = false
   if (current.value) {
-    // 🔴 标记播放完
+    //  标记播放完
     const info = JSON.parse(localStorage.getItem('userInfo') || 'null')
     if (info) request.post('/history/progress', {
       userId: info.userId, resourceType: 2, resourceId: current.value.videoId,
@@ -737,12 +737,12 @@ const saveHistory = async (resourceType, resourceId) => {
   } catch (e) { console.warn('保存历史失败', e) }
 }
 
-/* 列表卡片 → 打开全屏播放视图 */
+/* 列表卡片  打开全屏播放视图 */
 const openPlayer = (idx) => {
   playAt(idx)
   showPlayer.value = true
 }
-/* 播放视图 → 返回列表（保存进度并暂停，不退出页面） */
+/* 播放视图  返回列表（保存进度并暂停，不退出页面） */
 const closePlayer = () => {
   saveProgressLocal()
   videoRef.value?.pause()
@@ -763,13 +763,13 @@ const playAt = async (idx) => {
   commentLoading.value = true
   const vid = arr[idx].videoId
   current.value = arr[idx]
-  // 🔴 写历史
+  //  写历史
   if (lastHistVideoId !== vid) {
     lastHistVideoId = vid
     saveHistory(2, vid)
     later(() => { lastHistVideoId = null }, 5000)
   }
-  // 🔴 播放量 +1（同一会话同一视频只算一次）
+  //  播放量 +1（同一会话同一视频只算一次）
   if (!playedVideoIds.has(vid)) {
     playedVideoIds.add(vid)
     playVideo(vid).catch(() => {})

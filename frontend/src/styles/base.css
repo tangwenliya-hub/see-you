@@ -353,3 +353,28 @@ b,strong{
     border-radius: inherit;
     pointer-events: none;
 }
+
+/* =====================================================================
+ * 统一线性图标规格（唯一真源）
+ * 全站图标都走 <AppIcon>，描边粗细 / 端帽由这里统一控制：
+ *   --icon-stroke  全局描边粗细，改一处全站生效
+ * 图标颜色不在这里设，一律 currentColor 继承父级文字颜色。
+ * ===================================================================== */
+:root {
+    --icon-stroke: 1.6;
+}
+
+.app-icon {
+    display: inline-block;
+    flex: none;
+    vertical-align: -0.125em;
+    overflow: visible;
+    pointer-events: none;
+}
+
+/* 图标 + 文字的组合：图标与文字之间的呼吸感统一交给 .icon-label */
+.icon-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .35em;
+}

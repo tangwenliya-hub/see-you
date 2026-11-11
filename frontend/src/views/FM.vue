@@ -1,7 +1,7 @@
 <template>
   <div class="fm-page">
     <!-- 顶部横幅：放在 list-view 外面，贴顶不留白边（list-view 自带 padding） -->
-    <AnimeHero v-if="!showPlayer" emoji="📻" title="心理FM" sub="以前:我主动走向你，希望你来接住我;我的快乐，由你决定。现在:我可以主动走向你，也可以随时转身;我喜欢你，但我依然是完整独立的我。" />
+    <AnimeHero v-if="!showPlayer" glyph="radio" title="心理FM" sub="以前:我主动走向你，希望你来接住我;我的快乐，由你决定。现在:我可以主动走向你，也可以随时转身;我喜欢你，但我依然是完整独立的我。" />
 
     <!-- ========== 列表视图（卡片网格） ========== -->
     <div class="list-view" v-if="!showPlayer">
@@ -22,7 +22,7 @@
           <div class="card-cover-wrap">
             <img :src="getCover(a.coverImg)" @error="onCoverErr" class="card-cover" />
             <div class="card-play-overlay">
-              <span class="card-play-icon">{{ current?.audioId === a.audioId && playing ? '❚❚' : '▶' }}</span>
+              <span class="card-play-icon"><AppIcon :name="current?.audioId === a.audioId && playing ? 'pause' : 'play'" /></span>
             </div>
           </div>
           <div class="card-info">
@@ -52,7 +52,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg>
           </button>
           <button class="mini-btn play" @click.stop="toggle" title="播放/暂停">
-            {{ playing ? '❚❚' : '▶' }}
+            <AppIcon :name="playing ? 'pause' : 'play'" />
           </button>
           <button class="mini-btn" @click.stop="next" title="下一首">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
@@ -67,10 +67,10 @@
       <div class="bg-overlay"></div>
 
       <div class="player-top">
-        <button class="back-btn" @click="showPlayer = false">← 返回</button>
+        <button class="back-btn" @click="showPlayer = false"><AppIcon name="arrow-left" /> 返回</button>
         <div class="player-title">
           <div class="pt-name">{{ current.audioName }}</div>
-          <div class="pt-cat">{{ current.category }} · ▶ {{ current.playCount || 0 }}次播放</div>
+          <div class="pt-cat">{{ current.category }} · <AppIcon name="play" /> {{ current.playCount || 0 }}次播放</div>
         </div>
       </div>
 
@@ -108,7 +108,7 @@
           </div>
           <div class="side-scroll">
             <template v-if="sideTab === 'intro'">
-              <div class="side-sec-title" v-if="relatedAudios.length">✨ 相关推荐</div>
+              <div class="side-sec-title" v-if="relatedAudios.length"><AppIcon name="sparkles" /> 相关推荐</div>
               <div class="rel-list" v-if="relatedAudios.length">
                 <div v-for="a in relatedAudios" :key="'rel-' + a.audioId" class="rel-item" @click="playRelatedAudio(a)">
                   <div class="rel-thumb">
@@ -116,7 +116,7 @@
                   </div>
                   <div class="rel-info">
                     <div class="rel-name">{{ a.audioName }}</div>
-                    <div class="rel-meta">{{ a.category }} · ▶ {{ a.playCount || 0 }}次播放</div>
+                    <div class="rel-meta">{{ a.category }} · <AppIcon name="play" /> {{ a.playCount || 0 }}次播放</div>
                   </div>
                 </div>
               </div>
@@ -132,7 +132,7 @@
                 <div v-for="(c, i) in comments" :key="c.commentId || i" class="cp-item" :class="{ pending: c.status === 0, rejected: c.status === -1 }">
                   <div class="cp-avatar">
                     <img v-if="c.avatar" :src="getAvatarUrl(c.avatar)" />
-                    <span v-else>🧑</span>
+                    <span v-else><AppIcon name="user" /></span>
                   </div>
                   <div class="cp-body">
                     <div class="cp-user">
@@ -158,7 +158,7 @@
       </div>
 
       <div v-if="resumeTip" class="resume-bar">
-        <span class="resume-icon">📌</span>
+        <span class="resume-icon"><AppIcon name="pin" /></span>
         <span class="resume-text">上次听到 {{ fmt(resumeTip) }}</span>
         <button class="resume-btn" @click="resumePlay">继续</button>
         <button class="resume-btn ghost" @click="fromStart">从头</button>
@@ -175,17 +175,17 @@
 <!-- 在 <div class="player-controls"> 之前插入 -->
 <div class="action-row">
   <button class="action-btn" :class="{ on: liked }" @click="toggleLike">
-    <span class="act-icon">{{ liked ? '❤️' : '🤍' }}</span>
+    <span class="act-icon"><AppIcon :name="liked ? 'heart-solid' : 'heart'" /></span>
     <span class="act-text">{{ liked ? '已点赞' : '点赞' }}</span>
     <span class="act-num">{{ likeCount }}</span>
   </button>
   <button class="action-btn" :class="{ on: favorited }" @click="toggleFav">
-    <span class="act-icon">{{ favorited ? '⭐' : '☆' }}</span>
+    <span class="act-icon"><AppIcon :name="favorited ? 'star-solid' : 'star'" /></span>
     <span class="act-text">{{ favorited ? '已收藏' : '收藏' }}</span>
     <span class="act-num">{{ favCount }}</span>
   </button>
   <button class="action-btn" @click="openShare">
-    <span class="act-icon">🔗</span>
+    <span class="act-icon"><AppIcon name="link" /></span>
     <span class="act-text">分享</span>
   </button>
 </div>
@@ -195,7 +195,7 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg>
         </button>
         <button class="pctrl-play" @click="toggle">
-          {{ playing ? '❚❚' : '▶' }}
+          <AppIcon :name="playing ? 'pause' : 'play'" />
         </button>
         <button class="pctrl-btn" @click="next">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
@@ -205,18 +205,18 @@
 
     <div v-if="shareVisible" class="share-mask" @click.self="shareVisible = false">
       <div class="share-dialog">
-        <h3>🔗 分享给朋友</h3>
+        <h3><AppIcon name="link" /> 分享给朋友</h3>
         <p class="share-title">{{ current?.audioName }}</p>
         <div class="share-link-row">
           <input ref="shareLinkRef" :value="shareLink" readonly />
-          <button @click="copyLink">{{ copied ? '✅ 已复制' : '复制' }}</button>
+          <button @click="copyLink"><template v-if="copied"><AppIcon name="check" /> 已复制</template><template v-else>复制</template></button>
         </div>
         <div class="share-tips">复制链接发给好友，或点击下方平台分享</div>
         <div class="share-platforms">
-          <button @click="shareTo('weibo')">🟧 微博</button>
-          <button @click="shareTo('qq')">💬 QQ</button>
-          <button @click="shareTo('wechat')">💚 微信</button>
-          <button @click="nativeShare">📤 系统分享</button>
+          <button @click="shareTo('weibo')"><AppIcon name="send" /> 微博</button>
+          <button @click="shareTo('qq')"><AppIcon name="message" /> QQ</button>
+          <button @click="shareTo('wechat')"><AppIcon name="message-square" /> 微信</button>
+          <button @click="nativeShare"><AppIcon name="upload" /> 系统分享</button>
         </div>
         <div class="share-close" @click="shareVisible = false">关闭</div>
       </div>
@@ -408,7 +408,7 @@ const playAt = (idx, autoResume = false) => {
   if (!arr[idx]) return
   current.value = arr[idx]
   const audioId = current.value.audioId
-  // 🔴 播放量 +1（同一会话同一音频只算一次，开始播放就计数）
+  //  播放量 +1（同一会话同一音频只算一次，开始播放就计数）
   if (!playedAudioIds.has(audioId)) {
     playedAudioIds.add(audioId)
     playAudio(audioId).catch(() => {})
@@ -743,7 +743,7 @@ onMounted(async () => {
   await Promise.all([loadFavIds(), loadLikeIds()])
   await loadData()
   await loadBackendHistory()
-  // 深链支持：/fm?audioId=xx → 翻到对应分页并直接播放该音频（主页推荐卡点进来）
+  // 深链支持：/fm?audioId=xx  翻到对应分页并直接播放该音频（主页推荐卡点进来）
   const qId = Number(route.query.audioId)
   if (qId) {
     const idx = filteredList.value.findIndex(a => a.audioId === qId)

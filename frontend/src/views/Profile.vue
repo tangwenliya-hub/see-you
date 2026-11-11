@@ -6,20 +6,20 @@
            @pointerdown="onBgPointerDown" @pointermove="onBgPointerMove" @pointerup="onBgPointerUp" @pointercancel="onBgPointerUp">
         <!-- 动漫风装饰层：闪烁星星 + 漂浮云朵（pointer-events:none，不影响拖动调整） -->
         <div class="hero-anime-deco" aria-hidden="true">
-          <span class="had-star s1">✦</span>
-          <span class="had-star s2">✧</span>
-          <span class="had-star s3">✦</span>
-          <span class="had-star s4">✧</span>
-          <span class="had-cloud c1">☁</span>
-          <span class="had-cloud c2">☁</span>
+          <span class="had-star s1"><AppIcon name="sparkles" /></span>
+          <span class="had-star s2"><AppIcon name="sparkles" /></span>
+          <span class="had-star s3"><AppIcon name="sparkles" /></span>
+          <span class="had-star s4"><AppIcon name="sparkles" /></span>
+          <span class="had-cloud c1"><AppIcon name="cloud" /></span>
+          <span class="had-cloud c2"><AppIcon name="cloud" /></span>
         </div>
         <span v-if="adjustingBg && ripple" :key="rippleKey" class="bg-ripple" :style="{ left: ripple.x + '%', top: ripple.y + '%' }"></span>
         <div v-if="adjustingBg" class="bg-adjust-tip" @click.stop>
-          <span>↔️ 按住拖动，调整图片展示位置（当前 {{ Math.round(posXY[0]) }}% / {{ Math.round(posXY[1]) }}%）</span>
-          <button class="bg-adjust-done" @pointerdown.stop.prevent="adjustingBg = false" @click.stop="adjustingBg = false">✓ 完成</button>
+          <span><AppIcon name="arrows-horizontal" /> 按住拖动，调整图片展示位置（当前 {{ Math.round(posXY[0]) }}% / {{ Math.round(posXY[1]) }}%）</span>
+          <button class="bg-adjust-done" @pointerdown.stop.prevent="adjustingBg = false" @click.stop="adjustingBg = false"><AppIcon name="check" /> 完成</button>
         </div>
       </div>
-      <button class="hero-bg-set" @click="showBgPicker = true" title="设置背景图">🖼️ 背景</button>
+      <button class="hero-bg-set" @click="showBgPicker = true" title="设置背景图"><AppIcon name="image" /> 背景</button>
       <div class="hero-content">
         <div class="avatar-wrap" :class="['frame-' + userFrame]" @click="showAvatarPicker = true">
           <img :src="avatarUrl" @error="onAvatarError" class="avatar-img-inner" />
@@ -27,11 +27,11 @@
           <input ref="avatarUploadRef" type="file" accept="image/*" style="display:none" @change="onAvatarUpload" />
         </div>
         <div class="hero-info">
-          <h1>{{ user.nickname || user.username || '未登录' }}<span class="role-tag">{{ user.role == 1 ? '👑 管理员' : '👤 普通用户' }}</span></h1>
+          <h1>{{ user.nickname || user.username || '未登录' }}<span class="role-tag">{{ user.role == 1 ? ' 管理员' : ' 普通用户' }}</span></h1>
           <!-- 个性签名（Steam 状态位，点击编辑） -->
           <p v-if="!editingStatus" class="hero-sign" @click="startEditStatus" title="点击编辑个性签名">
             <span class="sign-text">{{ userStatus || '点击这里，写一句介绍自己的签名吧~' }}</span>
-            <span class="sign-edit">✏️</span>
+            <span class="sign-edit"><AppIcon name="pen" /></span>
           </p>
           <div v-else class="hero-sign-edit">
             <input v-model="statusDraft" maxlength="40" placeholder="写一句签名，让大家认识你（最多40字）"
@@ -40,7 +40,7 @@
             <button class="sign-cancel" @click="editingStatus = false">取消</button>
           </div>
           <p class="hero-meta">
-            <span v-if="user.email">✉️ {{ user.email }}</span>
+            <span v-if="user.email"><AppIcon name="mail" /> {{ user.email }}</span>
             <span class="online-tag"><span class="online-dot"></span>在线 · 最近活跃 {{ lastActiveText }}</span>
           </p>
           <!-- 个性化设置（主题色/深色/装饰框）已收入「个人中心」弹窗，横幅只保留展示信息 -->
@@ -51,20 +51,20 @@
     <!-- 背景图选择弹窗 -->
     <div v-if="showBgPicker" class="mask" @click.self="showBgPicker = false">
       <div class="avatar-picker" style="width:500px">
-        <h3>🖼️ 设置顶部背景图</h3>
+        <h3><AppIcon name="image" /> 设置顶部背景图</h3>
         <p class="modal-desc" style="margin:-6px 0 12px;font-size:12px">选择一张喜欢的图片作为个人中心的顶栏背景~</p>
         <div class="bg-preview" :class="{ clickable: heroBg }" :style="heroBgStyle" :title="heroBg ? '点击去顶部横幅调整显示区域' : ''" @click="heroBg && startBgAdjust()">
-          <span v-if="heroBg" class="bg-preview-tip">🎯 点击调整显示区域</span>
+          <span v-if="heroBg" class="bg-preview-tip"><AppIcon name="target" /> 点击调整显示区域</span>
         </div>
-        <p class="bg-pos-hint" v-if="heroBg">💡 <b>怎么调整？</b>点上面的预览图 → 弹窗关闭 → <b>按住页面顶部的横幅拖动</b>（和微信设置聊天背景一样），调好后点「✓ 完成」。</p>
+        <p class="bg-pos-hint" v-if="heroBg"><AppIcon name="bulb" /> <b>怎么调整？</b>点上面的预览图 <AppIcon name="arrow-right" /> 弹窗关闭 <AppIcon name="arrow-right" /> <b>按住页面顶部的横幅拖动</b>（和微信设置聊天背景一样），调好后点「<AppIcon name="check" /> 完成」。</p>
         <div class="bg-default-row">
-          <button class="primary-btn small" v-if="heroBg" @click="startBgAdjust">🎯 在顶部横幅上调整展示区域</button>
-          <button class="cancel" @click="setBg('')">🎨 恢复主题渐变色</button>
+          <button class="primary-btn small" v-if="heroBg" @click="startBgAdjust"><AppIcon name="target" /> 在顶部横幅上调整展示区域</button>
+          <button class="cancel" @click="setBg('')"><AppIcon name="palette" /> 恢复主题渐变色</button>
         </div>
         <input type="file" accept="image/*" ref="bgUploadRef" style="display:none" @change="onBgUpload" />
         <div class="picker-actions">
           <button class="cancel" @click="showBgPicker = false">取消</button>
-          <button class="primary-btn small" @click="bgUploadRef?.click()">📤 上传自定义图片</button>
+          <button class="primary-btn small" @click="bgUploadRef?.click()"><AppIcon name="upload" /> 上传自定义图片</button>
         </div>
       </div>
     </div>
@@ -82,15 +82,15 @@
             <span class="act-sub">共 {{ historyCount }} 条收听/观看记录</span>
             <button class="act-more" @click="switchTab('history')">查看所有动态</button>
           </div>
-          <div v-if="recentHistory.length === 0" class="empty">🎧 还没有收听或观看记录~ 去绪见 FM 或绪见学堂逛逛吧！</div>
+          <div v-if="recentHistory.length === 0" class="empty"><AppIcon name="headphones" /> 还没有收听或观看记录~ 去绪见 FM 或绪见学堂逛逛吧！</div>
           <div v-for="h in recentHistory" :key="'act' + h.historyId" class="act-card" @click="goPlay(h)">
             <img :src="h.cover" @error="onCoverError" class="act-cover" />
             <div class="act-body">
-              <div class="act-name">{{ h.type === 'video' ? '🎬' : '🎵' }} {{ h.name }}</div>
+              <div class="act-name"><AppIcon :name="h.type === 'video' ? 'video' : 'music'" /> {{ h.name }}</div>
               <div class="act-meta">总时长 {{ fmt(h.duration) }} · 上次{{ h.type === 'video' ? '观看' : '收听' }} {{ shortDate(h.createTime) }}</div>
               <div class="act-prog">
                 <div class="prog-bar"><div class="prog-fill" :style="{ width: h.progress + '%' }"></div></div>
-                <span class="act-prog-text">{{ h.finished ? '✅ 已看完' : '进度 ' + h.progress + '%' }}</span>
+                <span class="act-prog-text"><template v-if="h.finished"><AppIcon name="check-circle" /> 已看完</template><template v-else>进度 {{ h.progress }}%</template></span>
               </div>
             </div>
             <span :class="['act-type', h.type]">{{ h.type === 'video' ? '视频' : '音频' }}</span>
@@ -100,7 +100,7 @@
         <div class="act-grid">
           <div class="act-section">
             <div class="act-head"><span class="act-title">最近日记</span><button class="act-more" @click="switchTab('diary')">全部日记</button></div>
-            <div v-if="recentDiaries.length === 0" class="empty">📝 还没有写过日记~</div>
+            <div v-if="recentDiaries.length === 0" class="empty"><AppIcon name="edit" /> 还没有写过日记~</div>
             <div v-for="d in recentDiaries" :key="'ad' + d.diaryId" class="mini-diary" @click="switchTab('diary')">
               <img :src="getEmotionIcon(d.emotion)" class="md-emo" alt="" />
               <div class="md-body">
@@ -111,7 +111,7 @@
           </div>
           <div class="act-section">
             <div class="act-head"><span class="act-title">最近测评</span><button class="act-more" @click="switchTab('test')">全部报告</button></div>
-            <div v-if="recentTests.length === 0" class="empty">📋 还没有测评记录~</div>
+            <div v-if="recentTests.length === 0" class="empty"><AppIcon name="clipboard" /> 还没有测评记录~</div>
             <div v-for="t in recentTests" :key="'at' + t.recordId" class="mini-test" @click="openTestDetail(t)">
               <div class="mt-score">{{ t.score ?? t.totalScore }}</div>
               <div class="mt-body">
@@ -128,11 +128,11 @@
             <span class="act-sub">收到 {{ fbCount }} 条反馈</span>
             <button class="act-more" @click="switchTab('feedback')">查看留言</button>
           </div>
-          <div v-if="fbList.length === 0" class="empty">💬 还没有留言~ 去反馈页说点什么吧！</div>
+          <div v-if="fbList.length === 0" class="empty"><AppIcon name="message" /> 还没有留言~ 去反馈页说点什么吧！</div>
           <div v-for="f in fbList.slice(0, 2)" :key="'afb' + f.feedbackId" class="mini-fb" @click="openFbDetail(f)">
             <div class="mf-content">{{ (f.content || f.feedbackContent || '').slice(0, 80) }}</div>
-            <div v-if="f.replyText" class="mf-reply">↳ 管理员：{{ f.replyText.slice(0, 60) }}</div>
-            <div v-else class="mf-reply pending">↳ 等待管理员回复...</div>
+            <div v-if="f.replyText" class="mf-reply"><AppIcon name="corner-down-right" /> 管理员：{{ f.replyText.slice(0, 60) }}</div>
+            <div v-else class="mf-reply pending"><AppIcon name="corner-down-right" /> 等待管理员回复...</div>
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@
             <input v-model="likeKw" class="lt-input" placeholder="输入名称或分类关键词" />
           </div>
           <div class="lt-row">
-            <span class="lt-label">📅 时间：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间：</span>
             <input type="date" v-model="likeStart" class="lt-date" />
             <span class="lt-sep">~</span>
             <input type="date" v-model="likeEnd" class="lt-date" />
@@ -154,21 +154,21 @@
             <button :class="['lt-quick', { on: likeQuick==='all' }]" @click="likeQuick='all'; likeStart=''; likeEnd=''">全部</button>
             <button :class="['lt-quick', { on: likeQuick==='7' }]" @click="setLikeQuick(7)">近7天</button>
             <button :class="['lt-quick', { on: likeQuick==='30' }]" @click="setLikeQuick(30)">近30天</button>
-            <button class="lt-reset" @click="resetLikeFilter">↺ 重置</button>
+            <button class="lt-reset" @click="resetLikeFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
-        <div v-if="filteredLikeList.length === 0" class="empty">❤️ 还没有点赞内容~ 去 FM 或绪见学堂点个赞吧！</div>
+        <div v-if="filteredLikeList.length === 0" class="empty"><AppIcon name="heart" /> 还没有点赞内容~ 去 FM 或绪见学堂点个赞吧！</div>
         <div v-for="item in filteredLikeList" :key="'l'+item.type+item.id" class="item-card" @click="goPlay(item)">
           <img :src="item.cover" @error="onCoverError" />
           <div class="item-info">
             <div class="item-head">
-              <span class="type-badge" :class="item.type">{{ item.type === 'video' ? '🎬' : '🎵' }}</span>
+              <span class="type-badge" :class="item.type"><AppIcon :name="item.type === 'video' ? 'video' : 'music'" /></span>
               <span class="item-name">{{ item.name }}</span>
               <span v-if="item.missing" class="gone-badge">已下架</span>
             </div>
             <div class="item-cat">{{ item.category }}</div>
           </div>
-          <button class="del-btn like-del" @click.stop="removeLike(item)" title="取消点赞">❤️</button>
+          <button class="del-btn like-del" @click.stop="removeLike(item)" title="取消点赞"><AppIcon name="heart" /></button>
         </div>
       </div>
 
@@ -180,7 +180,7 @@
             <input v-model="favKw" class="lt-input" placeholder="输入名称或分类关键词" />
           </div>
           <div class="lt-row">
-            <span class="lt-label">📅 时间：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间：</span>
             <input type="date" v-model="favStart" class="lt-date" />
             <span class="lt-sep">~</span>
             <input type="date" v-model="favEnd" class="lt-date" />
@@ -189,21 +189,21 @@
             <button :class="['lt-quick', { on: favQuick==='all' }]" @click="favQuick='all'; favStart=''; favEnd=''">全部</button>
             <button :class="['lt-quick', { on: favQuick==='7' }]" @click="setFavQuick(7)">近7天</button>
             <button :class="['lt-quick', { on: favQuick==='30' }]" @click="setFavQuick(30)">近30天</button>
-            <button class="lt-reset" @click="resetFavFilter">↺ 重置</button>
+            <button class="lt-reset" @click="resetFavFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
-        <div v-if="filteredFavList.length === 0" class="empty">⭐ 还没有收藏内容~ 去 FM 或绪见学堂逛逛吧！</div>
+        <div v-if="filteredFavList.length === 0" class="empty"><AppIcon name="star-solid" /> 还没有收藏内容~ 去 FM 或绪见学堂逛逛吧！</div>
         <div v-for="item in filteredFavList" :key="'f'+item.type+item.id" class="item-card" @click="goPlay(item)">
           <img :src="item.cover" @error="onCoverError" />
                     <div class="item-info">
             <div class="item-head">
-              <span class="type-badge" :class="item.type">{{ item.type === 'video' ? '🎬' : '🎵' }}</span>
+              <span class="type-badge" :class="item.type"><AppIcon :name="item.type === 'video' ? 'video' : 'music'" /></span>
               <span class="item-name">{{ item.name }}</span>
               <span v-if="item.missing" class="gone-badge">已下架</span>
             </div>
             <div class="item-cat">{{ item.category }}</div>
           </div>
-          <button class="del-btn fav-del" @click.stop="removeFav(item)" title="取消收藏">⭐</button>
+          <button class="del-btn fav-del" @click.stop="removeFav(item)" title="取消收藏"><AppIcon name="star-solid" /></button>
         </div>
       </div>
 
@@ -215,7 +215,7 @@
             <input v-model="histKw" class="lt-input" placeholder="输入名称或分类关键词" />
           </div>
           <div class="lt-row">
-            <span class="lt-label">📅 时间：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间：</span>
             <input type="date" v-model="histStart" class="lt-date" />
             <span class="lt-sep">~</span>
             <input type="date" v-model="histEnd" class="lt-date" />
@@ -224,27 +224,27 @@
             <button :class="['lt-quick', { on: histQuick==='all' }]" @click="histQuick='all'; histStart=''; histEnd=''">全部</button>
             <button :class="['lt-quick', { on: histQuick==='7' }]" @click="setHistQuick(7)">近7天</button>
             <button :class="['lt-quick', { on: histQuick==='30' }]" @click="setHistQuick(30)">近30天</button>
-            <button class="lt-reset" @click="resetHistFilter">↺ 重置</button>
+            <button class="lt-reset" @click="resetHistFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
-        <div v-if="groupedHistory.length === 0" class="empty">📖 还没有观看/收听记录~</div>
+        <div v-if="groupedHistory.length === 0" class="empty"><AppIcon name="book" /> 还没有观看/收听记录~</div>
         <div v-for="grp in groupedHistory" :key="grp.label" class="hist-group">
           <div class="hist-group-title">{{ grp.label }}（{{ grp.items.length }}）</div>
           <div v-for="item in grp.items" :key="'h'+item.type+item.id" class="item-card" @click="goPlay(item)">
             <img :src="item.cover" @error="onCoverError" />
             <div class="item-info">
               <div class="item-head">
-                <span class="type-badge" :class="item.type">{{ item.type === 'video' ? '🎬' : '🎵' }}</span>
+                <span class="type-badge" :class="item.type"><AppIcon :name="item.type === 'video' ? 'video' : 'music'" /></span>
                 <span class="item-name">{{ item.name }}</span>
                 <span v-if="item.missing" class="gone-badge">已下架</span>
-                <span v-else-if="item.finished" class="finished-badge">✅ 已看完</span>
+                <span v-else-if="item.finished" class="finished-badge"><AppIcon name="check" /> 已看完</span>
               </div>
               <div class="item-cat">{{ item.category }}</div>
               <div class="prog-row">
                 <div class="prog-bar"><div class="prog-fill" :style="{ width: item.progress + '%' }"></div></div>
-                <span class="prog-text">{{ item.finished ? '✅ 已看完' : `上次听到 ${fmt(item.currentTime)}` }}</span>
+                <span class="prog-text"><template v-if="item.finished"><AppIcon name="check-circle" /> 已看完</template><template v-else>上次听到 {{ fmt(item.currentTime) }}</template></span>
               </div>
-              <div class="hist-meta">🕐 {{ relativeTime(item.createTime) }}</div>
+              <div class="hist-meta"><AppIcon name="clock" /> {{ relativeTime(item.createTime) }}</div>
             </div>
           </div>
         </div>
@@ -254,10 +254,10 @@
       <div v-if="activeTab === 'diary'" class="diary-area">
         <div class="diary-toolbar">
           <div class="diary-toolbar-left">
-            <span class="diary-toolbar-title">📓 我的日记本</span>
+            <span class="diary-toolbar-title"><AppIcon name="notebook" /> 我的日记本</span>
             <span class="diary-toolbar-count">共 {{ diaryServerTotal }} 篇</span>
           </div>
-          <router-link to="/diary/write" class="primary-btn small" style="text-decoration:none">✏️ 去写一篇</router-link>
+          <router-link to="/diary/write" class="primary-btn small" style="text-decoration:none"><AppIcon name="pen" /> 去写一篇</router-link>
         </div>
         <div class="list-toolbar">
           <div class="lt-row">
@@ -265,7 +265,7 @@
             <input v-model="diaryKw" class="lt-input" placeholder="输入日记内容关键词" />
           </div>
           <div class="lt-row">
-            <span class="lt-label">📅 时间：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间：</span>
             <input type="date" v-model="diaryStart" class="lt-date" />
             <span class="lt-sep">~</span>
             <input type="date" v-model="diaryEnd" class="lt-date" />
@@ -274,15 +274,15 @@
             <button :class="['lt-quick', { on: diaryQuick==='all' }]" @click="diaryQuick='all'; diaryStart=''; diaryEnd=''">全部</button>
             <button :class="['lt-quick', { on: diaryQuick==='7' }]" @click="setDiaryQuick(7)">近7天</button>
             <button :class="['lt-quick', { on: diaryQuick==='30' }]" @click="setDiaryQuick(30)">近30天</button>
-            <button class="lt-reset" @click="resetDiaryFilter">↺ 重置</button>
+            <button class="lt-reset" @click="resetDiaryFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
-        <div v-if="diaryLoading" class="empty">⏳ 加载中...</div>
+        <div v-if="diaryLoading" class="empty"><AppIcon name="loader" /> 加载中...</div>
         <div v-else-if="diaryServerTotal === 0" class="empty">
           <span v-if="diaryKw"><img src="/img/搜索.png" class="lt-icon" style="vertical-align:middle;margin-right:4px" />没有找到匹配的日记~</span>
           <span v-else>
-            📝 还没有写过日记~<br />
-            <router-link to="/diary/write" class="link-btn">去写第一篇日记 →</router-link>
+            <AppIcon name="edit" /> 还没有写过日记~<br />
+            <router-link to="/diary/write" class="link-btn">去写第一篇日记 <AppIcon name="arrow-right" /></router-link>
           </span>
         </div>
 
@@ -306,7 +306,7 @@
                   <span class="card-emo-label">{{ emotions.find(e => e.val === d.emotion)?.label || '未知' }}</span>
                 </div>
                 <div class="card-actions">
-                  <button class="diary-del" @click="deleteDiary(d.diaryId)">🗑️</button>
+                  <button class="diary-del" @click="deleteDiary(d.diaryId)"><AppIcon name="trash" /></button>
                 </div>
               </div>
               <div class="card-content">{{ d.diaryContent }}</div>
@@ -316,9 +316,9 @@
 
           <!-- 分页 -->
           <div v-if="diaryServerTotal > diaryPageSize" class="diary-pager">
-            <button class="pager-btn" :disabled="diaryPage === 1 || diaryLoading" @click="loadDiaryPage(diaryPage - 1)">◀ 上一页</button>
+            <button class="pager-btn" :disabled="diaryPage === 1 || diaryLoading" @click="loadDiaryPage(diaryPage - 1)"><AppIcon name="chevron-left" /> 上一页</button>
             <span class="pager-info">第 {{ diaryPage }} / {{ diaryTotalPages }} 页</span>
-            <button class="pager-btn" :disabled="diaryPage >= diaryTotalPages || diaryLoading" @click="loadDiaryPage(diaryPage + 1)">下一页 ▶</button>
+            <button class="pager-btn" :disabled="diaryPage >= diaryTotalPages || diaryLoading" @click="loadDiaryPage(diaryPage + 1)">下一页 <AppIcon name="play" /></button>
           </div>
         </div>
       </div>
@@ -332,7 +332,7 @@
             <input v-model="aiKw" class="lt-input" placeholder="输入关键词（你说的 / AI 回复）" />
           </div>
           <div class="lt-row">
-            <span class="lt-label">📅 时间：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间：</span>
             <input type="date" v-model="aiStart" class="lt-date" />
             <span class="lt-sep">~</span>
             <input type="date" v-model="aiEnd" class="lt-date" />
@@ -341,10 +341,10 @@
             <button :class="['lt-quick', { on: aiQuick==='all' }]" @click="aiQuick='all'; aiStart=''; aiEnd=''">全部</button>
             <button :class="['lt-quick', { on: aiQuick==='7' }]" @click="setAiQuick(7)">近7天</button>
             <button :class="['lt-quick', { on: aiQuick==='30' }]" @click="setAiQuick(30)">近30天</button>
-            <button class="lt-reset" @click="resetAiFilter">↺ 重置</button>
+            <button class="lt-reset" @click="resetAiFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
-        <div v-if="filteredAiList.length === 0" class="empty">🤖 没有匹配的聊天记录~</div>
+        <div v-if="filteredAiList.length === 0" class="empty"><AppIcon name="bot" /> 没有匹配的聊天记录~</div>
         <div v-for="ai in filteredAiList" :key="ai.chatId" class="ai-card clickable" @click="openAiDetail(ai)">
           <div class="ai-user-row">
             <span class="ai-tag user">你</span>
@@ -355,7 +355,7 @@
             <span class="ai-tag ai">AI</span>
           </div>
           <div class="ai-bubble ai"><span v-html="highlight(ai.aiReply ?? ai.aiResponse, aiKw)"></span></div>
-          <div class="ai-card-hint">👆 点击查看详情</div>
+          <div class="ai-card-hint"><AppIcon name="arrow-up" /> 点击查看详情</div>
         </div>
       </div>
 
@@ -368,7 +368,7 @@
             <input v-model="testKw" class="lt-input" placeholder="输入量表名称关键词" />
           </div>
           <div class="lt-row">
-            <span class="lt-label">📅 时间：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间：</span>
             <input type="date" v-model="testStart" class="lt-date" />
             <span class="lt-sep">~</span>
             <input type="date" v-model="testEnd" class="lt-date" />
@@ -377,10 +377,10 @@
             <button :class="['lt-quick', { on: testQuick==='all' }]" @click="testQuick='all'; testStart=''; testEnd=''">全部</button>
             <button :class="['lt-quick', { on: testQuick==='7' }]" @click="setTestQuick(7)">近7天</button>
             <button :class="['lt-quick', { on: testQuick==='30' }]" @click="setTestQuick(30)">近30天</button>
-            <button class="lt-reset" @click="resetTestFilter">↺ 重置</button>
+            <button class="lt-reset" @click="resetTestFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
-        <div v-if="filteredTestList.length === 0" class="empty">📋 还没有测评记录~ 去绪见测试页面看看吧！</div>
+        <div v-if="filteredTestList.length === 0" class="empty"><AppIcon name="clipboard" /> 还没有测评记录~ 去绪见测试页面看看吧！</div>
         <div class="test-list">
           <div v-for="t in filteredTestList" :key="t.recordId" class="test-card clickable" @click="openTestDetail(t)">
             <div class="test-head">
@@ -391,8 +391,8 @@
             <div class="test-tag">{{ t.testTitle || t.paperName || '综合测试' }}</div>
             <div class="test-tip" v-if="t.tip">{{ t.tip }}</div>
             <div class="test-card-actions" @click.stop>
-              <button class="test-action-btn" @click="openTestDetail(t)">🔎 查看详情</button>
-              <button class="test-action-btn primary" @click="showTestShare(t)">📷 分享卡片</button>
+              <button class="test-action-btn" @click="openTestDetail(t)"><AppIcon name="search" /> 查看详情</button>
+              <button class="test-action-btn primary" @click="showTestShare(t)"><AppIcon name="camera" /> 分享卡片</button>
             </div>
           </div>
         </div>
@@ -402,7 +402,7 @@
       <div v-if="activeTab === 'weekReport'" class="week-area">
         <div class="list-toolbar">
           <div class="lt-row">
-            <span class="lt-label">📅 时间范围：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间范围：</span>
             <button v-for="opt in weekRangeOptions" :key="opt.key" :class="['lt-quick', { on: weekRange === opt.key }]" @click="weekRange = opt.key">{{ opt.label }}</button>
           </div>
         </div>
@@ -430,7 +430,7 @@
           </div>
         </div>
         <div class="report-text">
-          <h4>💡 本周小结</h4>
+          <h4><AppIcon name="bulb" /> 本周小结</h4>
           <p>{{ weekStat.summary }}</p>
         </div>
         <div class="chart-box-sm" ref="lineChartRef"></div>
@@ -441,10 +441,10 @@
       <div v-if="activeTab === 'feedback'" class="fb-area">
         <div class="diary-toolbar">
           <div class="diary-toolbar-left">
-            <span class="diary-toolbar-title">💬 我的反馈</span>
+            <span class="diary-toolbar-title"><AppIcon name="message" /> 我的反馈</span>
             <span class="diary-toolbar-count">共 {{ filteredFbList.length }} 条</span>
           </div>
-          <router-link to="/feedback" class="primary-btn small" style="text-decoration:none">✏️ 去提交反馈</router-link>
+          <router-link to="/feedback" class="primary-btn small" style="text-decoration:none"><AppIcon name="pen" /> 去提交反馈</router-link>
         </div>
         <!-- 工具栏：搜索 + 时间筛选 -->
         <div class="list-toolbar">
@@ -453,7 +453,7 @@
             <input v-model="fbKw" class="lt-input" placeholder="输入关键词（反馈内容 / 管理员回复）" />
           </div>
           <div class="lt-row">
-            <span class="lt-label">📅 时间：</span>
+            <span class="lt-label"><AppIcon name="calendar" /> 时间：</span>
             <input type="date" v-model="fbStart" class="lt-date" />
             <span class="lt-sep">~</span>
             <input type="date" v-model="fbEnd" class="lt-date" />
@@ -462,27 +462,27 @@
             <button :class="['lt-quick', { on: fbQuick==='all' }]" @click="fbQuick='all'; fbStart=''; fbEnd=''">全部</button>
             <button :class="['lt-quick', { on: fbQuick==='7' }]" @click="setFbQuick(7)">近7天</button>
             <button :class="['lt-quick', { on: fbQuick==='30' }]" @click="setFbQuick(30)">近30天</button>
-            <button class="lt-reset" @click="resetFbFilter">↺ 重置</button>
+            <button class="lt-reset" @click="resetFbFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
         <div v-if="filteredFbList.length === 0" class="empty">
-          💬 没有匹配的反馈记录~<br />
-          <router-link to="/feedback" class="link-btn">去提交第一条反馈 →</router-link>
+          <AppIcon name="message" /> 没有匹配的反馈记录~<br />
+          <router-link to="/feedback" class="link-btn">去提交第一条反馈 <AppIcon name="arrow-right" /></router-link>
         </div>
         <div class="fb-list">
           <div v-for="f in filteredFbList" :key="f.feedbackId" class="fb-card clickable" @click="openFbDetail(f)">
             <div class="fb-head">
               <span class="fb-time">{{ formatDateTime(f.createTime) }}</span>
-              <span v-if="f.replyText" class="fb-status replied">✅ 已回复</span>
-              <span v-else class="fb-status pending">⏳ 待回复</span>
+              <span v-if="f.replyText" class="fb-status replied"><AppIcon name="check" /> 已回复</span>
+              <span v-else class="fb-status pending"><AppIcon name="loader" /> 待回复</span>
             </div>
             <div class="fb-content"><span v-html="highlight(f.content || f.feedbackContent, fbKw)"></span></div>
             <div v-if="f.replyText" class="fb-reply">
-              <div class="reply-label">✅ 管理员回复：</div>
+              <div class="reply-label"><AppIcon name="check" /> 管理员回复：</div>
               <div class="reply-text"><span v-html="highlight(f.replyText, fbKw)"></span></div>
             </div>
-            <div v-else class="fb-pending">⏳ 等待管理员回复...</div>
-            <div class="fb-card-hint">👆 点击查看完整对话</div>
+            <div v-else class="fb-pending"><AppIcon name="loader" /> 等待管理员回复...</div>
+            <div class="fb-card-hint"><AppIcon name="arrow-up" /> 点击查看完整对话</div>
           </div>
         </div>
       </div>
@@ -491,10 +491,10 @@
       <div v-if="activeTab === 'comments'" class="cmt-area">
         <div class="diary-toolbar">
           <div class="diary-toolbar-left">
-            <span class="diary-toolbar-title">💬 我的评论</span>
+            <span class="diary-toolbar-title"><AppIcon name="message" /> 我的评论</span>
             <span class="diary-toolbar-count">共 {{ cmtCounts.all }} 条</span>
           </div>
-          <button class="primary-btn small" @click="loadCmtAll">↻ 刷新</button>
+          <button class="primary-btn small" @click="loadCmtAll"><AppIcon name="rotate-cw" /> 刷新</button>
         </div>
 
         <!-- 四态统计卡，点击即筛选 -->
@@ -523,7 +523,7 @@
               <div class="cmt-body">
                 <div class="cmt-line1">
                   <span :class="['cmt-type', c.resourceType === 1 ? 'audio' : 'video']">
-                    {{ c.resourceType === 1 ? '🎵 音频' : '🎬 视频' }}
+                    {{ c.resourceType === 1 ? ' 音频' : ' 视频' }}
                   </span>
                   <span class="cmt-name">{{ c.resourceName || '资源已下架' }}</span>
                   <span :class="['cmt-badge', cmtBadgeCls(c.status)]">{{ cmtStatusText(c.status) }}</span>
@@ -531,7 +531,7 @@
                 <div class="cmt-text">{{ c.commentText }}</div>
                 <div class="cmt-time">{{ formatDateTime(c.createTime) }}</div>
               </div>
-              <button class="cmt-go" @click="goCommentResource(c)">去看看 →</button>
+              <button class="cmt-go" @click="goCommentResource(c)">去看看 <AppIcon name="arrow-right" /></button>
             </div>
           </div>
 
@@ -548,7 +548,7 @@
       <!-- ========== 账号设置 ========== -->
       <div v-if="activeTab === 'setting'" class="setting-area">
         <div class="sec-card">
-          <h3>💻 登录设备</h3>
+          <h3><AppIcon name="device" /> 登录设备</h3>
           <p class="sec-desc">下面是你账号的登录设备（30 分钟内有活动算「在线」），可以移除不认识的设备（移除后该设备需要重新登录）</p>
           <div v-if="visibleSessions.length" class="session-list">
             <div v-for="s in visibleSessions" :key="s.sessionId" class="session-item" :class="{ current: s.current, off: s.status === 0 }">
@@ -567,34 +567,34 @@
           </div>
           <p v-else class="sec-desc">暂无有效会话记录</p>
           <div class="se-actions">
-            <button class="link-btn" @click="loadSessions">🔄 刷新</button>
-            <button class="link-btn danger" @click="kickAllOthers">🚫 移除其他所有设备</button>
+            <button class="link-btn" @click="loadSessions"><AppIcon name="refresh" /> 刷新</button>
+            <button class="link-btn danger" @click="kickAllOthers"><AppIcon name="ban" /> 移除其他所有设备</button>
             <button v-if="kickedCount" class="link-btn" @click="showKicked = !showKicked">
-              {{ showKicked ? `隐藏已移除的 ${kickedCount} 台 ▲` : `显示已移除的 ${kickedCount} 台 ▼` }}
+              <template v-if="showKicked">隐藏已移除的 {{ kickedCount }} 台 <AppIcon name="chevron-up" /></template><template v-else>显示已移除的 {{ kickedCount }} 台 <AppIcon name="chevron-down" /></template>
             </button>
           </div>
         </div>
         <div class="sec-card">
           <!-- 基本资料 / 修改密码 已移入「个人中心」弹窗（右上角编辑个人资料按钮打开） -->
-          <h3>🔒 安全中心</h3>
+          <h3><AppIcon name="lock" /> 安全中心</h3>
           <p class="sec-desc">资料编辑与密码修改请点击右上角「编辑个人资料」按钮，在弹窗中操作。</p>
           <div class="se-actions">
-            <button class="link-btn" @click="openUserCenter">👤 打开个人中心</button>
-            <button class="link-btn danger-link" @click="deactivateAccountFlow">⚠️ 注销账号</button>
+            <button class="link-btn" @click="openUserCenter"><AppIcon name="user" /> 打开个人中心</button>
+            <button class="link-btn danger-link" @click="deactivateAccountFlow"><AppIcon name="alert-triangle" /> 注销账号</button>
           </div>
           <p class="sec-desc" style="font-size:12px;margin-top:6px">注销后账号将匿名化并无法登录，此操作不可恢复。</p>
         </div>
-        <button class="logout-btn" @click="logout">🚪 退出登录</button>
+        <button class="logout-btn" @click="logout"><AppIcon name="door" /> 退出登录</button>
       </div>
 
       <!-- ========== 数据看板（内嵌，不再跳转 /databoard） ========== -->
       <div v-if="activeTab === 'board'" class="board-tab">
         <div class="diary-toolbar">
           <div class="diary-toolbar-left">
-            <span class="diary-toolbar-title">📊 我的数据看板</span>
+            <span class="diary-toolbar-title"><AppIcon name="chart-bar" /> 我的数据看板</span>
             <span class="diary-toolbar-count">记录 {{ diaryCount }} 篇 · 测评 {{ testCount }} 次</span>
           </div>
-          <router-link to="/databoard" class="primary-btn small" style="text-decoration:none">↗ 全屏查看</router-link>
+          <router-link to="/databoard" class="primary-btn small" style="text-decoration:none"><AppIcon name="arrow-up-right" /> 全屏查看</router-link>
         </div>
         <DataBoard embedded />
       </div>
@@ -602,7 +602,7 @@
       <!-- ========== 轻量无感记录（隐私总控台） ========== -->
       <div v-if="activeTab === 'sense'" class="sense-area">
         <div class="sec-card">
-          <h3>🌫️ 无感记录开关</h3>
+          <h3><AppIcon name="cloud" /> 无感记录开关</h3>
           <p class="sec-desc">
             默认关闭。<b>只有你主动打开，系统才会采集</b>；随时可以关掉并清空全部数据。
           </p>
@@ -620,7 +620,7 @@
           </div>
 
           <p v-if="senseForm.enabled && senseCfg.featureEnabled" class="sense-auto-tip">
-            🌙 <b>自动代记已生效</b>：白天你照常用 App 就行，不用刻意打卡。当天 23:30 如果还没写日记，
+            <AppIcon name="moon" /> <b>自动代记已生效</b>：白天你照常用 App 就行，不用刻意打卡。当天 23:30 如果还没写日记，
             系统会按使用痕迹替你记一条，标记为「系统代记」；连续天数照常计算，但<b>不计经验值</b>。
             想变成自己的记录，去日记页补一句话即可。
           </p>
@@ -643,7 +643,7 @@
         </div>
 
         <div class="sec-card">
-          <h3>📦 我的数据概况</h3>
+          <h3><AppIcon name="package" /> 我的数据概况</h3>
           <div class="sense-stat-grid">
             <div class="ssg-item"><span class="ssg-num">{{ senseCfg.behaviorRows ?? 0 }}</span><span class="ssg-lb">行为特征行数</span></div>
             <div class="ssg-item"><span class="ssg-num">{{ senseCfg.pendingCount ?? 0 }}</span><span class="ssg-lb">待确认推测</span></div>
@@ -656,14 +656,14 @@
             <template v-if="senseCfg.revokeAt"> · 最近一次撤销 {{ fmtSenseTime(senseCfg.revokeAt) }}</template>
           </p>
           <div class="se-actions">
-            <button class="link-btn" @click="loadSense">🔄 刷新</button>
-            <button class="link-btn" @click="exportSense">⬇️ 导出我的数据</button>
-            <button class="link-btn danger" @click="clearSense">🗑️ 一键清空行为数据</button>
+            <button class="link-btn" @click="loadSense"><AppIcon name="refresh" /> 刷新</button>
+            <button class="link-btn" @click="exportSense"><AppIcon name="download" /> 导出我的数据</button>
+            <button class="link-btn danger" @click="clearSense"><AppIcon name="trash" /> 一键清空行为数据</button>
           </div>
         </div>
 
         <div class="sec-card">
-          <h3>🎯 推测命中率</h3>
+          <h3><AppIcon name="target" /> 推测命中率</h3>
           <p class="sec-desc">「采用」时你最终选的情绪与系统推荐一致才算命中 —— 这是论文里可以直接用的实验数据。</p>
           <div v-if="accuracy.total" class="sense-stat-grid">
             <div class="ssg-item"><span class="ssg-num">{{ accuracy.total }}</span><span class="ssg-lb">已处理推测</span></div>
@@ -676,7 +676,7 @@
         </div>
 
         <div class="sec-card">
-          <h3>🕓 推测历史</h3>
+          <h3><AppIcon name="clock" /> 推测历史</h3>
           <div v-if="predHistory.length" class="ph-list">
             <div v-for="p in predHistory" :key="p.predictionId" class="ph-item">
               <span class="ph-date">{{ p.targetDate }}</span>
@@ -694,13 +694,13 @@
           </p>
           <div class="se-actions">
             <button class="link-btn" :disabled="senseBusy" @click="genToday">
-              {{ senseBusy ? '生成中…' : '⚡ 立即生成一条今日推测' }}
+              <template v-if="senseBusy">生成中…</template><template v-else><AppIcon name="zap" /> 立即生成一条今日推测</template>
             </button>
           </div>
         </div>
 
         <div class="sec-card">
-          <h3>🔐 隐私操作日志</h3>
+          <h3><AppIcon name="lock" /> 隐私操作日志</h3>
           <p class="sec-desc">每一次开关变更、推测生成、数据清空都会留痕，且只对本人可见。</p>
           <div v-if="privacyLogs.length" class="pl-list">
             <div v-for="(l, i) in privacyLogs" :key="i" class="pl-item">
@@ -713,7 +713,7 @@
         </div>
 
         <div class="sec-card sense-privacy">
-          <h3>🛡️ 隐私承诺</h3>
+          <h3><AppIcon name="shield" /> 隐私承诺</h3>
           <ul class="sp-list">
             <li>不使用摄像头、麦克风、屏幕录制，不采集键盘输入明文；</li>
             <li>采集字段只有停留毫秒数与点击次数，前端先聚合成「天 × 场景」再上传；</li>
@@ -727,12 +727,12 @@
       <!-- ========== 情绪风险预警历史（非医疗诊断） ========== -->
       <div v-if="activeTab === 'risk'" class="risk-area">
         <div class="risk-disclaimer">
-          ⚠️ 本模块是<b>统计意义上的情绪关怀提示</b>，不构成任何医疗诊断，<b>不能作为抑郁症等疾病的诊断依据</b>。
+          <AppIcon name="alert-triangle" /> 本模块是<b>统计意义上的情绪关怀提示</b>，不构成任何医疗诊断，<b>不能作为抑郁症等疾病的诊断依据</b>。
           如持续不适，请以专业医疗机构意见为准。
         </div>
 
         <div class="sec-card">
-          <h3>📊 预警概览</h3>
+          <h3><AppIcon name="chart-bar" /> 预警概览</h3>
           <div class="sense-stat-grid">
             <div class="ssg-item"><span class="ssg-num">{{ riskOv.unread ?? 0 }}</span><span class="ssg-lb">未读</span></div>
             <div class="ssg-item"><span class="ssg-num">{{ riskOv.total ?? 0 }}</span><span class="ssg-lb">累计预警</span></div>
@@ -742,8 +742,8 @@
         </div>
 
         <div class="sec-card">
-          <h3>⚙️ 当前判定阈值（后端可配）</h3>
-          <p class="sec-desc">这些值全部来自 <code>application.yml → app.alert.*</code>，修改后重启后端即可生效，无需改代码。危机词库同样在该配置的 <code>crisis-words</code> 下维护。</p>
+          <h3><AppIcon name="sliders" /> 当前判定阈值（后端可配）</h3>
+          <p class="sec-desc">这些值全部来自 <code>application.yml <AppIcon name="arrow-right" /> app.alert.*</code>，修改后重启后端即可生效，无需改代码。危机词库同样在该配置的 <code>crisis-words</code> 下维护。</p>
           <div class="th-grid">
             <div v-for="t in thresholdRows" :key="t.k" class="th-item">
               <span class="th-k">{{ t.label }}</span><span class="th-v">{{ t.v }}</span>
@@ -751,14 +751,14 @@
           </div>
           <div class="se-actions">
             <button class="link-btn" :disabled="riskBusy" @click="runEvaluate">
-              {{ riskBusy ? '判定中…' : '🔍 手动触发一次判定' }}
+              {{ riskBusy ? '判定中…' : ' 手动触发一次判定' }}
             </button>
-            <button class="link-btn" @click="loadRisk">🔄 刷新</button>
+            <button class="link-btn" @click="loadRisk"><AppIcon name="refresh" /> 刷新</button>
           </div>
         </div>
 
         <div class="sec-card">
-          <h3>🕓 历史预警记录</h3>
+          <h3><AppIcon name="clock" /> 历史预警记录</h3>
           <div v-if="riskList.length" class="rl-list">
             <div v-for="a in riskList" :key="a.alertId" class="rl-item" :class="['lv' + a.level, { unread: !a.isRead }]">
               <div class="rl-head">
@@ -773,7 +773,7 @@
               <div v-if="openRiskId === a.alertId" class="rl-advice pre">{{ a.advice }}</div>
               <div class="rl-actions">
                 <button class="link-btn" @click="toggleAdvice(a)">
-                  {{ openRiskId === a.alertId ? '收起建议 ▲' : '查看建议 ▼' }}
+                  <template v-if="openRiskId === a.alertId">收起建议 <AppIcon name="chevron-up" /></template><template v-else>查看建议 <AppIcon name="chevron-down" /></template>
                 </button>
                 <!-- 误报反馈：内容与真实状态不符时补标「这不是我」（危机通道不允许，后端也会拒绝） -->
                 <button v-if="!a.crisis && !a.misreport" class="link-btn misreport-link" @click="misreportOne(a)">这不是我（误报）</button>
@@ -797,7 +797,7 @@
     <aside class="steam-side">
       <div class="side-card level-card">
         <div class="lc-head">
-          <span class="lc-head-t">🏅 绪见等级</span>
+          <span class="lc-head-t"><AppIcon name="award" /> 绪见等级</span>
           <span class="lc-head-exp">{{ expTotal }} EXP</span>
         </div>
         <div class="lc-main">
@@ -812,7 +812,7 @@
           </div>
         </div>
         <button class="lc-detail-toggle" @click="showExpDetail = !showExpDetail">
-          {{ showExpDetail ? '收起经验明细 ▲' : '经验怎么来的？明细 ▼' }}
+          <template v-if="showExpDetail">收起经验明细 <AppIcon name="chevron-up" /></template><template v-else>经验怎么来的？明细 <AppIcon name="chevron-down" /></template>
         </button>
         <transition name="fade">
           <div v-if="showExpDetail" class="lc-detail">
@@ -835,7 +835,7 @@
       </div>
 
       <div class="side-card online-card">
-        <h4 class="side-title">🟢 当前在线</h4>
+        <h4 class="side-title"><i class="online-light"></i> 当前在线</h4>
         <p class="side-online"><span class="dot"></span>最近活跃 {{ lastActiveText }}</p>
         <div class="side-devices">
           <template v-if="hasSessionData">
@@ -851,7 +851,7 @@
           <div class="sg-title">{{ g.title }}</div>
           <div v-for="s in g.items" :key="s.key" :class="['side-stat', { active: activeTab === s.key }]" @click="s.action ? s.action() : switchTab(s.key)">
             <span class="ss-label"><img v-if="s.icon" :src="s.icon" class="ss-icon" alt="" />{{ s.label }}</span>
-            <span class="ss-num">{{ s.num }}</span>
+            <span class="ss-num"><AppIcon v-if="s.glyph" :name="s.glyph" /><template v-else>{{ s.num }}</template></span>
           </div>
         </template>
       </div>
@@ -872,7 +872,7 @@
           </div>
         </div>
         <p class="se-summary">{{ weekStat.summary }}</p>
-        <button class="side-btn ghost" @click="switchTab('weekReport')">查看情绪周报 →</button>
+        <button class="side-btn ghost" @click="switchTab('weekReport')">查看情绪周报 <AppIcon name="arrow-right" /></button>
       </div>
     </aside>
     </div>
@@ -881,10 +881,10 @@
     <div v-if="aiDetail" class="mask" @click.self="aiDetail = null">
       <div class="detail-modal">
         <div class="detail-header">
-          <h3>🤖 AI 对话详情</h3>
-          <button class="detail-close" @click="aiDetail = null">✕</button>
+          <h3><AppIcon name="bot" /> AI 对话详情</h3>
+          <button class="detail-close" @click="aiDetail = null"><AppIcon name="close" /></button>
         </div>
-        <div class="detail-meta">🕐 {{ formatDateTime(aiDetail.createTime) }}</div>
+        <div class="detail-meta"><AppIcon name="clock" /> {{ formatDateTime(aiDetail.createTime) }}</div>
         <div class="detail-body">
           <div class="ai-user-row"><span class="ai-tag user">你</span></div>
           <div class="ai-bubble user full">{{ aiDetail.userMsg ?? aiDetail.userMessage }}</div>
@@ -898,19 +898,19 @@
     <div v-if="fbDetail" class="mask" @click.self="fbDetail = null">
       <div class="detail-modal">
         <div class="detail-header">
-          <h3>💬 反馈对话详情</h3>
-          <button class="detail-close" @click="fbDetail = null">✕</button>
+          <h3><AppIcon name="message" /> 反馈对话详情</h3>
+          <button class="detail-close" @click="fbDetail = null"><AppIcon name="close" /></button>
         </div>
-        <div class="detail-meta">🕐 {{ formatDateTime(fbDetail.createTime) }}
-          <span v-if="fbDetail.replyText" class="fb-status replied" style="margin-left:10px">✅ 已回复</span>
-          <span v-else class="fb-status pending" style="margin-left:10px">⏳ 待回复</span>
+        <div class="detail-meta"><AppIcon name="clock" /> {{ formatDateTime(fbDetail.createTime) }}
+          <span v-if="fbDetail.replyText" class="fb-status replied" style="margin-left:10px"><AppIcon name="check" /> 已回复</span>
+          <span v-else class="fb-status pending" style="margin-left:10px"><AppIcon name="loader" /> 待回复</span>
         </div>
         <div class="detail-body">
           <div v-if="fbLoading" class="empty" style="padding:30px">加载中...</div>
           <template v-else>
             <div v-for="(m, idx) in fbMessages" :key="idx" class="fb-msg-row">
               <div :class="['fb-msg-bubble', m.senderType === 'user' ? 'user' : 'admin']">
-                <div class="fb-msg-tag">{{ m.senderType === 'user' ? '🧑 我' : '🛡️ 管理员' }}</div>
+                <div class="fb-msg-tag"><template v-if="m.senderType === 'user'"><AppIcon name="user" /> 我</template><template v-else><AppIcon name="shield" /> 管理员</template></div>
                 <div class="fb-msg-content">{{ m.content }}</div>
                 <div class="fb-msg-time">{{ formatDateTime(m.createTime) }}</div>
               </div>
@@ -924,9 +924,9 @@
     <!-- 头像选择弹窗 -->
     <div v-if="showAvatarPicker" class="mask" @click.self="showAvatarPicker = false">
       <div class="avatar-picker">
-        <h3>🖼️ 设置头像</h3>
+        <h3><AppIcon name="image" /> 设置头像</h3>
         <div class="avatar-upload-area" @click="$refs.avatarUploadRef.click()">
-          <div class="upload-big-icon">📤</div>
+          <div class="upload-big-icon"><AppIcon name="upload" /></div>
           <p>点击上传头像</p>
           <p class="upload-hint">支持 JPG / PNG 格式</p>
         </div>
@@ -939,14 +939,14 @@
     <!-- 测评详情弹窗 -->
     <div v-if="testDetail" class="mask" @click.self="testDetail = null">
       <div class="detail-modal" style="max-width:480px">
-        <div class="detail-header"><h3>📋 测评报告详情</h3><button class="detail-close" @click="testDetail = null">✕</button></div>
+        <div class="detail-header"><h3><AppIcon name="clipboard" /> 测评报告详情</h3><button class="detail-close" @click="testDetail = null"><AppIcon name="close" /></button></div>
         <div class="test-detail-body">
           <div class="test-detail-name">{{ testDetail.testTitle || testDetail.paperName || '综合测试' }}</div>
           <div class="test-detail-circle" :class="testLevelClass(testDetail)"><span class="test-detail-score">{{ testDetail.score ?? testDetail.totalScore }}</span><span class="test-detail-total">/ {{ testDetail.totalScore || '--' }}</span></div>
           <div class="test-detail-level" :class="testLevelClass(testDetail)">{{ testDetail.level || getEmotionText(testDetail.emotionLevel) || '状态未知' }}</div>
-          <div class="test-detail-meta">🕐 {{ formatDateTime(testDetail.createTime) }}</div>
-          <div class="test-detail-tip">{{ testDetail.tip || '暂无建议，请重新测评 💚' }}</div>
-          <div class="test-detail-actions"><button class="test-action-btn" @click="testDetail = null">关闭</button><button class="test-action-btn primary" @click="showTestShare(testDetail); testDetail = null">📷 生成分享卡片</button></div>
+          <div class="test-detail-meta"><AppIcon name="clock" /> {{ formatDateTime(testDetail.createTime) }}</div>
+          <div class="test-detail-tip">{{ testDetail.tip || '暂无建议，请重新测评 ' }}</div>
+          <div class="test-detail-actions"><button class="test-action-btn" @click="testDetail = null">关闭</button><button class="test-action-btn primary" @click="showTestShare(testDetail); testDetail = null"><AppIcon name="camera" /> 生成分享卡片</button></div>
         </div>
       </div>
     </div>
@@ -954,26 +954,26 @@
     <!-- 测评分享卡片弹窗 -->
     <div v-if="showTestShareCard" class="mask" @click.self="showTestShareCard = false">
       <div class="detail-modal" style="max-width:440px">
-        <div class="detail-header"><h3>📷 生成分享卡片</h3><button class="detail-close" @click="showTestShareCard = false">✕</button></div>
+        <div class="detail-header"><h3><AppIcon name="camera" /> 生成分享卡片</h3><button class="detail-close" @click="showTestShareCard = false"><AppIcon name="close" /></button></div>
         <div class="share-card-preview" v-if="currentShareTest">
-          <div class="sc-header"><div class="sc-logo">🌿 绪见测试</div><div class="sc-date">{{ today }}</div></div>
+          <div class="sc-header"><div class="sc-logo"><AppIcon name="leaf" /> 绪见测试</div><div class="sc-date">{{ today }}</div></div>
           <div class="sc-body">
             <div class="sc-test-name">{{ currentShareTest.testTitle || currentShareTest.paperName || '心理测评' }}</div>
             <div class="sc-circle" :class="testLevelClass(currentShareTest)"><span class="sc-score">{{ currentShareTest.score ?? currentShareTest.totalScore }}</span><span class="sc-total">/ {{ currentShareTest.totalScore || '--' }}</span></div>
             <div class="sc-level" :class="testLevelClass(currentShareTest)">{{ currentShareTest.level || getEmotionText(currentShareTest.emotionLevel) || '状态未知' }}</div>
-            <p class="sc-tip">{{ currentShareTest.tip || '继续关注自己的心理状态 💚' }}</p>
+            <p class="sc-tip">{{ currentShareTest.tip || '继续关注自己的心理状态 ' }}</p>
           </div>
-          <div class="sc-footer"><span class="sc-slogan">科学的心理测评，温柔了解自己 💚</span><span class="sc-brand">绪见</span></div>
+          <div class="sc-footer"><span class="sc-slogan">科学的心理测评，温柔了解自己 <AppIcon name="heart" /></span><span class="sc-brand">绪见</span></div>
         </div>
-        <div class="picker-actions"><button class="cancel" @click="showTestShareCard = false">取消</button><button class="primary-btn small" @click="saveTestShareCard">💾 保存图片</button></div>
+        <div class="picker-actions"><button class="cancel" @click="showTestShareCard = false">取消</button><button class="primary-btn small" @click="saveTestShareCard"><AppIcon name="save" /> 保存图片</button></div>
       </div>
     </div>
 
     <!-- 头像装饰框弹窗 -->
     <div v-if="showFramePicker" class="mask" @click.self="showFramePicker = false">
       <div class="avatar-picker" style="width:440px">
-        <h3>🖼️ 头像装饰框</h3>
-        <p class="modal-desc" style="margin:-8px 0 14px;font-size:12px">✨ 本周情绪推荐：{{ weekStat.topEmotionIcon }} {{ weekStat.summary?.split('！')[0]?.split('？')[0] || '' }}</p>
+        <h3><AppIcon name="image" /> 头像装饰框</h3>
+        <p class="modal-desc" style="margin:-8px 0 14px;font-size:12px"><AppIcon name="sparkles" /> 本周情绪推荐：{{ weekStat.topEmotionIcon }} {{ weekStat.summary?.split('！')[0]?.split('？')[0] || '' }}</p>
         <div class="frame-grid">
           <div v-for="f in avatarFrames" :key="f.name"
                :class="['frame-opt', { on: userFrame === f.name }]"
@@ -983,7 +983,7 @@
               <img v-if="f.img" :src="f.img" class="frame-ring-img" :style="{ width: (f.scale || 120) + '%', height: (f.scale || 120) + '%' }" @error="$event.target.style.display='none'" />
             </div>
             <div class="frame-name">{{ f.icon }} {{ f.label }}</div>
-            <div v-if="f.recommend" class="frame-rec">✨ 推荐</div>
+            <div v-if="f.recommend" class="frame-rec"><AppIcon name="sparkles" /> 推荐</div>
           </div>
         </div>
         <div class="picker-actions">
@@ -995,10 +995,10 @@
     <!-- ========== 个人中心弹窗（基本资料 / 个性化设置 / 修改密码） ========== -->
     <div v-if="showUserCenter" class="mask uc-mask" @click.self="showUserCenter = false">
       <div class="uc-modal">
-        <button class="uc-close" @click="showUserCenter = false" title="关闭">✕</button>
-        <div class="uc-head">👤 个人中心</div>
+        <button class="uc-close" @click="showUserCenter = false" title="关闭"><AppIcon name="close" /></button>
+        <div class="uc-head"><AppIcon name="user" /> 个人中心</div>
         <div class="uc-tabs">
-          <button v-for="t in ucTabs" :key="t.key" :class="['uc-tab', { on: ucTab === t.key }]" @click="ucTab = t.key">{{ t.icon }} {{ t.label }}</button>
+          <button v-for="t in ucTabs" :key="t.key" :class="['uc-tab', { on: ucTab === t.key }]" @click="ucTab = t.key"><AppIcon :name="t.icon" /> {{ t.label }}</button>
         </div>
 
         <!-- 基本资料 -->
@@ -1009,7 +1009,7 @@
             </div>
             <div class="uc-avatar-info">
               <div class="uc-avatar-name">{{ editForm.nickname || user.username }}</div>
-              <button class="uc-upload-btn" @click="avatarUploadRef?.click()">📤 上传头像</button>
+              <button class="uc-upload-btn" @click="avatarUploadRef?.click()"><AppIcon name="upload" /> 上传头像</button>
             </div>
           </div>
           <div class="uc-grid">
@@ -1020,20 +1020,20 @@
 
         <!-- 个性化设置 -->
         <div v-else-if="ucTab === 'personal'" class="uc-body">
-          <div class="uc-sec-title">🎨 主题颜色</div>
+          <div class="uc-sec-title"><AppIcon name="palette" /> 主题颜色</div>
           <div class="uc-dots">
             <button v-for="c in themeColors" :key="c.name"
                     :class="['color-dot', { on: themeColor.name === c.name }]"
                     :style="{ background: c.hex }"
                     @click="setTheme(c)" :title="c.label"></button>
           </div>
-          <div class="uc-sec-title">🌙 深色模式</div>
-          <button class="uc-switch" @click="toggleDark">{{ darkMode ? '☀️ 当前为深色模式，点击切换浅色' : '🌙 当前为浅色模式，点击切换深色' }}</button>
-          <div class="uc-sec-title">✨ 个性化装饰</div>
+          <div class="uc-sec-title"><AppIcon name="moon" /> 深色模式</div>
+          <button class="uc-switch" @click="toggleDark"><template v-if="darkMode"><AppIcon name="moon" /> 当前为深色模式，点击切换浅色</template><template v-else><AppIcon name="sun" /> 当前为浅色模式，点击切换深色</template></button>
+          <div class="uc-sec-title"><AppIcon name="sparkles" /> 个性化装饰</div>
           <div class="uc-deco-row">
-            <button class="cancel" @click="showBgPicker = true">🖼️ 顶部背景图</button>
-            <button class="cancel" @click="showFramePicker = true">🎀 头像装饰框</button>
-            <button class="cancel" @click="showAvatarPicker = true">😀 预设头像</button>
+            <button class="cancel" @click="showBgPicker = true"><AppIcon name="image" /> 顶部背景图</button>
+            <button class="cancel" @click="showFramePicker = true"><AppIcon name="gift" /> 头像装饰框</button>
+            <button class="cancel" @click="showAvatarPicker = true"><AppIcon name="face-happy" /> 预设头像</button>
           </div>
         </div>
 
@@ -1044,19 +1044,19 @@
             <div class="form-item"><label>新密码</label><input v-model="pwdForm.newPassword" type="password" placeholder="至少6位" /></div>
             <div class="form-item uc-full"><label>确认新密码</label><input v-model="pwdForm.confirm" type="password" placeholder="再输入一次" /></div>
           </div>
-          <p class="uc-tip">🔐 修改成功后会退出登录，请使用新密码重新登录。</p>
+          <p class="uc-tip"><AppIcon name="lock" /> 修改成功后会退出登录，请使用新密码重新登录。</p>
         </div>
 
         <div class="uc-footer">
           <template v-if="ucTab === 'basic'">
             <button class="cancel" @click="showUserCenter = false">取消</button>
-            <button class="primary-btn small" @click="saveProfile">💾 保存资料</button>
+            <button class="primary-btn small" @click="saveProfile"><AppIcon name="save" /> 保存资料</button>
           </template>
           <template v-else-if="ucTab === 'personal'">
-            <button class="primary-btn small" @click="showUserCenter = false">✔ 完成</button>
+            <button class="primary-btn small" @click="showUserCenter = false"><AppIcon name="check" /> 完成</button>
           </template>
           <template v-else>
-            <button class="danger-btn small" :disabled="pwdSaving" @click="savePassword">{{ pwdSaving ? '提交中…' : '🔐 确认修改密码' }}</button>
+            <button class="danger-btn small" :disabled="pwdSaving" @click="savePassword">{{ pwdSaving ? '提交中…' : ' 确认修改密码' }}</button>
           </template>
         </div>
       </div>
@@ -1116,9 +1116,9 @@ const avatarUploadRef = ref(null)
 const showUserCenter = ref(false)
 const ucTab = ref('basic')
 const ucTabs = [
-  { key: 'basic', icon: '🟢', label: '基本资料' },
-  { key: 'personal', icon: '🎨', label: '个性化设置' },
-  { key: 'pwd', icon: '🔒', label: '修改密码' },
+  { key: 'basic', icon: 'user', label: '基本资料' },
+  { key: 'personal', icon: 'palette', label: '个性化设置' },
+  { key: 'pwd', icon: 'lock', label: '修改密码' },
 ]
 const openUserCenter = () => {
   // 每次打开都用当前用户信息重置表单，避免上次未保存的改动残留
@@ -1148,7 +1148,7 @@ const heroBgStyle = computed(() => {
     background: 'linear-gradient(135deg, var(--c-main) 0%, var(--c-hex) 55%, var(--c-main) 100%)',
   }
 })
-// 微信式拖动调整：按住横幅拖动 → 实时更新展示位置（pointer events 兼容鼠标/触摸）
+// 微信式拖动调整：按住横幅拖动  实时更新展示位置（pointer events 兼容鼠标/触摸）
 const adjustingBg = ref(false)
 const dragState = ref(null)
 const ripple = ref(null)
@@ -1257,7 +1257,7 @@ const userFrame = ref(frameNameMap[_rawFrame] || _rawFrame)
 if (frameNameMap[_rawFrame]) localStorage.setItem('profile_frame', frameNameMap[_rawFrame])
 const avatarFrames = computed(() => {
   const topEmo = weekStat.value.topEmotionIcon
-  const recMap = { flower: topEmo === '😄', leaf: topEmo === '😌', crown: topEmo === '😄', star: topEmo === '😌', heart: topEmo === '😄', halo: topEmo === '😌', cloud: topEmo === '😴' }
+  const recMap = { flower: topEmo === '', leaf: topEmo === '', crown: topEmo === '', star: topEmo === '', heart: topEmo === '', halo: topEmo === '', cloud: topEmo === '' }
   return AVATAR_FRAMES.map(f => ({ ...f, scale: FRAME_SCALES[f.name], recommend: !!recMap[f.name] }))
 })
 const pickFrame = (name) => {
@@ -1355,9 +1355,9 @@ const kickAllOthers = async () => {
 }
 const deviceIcon = (d = '') => {
   const s = String(d)
-  if (s.includes('iOS') || s.includes('Android')) return '📱'
-  if (s.includes('Mac')) return '💻'
-  return '🖥️'
+  if (s.includes('iOS') || s.includes('Android')) return ''
+  if (s.includes('Mac')) return ''
+  return ''
 }
 
 // ===== 情绪 =====
@@ -1636,12 +1636,12 @@ const weekStat = computed(() => {
   const happyDays = weekDiaries.filter(d => d.emotion === 1 || d.emotion === 2).length
   const rangeText = { week: '本周', lastWeek: '上周', month: '本月', all: '累计' }[weekRange.value] || '本周'
   let summary = total === 0 ? `${rangeText}还没有记录哦~ 快写一篇日记吧！` :
-    topEmo === 1 ? `🎉 太棒了！${rangeText}以「开心」为主，继续保持！` :
-    topEmo === 2 ? `😌 ${rangeText}你很平静，情绪稳定，这是很好的状态~` :
-    topEmo === 3 ? `😴 ${rangeText}有些疲惫，记得多休息，照顾好自己。` :
-    topEmo === 4 ? `😢 ${rangeText}有些低落，别忘了难过的日子总会过去的 💗` :
-    topEmo === 5 ? `😠 ${rangeText}情绪有些激动，试试深呼吸~` :
-    topEmo === 6 ? `😰 ${rangeText}有些焦虑，试试做几次冥想或呼吸练习。` : ''
+    topEmo === 1 ? ` 太棒了！${rangeText}以「开心」为主，继续保持！` :
+    topEmo === 2 ? ` ${rangeText}你很平静，情绪稳定，这是很好的状态~` :
+    topEmo === 3 ? ` ${rangeText}有些疲惫，记得多休息，照顾好自己。` :
+    topEmo === 4 ? ` ${rangeText}有些低落，别忘了难过的日子总会过去的 ` :
+    topEmo === 5 ? ` ${rangeText}情绪有些激动，试试深呼吸~` :
+    topEmo === 6 ? ` ${rangeText}有些焦虑，试试做几次冥想或呼吸练习。` : ''
   const topEmotionLabel = emotions.find(e => e.val === topEmo)?.label || (total === 0 ? '暂无记录' : '其他')
   return { total, topEmotionIcon: getEmotionIcon(topEmo), topEmotionLabel, happyDays, summary, rangeText }
 })
@@ -1669,7 +1669,7 @@ const myCommentCount = computed(() => cmtCounts.all)
 const cmtEmptyText = computed(() => {
   if (cmtStatus.value === 0) return '没有待审核的评论~'
   if (cmtStatus.value === 1) return '还没有评论通过审核，去 FM 或学堂说两句吧~'
-  if (cmtStatus.value === -1) return '没有被拒绝的评论，你很棒 🌱'
+  if (cmtStatus.value === -1) return '没有被拒绝的评论，你很棒 '
   return '还没有发表过评论，去绪见 FM 或绪见学堂逛逛吧~'
 })
 
@@ -1833,7 +1833,7 @@ const saveTestShareCard = () => {
   const s = t.score ?? t.totalScore ?? 0, tot = t.totalScore || '--'
   const nm = (t.testTitle || t.paperName || '心理测评').slice(0, 18)
   const lvTxt = t.level || getEmotionText(t.emotionLevel) || '状态未知'
-  const tip = t.tip || '继续关注自己的心理状态 💚'
+  const tip = t.tip || '继续关注自己的心理状态 '
   const g = x.createLinearGradient(0, 0, 0, 800)
   g.addColorStop(0,'#e8f5e0'); g.addColorStop(0.5,'#f5faf0'); g.addColorStop(1,'#fef9f0')
   x.fillStyle = g; x.fillRect(0, 0, 600, 800)
@@ -1841,7 +1841,7 @@ const saveTestShareCard = () => {
   for (let i = 0; i < 20; i++) { x.beginPath(); x.arc(Math.random()*600, Math.random()*100, Math.random()*15+5, 0, Math.PI*2); x.fill() }
   x.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--c-hex').trim() || '#7bc47b'; x.fillRect(0, 60, 600, 60)
   x.fillStyle = '#fff'; x.font = 'bold 28px "Microsoft YaHei", sans-serif'
-  x.fillText('🌿 绪见测试', 40, 100)
+  x.fillText(' 绪见测试', 40, 100)
   x.font = '14px "Microsoft YaHei", sans-serif'; x.fillText(today.value, 480, 100)
   x.fillStyle = '#2d5a2d'; x.font = 'bold 22px "Microsoft YaHei", sans-serif'; x.textAlign = 'center'
   x.fillText(nm, 300, 200)
@@ -1861,7 +1861,7 @@ const saveTestShareCard = () => {
   }
   x.fillText(ln, 300, Math.min(y, 640))
   x.fillStyle = '#8ab88a'; x.font = '14px "Microsoft YaHei", sans-serif'
-  x.fillText('科学的心理测评，温柔了解自己 💚', 300, 700)
+  x.fillText('科学的心理测评，温柔了解自己 ', 300, 700)
   x.fillStyle = '#6b9b6b'; x.font = 'bold 18px "Microsoft YaHei", sans-serif'
   x.fillText('— 绪见 —', 300, 740)
   const a = document.createElement('a')
@@ -2007,7 +2007,7 @@ const loadAll = async () => {
     const videoMap = new Map(videos.map(v => [v.videoId, v]))
     const audioMap = new Map(audios.map(a => [a.audioId, a]))
 
-    // 收藏列表：后端 collect 表 → resourceType(1=audio, 2=video) + resourceId
+    // 收藏列表：后端 collect 表  resourceType(1=audio, 2=video) + resourceId
     const collects = cRes.status==='fulfilled' ? (cRes.value?.data?.records || cRes.value?.data || []) : []
     favList.value = collects.map(c => {
       const createTime = c.createTime ?? c.create_time
@@ -2048,7 +2048,7 @@ const loadAll = async () => {
       return null
     }).filter(Boolean)
 
-    // 点赞列表：从后端 like 表 → resourceType(1=audio, 2=video) + resourceId
+    // 点赞列表：从后端 like 表  resourceType(1=audio, 2=video) + resourceId
     const likes = lRes.status==='fulfilled' ? (lRes.value?.data?.records || lRes.value?.data || []) : []
     likeList.value = likes.map(l => {
       const createTime = l.createTime ?? l.create_time
@@ -2219,11 +2219,11 @@ const savePassword = async () => {
   finally { pwdSaving.value = false }
 }
 
-// 注销账号：密码二次确认 → 后端匿名化 + 停用 → 清本地并回登录页
+// 注销账号：密码二次确认  后端匿名化 + 停用  清本地并回登录页
 const deactivateAccountFlow = async () => {
   const { value } = await ElMessageBox.prompt(
     '注销后账号将永久无法登录，昵称与身份信息会被匿名化，且此操作不可恢复。请输入登录密码确认：',
-    '⚠️ 注销账号',
+    ' 注销账号',
     { confirmButtonText: '确认注销', cancelButtonText: '再想想', inputType: 'password', inputPlaceholder: '登录密码',
       inputValidator: (v) => (v && v.trim() ? true : '请输入密码') }
   ).catch(() => ({ value: null }))
@@ -2231,7 +2231,7 @@ const deactivateAccountFlow = async () => {
   try {
     const res = await deactivateAccount(value.trim())
     if (res?.code === 200) {
-      ElMessage.success('账号已注销，感谢你曾使用绪见 🌿')
+      ElMessage.success('账号已注销，感谢你曾使用绪见 ')
       setTimeout(() => { logout() }, 800)
     } else {
       ElMessage.error(res?.msg || '注销失败')
@@ -2266,7 +2266,7 @@ const deleteDiary = async (id) => {
 const initTestChart = () => {
   if (!testChartRef.value || testList.value.length === 0) return
   testChart.set({
-    title: { text: '📊 测评分数变化', left: 'center', textStyle: { fontSize: 14, color: themeColor.value.hex } },
+    title: { text: ' 测评分数变化', left: 'center', textStyle: { fontSize: 14, color: themeColor.value.hex } },
     tooltip: { trigger: 'axis' }, grid: { left: 50, right: 20, top: 50, bottom: 40 },
     xAxis: { type: 'category', data: testList.value.map(t => formatDateTime(t.createTime)), axisLabel: { rotate: 30, fontSize: 11 } },
     yAxis: { type: 'value', name: '分数', min: 0 },
@@ -2298,7 +2298,7 @@ const initWeekCharts = () => {
     }
     const rangeTitle = { week: '近7天', lastWeek: '上周', month: '近30天', all: '最近14天' }[weekRange.value] || '近7天'
     lineChart.set({
-      title: { text: `📈 ${rangeTitle}情绪走势`, left: 'center', textStyle: { fontSize: 14, color: themeColor.value.hex } },
+      title: { text: ` ${rangeTitle}情绪走势`, left: 'center', textStyle: { fontSize: 14, color: themeColor.value.hex } },
       tooltip: { trigger: 'axis' },
       grid: { left: 50, right: 20, top: 50, bottom: 40 },
       xAxis: { type: 'category', data: days, axisLabel: { fontSize: 10, rotate: dayCount > 15 ? 40 : 0 } },
@@ -2405,9 +2405,9 @@ const levelProgress = computed(() => Math.round((expTotal.value % 50) / 50 * 100
 // ==================================================================
 // 轻量无感记录 + 情绪风险预警
 //   这两个 Tab 的共同红线：
-//   ① 接口一律不带 userId，身份只认 JWT —— 前端拿不到也传不了别人的数据；
-//   ② 开关状态以服务端为准，取不到就按「关闭」渲染（fail-safe）；
-//   ③ 预警只展示关怀文案与求助渠道，不出现任何结论性疾病判断。
+//    接口一律不带 userId，身份只认 JWT —— 前端拿不到也传不了别人的数据；
+//    开关状态以服务端为准，取不到就按「关闭」渲染（fail-safe）；
+//    预警只展示关怀文案与求助渠道，不出现任何结论性疾病判断。
 // ==================================================================
 import {
   getSenseConfig, updateSenseConfig, clearBehavior, exportBehavior, getPrivacyLogs,
@@ -2630,7 +2630,7 @@ async function misreportOne(a) {
 }
 
 /**
- * 展开「查看建议」= 用户真正看过这条预警 → 顺手标记已读。
+ * 展开「查看建议」= 用户真正看过这条预警  顺手标记已读。
  * 之前已读只在 ack（我知道了）时触发，用户看了但没点确认就永远是未读，
  * 也就是「已读未触发」的问题根源；这里补上查看即读的语义。
  */
@@ -2669,9 +2669,9 @@ const sideStats = computed(() => [
   { key: 'history', label: '观看历史', icon: '/img/观看历史.png', num: historyCount.value },
   { key: 'feedback', label: '我的反馈', icon: '/img/我的反馈.png', num: fbCount.value },
   { key: 'comments', label: '我的评论', icon: '/img/我的评论.png', num: myCommentCount.value },
-  { key: 'setting', label: '账号设置', icon: '/img/账号设置.png', num: '⚙️' },
-  { key: 'board', label: '数据看板', icon: '/img/情绪周报.png', num: '📊' },
-  { key: 'sense', label: '无感记录', icon: '/img/无感记录.png', num: '🌫️' },
+  { key: 'setting', label: '账号设置', icon: '/img/账号设置.png', num: '', glyph: 'sliders' },
+  { key: 'board', label: '数据看板', icon: '/img/情绪周报.png', num: '', glyph: 'chart-bar' },
+  { key: 'sense', label: '无感记录', icon: '/img/无感记录.png', num: '', glyph: 'cloud' },
 ])
 
 // 参考图式分组：记录 / 我的 / 互动 / 设置；情绪预警独立成底部警示条
@@ -2867,6 +2867,12 @@ const saveStatus = async () => {
 .steam-side { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
 .side-card { background: #fff; border-radius: 16px; padding: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
 .side-title { margin: 0 0 12px; font-size: 13px; font-weight: 700; color: #6b7280; letter-spacing: 1px; }
+/* 在线状态灯：这里是「绿=在线」的语义色，不能用单色线性图标，单独画一个小圆点 */
+.side-title .online-light {
+  display: inline-block; width: 7px; height: 7px; margin-right: 6px;
+  border-radius: 50%; background: #4ade80; vertical-align: 1px;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.18);
+}
 
 /* 在线状态标签（横幅右下） */
 .online-tag { display: inline-flex; align-items: center; gap: 5px; color: #4ade80; font-size: 12px; font-weight: 600; }

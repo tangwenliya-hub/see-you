@@ -1,7 +1,7 @@
 <template>
   <div class="feedback-page">
     <!-- 顶部横幅 -->
-    <AnimeHero emoji="💬" title="反馈与建议" sub="你的每一次声音，都让绪见变得更温柔 ✨">
+    <AnimeHero glyph="message" title="反馈与建议" sub="你的每一次声音，都让绪见变得更温柔 ">
       <template #right>
         <div class="hero-right">
           <div class="hero-stat">
@@ -24,24 +24,24 @@
     <div class="fb-body">
     <!-- 小贴士：横幅下方细条 -->
     <div class="tips-strip">
-      <span>💡 描述越具体，越容易定位问题</span>
+      <span><AppIcon name="bulb" /> 描述越具体，越容易定位问题</span>
       <i>·</i>
-      <span>📝 可附上你期望的改进方向~</span>
+      <span><AppIcon name="edit" /> 可附上你期望的改进方向~</span>
       <i>·</i>
-      <span>💖 反馈完全匿名，但会关联账号方便回复</span>
+      <span><AppIcon name="heart" /> 反馈完全匿名，但会关联账号方便回复</span>
     </div>
     <div class="form-col">
         <div class="form-card glass">
           <div class="card-head">
-            <h3>✍️ 写点什么吧</h3>
-            <span class="form-tip">提交后管理员会尽快回复 💌</span>
+            <h3><AppIcon name="edit" /> 写点什么吧</h3>
+            <span class="form-tip">提交后管理员会尽快回复 <AppIcon name="mail" /></span>
           </div>
           <div class="form-block">
             <label class="form-label">反馈类型</label>
             <div class="type-grid">
               <span v-for="t in types" :key="t.val"
                     :class="['type-chip', { on: form.type === t.val }]"
-                    @click="form.type = t.val">{{ t.icon }} {{ t.label }}</span>
+                    @click="form.type = t.val"><AppIcon :name="t.icon" /> {{ t.label }}</span>
             </div>
           </div>
           <div class="form-block">
@@ -57,7 +57,7 @@
           </div>
           <div class="form-actions">
             <button class="submit-btn" :disabled="submitting || !form.content.trim()" @click="submit">
-              {{ submitting ? '发送中...' : '📤 提交反馈' }}
+              {{ submitting ? '发送中...' : ' 提交反馈' }}
             </button>
           </div>
         </div>
@@ -66,7 +66,7 @@
 
     <!-- 悬浮小图标：点开「我的反馈记录」抽屉 -->
     <button class="fb-fab" :class="{ 'shake': hasNewReply }" @click="openDrawer" title="我的反馈记录">
-      <span class="fab-icon">💬</span>
+      <span class="fab-icon"><AppIcon name="message" /></span>
       <span v-if="myList.length" class="fab-badge">{{ myList.length > 99 ? '99+' : myList.length }}</span>
     </button>
 
@@ -79,7 +79,7 @@
               <span class="drawer-title">我的反馈记录</span>
               <span class="drawer-sub">{{ myList.length }} 条 · {{ repliedCount }} 已回复</span>
             </div>
-            <span class="drawer-close" @click="drawerOpen = false">✕</span>
+            <span class="drawer-close" @click="drawerOpen = false"><AppIcon name="close" /></span>
           </div>
 
           <div class="drawer-bd">
@@ -88,7 +88,7 @@
             </div>
 
             <div v-else-if="myList.length === 0" class="empty">
-              <div class="empty-icon">💌</div>
+              <div class="empty-icon"><AppIcon name="mail" /></div>
               <p>还没有提交过反馈哦~</p>
             </div>
 
@@ -98,7 +98,7 @@
                    class="chat-item"
                    :class="{ unread: item.replyText && !item.seenAdminReply }"
                    @click="openChat(item)">
-                <div class="chat-ava">{{ getTypeIcon(item.type) }}</div>
+                <div class="chat-ava"><AppIcon :name="getTypeIcon(item.type)" /></div>
                 <div class="chat-main">
                   <div class="chat-top">
                     <span class="chat-name">{{ item.title || (item.content||'').slice(0,16) || '反馈' }}</span>
@@ -131,8 +131,8 @@
     <div v-if="chatTarget" class="chat-mask" @click.self="chatTarget = null">
       <div class="chat-modal glass">
         <div class="chat-hd">
-          <span class="chat-title">{{ getTypeIcon(chatTarget.type) }} {{ chatTarget.title || '反馈详情' }}</span>
-          <span class="chat-close" @click="chatTarget = null">✕</span>
+          <span class="chat-title"><AppIcon :name="getTypeIcon(chatTarget.type)" /> {{ chatTarget.title || '反馈详情' }}</span>
+          <span class="chat-close" @click="chatTarget = null"><AppIcon name="close" /></span>
         </div>
 
         <div class="chat-body">
@@ -140,7 +140,7 @@
           <div v-for="(m, idx) in chatMessages" :key="idx"
                :class="['b-row', m.senderType === 'admin' ? 'other' : 'me']">
             <div :class="['b-bubble', m.senderType === 'admin' ? 'admin' : '']">
-              <div class="b-name">{{ m.senderType === 'admin' ? '👑 管理员' : '我' }}</div>
+              <div class="b-name">{{ m.senderType === 'admin' ? ' 管理员' : '我' }}</div>
               <div class="b-msg">{{ m.content }}</div>
               <div class="b-t">{{ fmtTime(m.createTime) }}</div>
             </div>
@@ -154,7 +154,7 @@
             <button class="sf-send" :disabled="suppSending || !suppContent.trim()" @click="confirmSupplement">{{ suppSending ? '发送中…' : '发送' }}</button>
           </div>
           <div class="chat-del">
-            <button class="del-mini" @click="remove(chatTarget.feedbackId); chatTarget=null">🗑 从我的记录移除</button>
+            <button class="del-mini" @click="remove(chatTarget.feedbackId); chatTarget=null"><AppIcon name="trash" /> 从我的记录移除</button>
           </div>
         </div>
       </div>
@@ -173,13 +173,13 @@ import CowLoading from '@/components/CowLoading.vue'
 const router = useRouter()
 
 const types = [
-  { val: 'suggest', icon: '💡', label: '功能建议' },
-  { val: 'bug',     icon: '🐛', label: '问题反馈' },
-  { val: 'ui',      icon: '🎨', label: '界面体验' },
-  { val: 'content', icon: '📚', label: '内容相关' },
-  { val: 'other',   icon: '💬', label: '其他' },
+  { val: 'suggest', icon: 'bulb', label: '功能建议' },
+  { val: 'bug',     icon: 'bug', label: '问题反馈' },
+  { val: 'ui',      icon: 'palette', label: '界面体验' },
+  { val: 'content', icon: 'book', label: '内容相关' },
+  { val: 'other',   icon: 'message', label: '其他' },
 ]
-const getTypeIcon = (t) => types.find(x => x.val === t)?.icon || '💬'
+const getTypeIcon = (t) => types.find(x => x.val === t)?.icon || 'message'
 
 const form = reactive({ type: 'suggest', title: '', content: '' })
 const submitting = ref(false)
@@ -221,7 +221,7 @@ const submit = async () => {
       feedbackContent: form.content,
     })
     if (res.code === 200) {
-      ElMessage.success('提交成功！感谢你的反馈 💖')
+      ElMessage.success('提交成功！感谢你的反馈 ')
       form.title = ''
       form.content = ''
       await loadList()
@@ -311,7 +311,7 @@ const confirmSupplement = async () => {
       userSupplement: suppContent.value,
     })
     if (res.code === 200) {
-      ElMessage.success('已发送，管理员会看到 💌')
+      ElMessage.success('已发送，管理员会看到 ')
       suppContent.value = ''
       await loadList()
       // 刷新弹窗数据和消息列表

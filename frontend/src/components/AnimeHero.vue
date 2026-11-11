@@ -13,18 +13,18 @@
   <header class="ah-hero" :style="heroVars">
     <div class="ah-blob b1"></div>
     <div class="ah-blob b2"></div>
-    <span class="ah-star s1">✦</span>
-    <span class="ah-star s2">✧</span>
-    <span class="ah-star s3">✦</span>
-    <span class="ah-cloud c1">☁</span>
-    <span class="ah-cloud c2">☁</span>
+    <span class="ah-star s1"><AppIcon name="sparkles" /></span>
+    <span class="ah-star s2"><AppIcon name="sparkles" /></span>
+    <span class="ah-star s3"><AppIcon name="sparkles" /></span>
+    <span class="ah-cloud c1"><AppIcon name="cloud" /></span>
+    <span class="ah-cloud c2"><AppIcon name="cloud" /></span>
 
     <div class="ah-inner">
       <div v-if="$slots.left" class="ah-left"><slot name="left" /></div>
       <div class="ah-title">
         <h1>
           <span v-if="icon" class="ah-icon-chip"><img :src="icon" alt="" /></span>
-          <span v-else-if="emoji" class="ah-emoji">{{ emoji }}</span>
+          <span v-else-if="glyph" class="ah-emoji"><AppIcon :name="glyph" /></span>
           {{ title }}
         </h1>
         <p v-if="sub" class="ah-sub">{{ sub }}</p>
@@ -48,10 +48,10 @@ const props = defineProps({
   title: { type: String, required: true },
   /** 副标题（一句话说明） */
   sub: { type: String, default: '' },
-  /** 标题前图标：传图片路径（如 /img/绪见日记.png），与 emoji 二选一 */
+  /** 标题前图标：传图片路径（如 /img/绪见日记.png），与 glyph 二选一 */
   icon: { type: String, default: '' },
-  /** 标题前 emoji（无图标时用） */
-  emoji: { type: String, default: '' },
+  /** 标题前的线性图标名（见 components/appIcons.js），无插画时用 */
+  glyph: { type: String, default: '' },
 })
 
 /* ===== 主题色：与 Test.vue 同源（localStorage.profile_theme），切换即时生效 ===== */
@@ -61,7 +61,7 @@ function readTheme() {
 }
 readTheme()
 
-/** hex 向白色混合（amount=0.3 → 30% 白） */
+/** hex 向白色混合（amount=0.3  30% 白） */
 function tint(hexStr, amount) {
   const h = hexStr.replace('#', '')
   const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h
@@ -72,7 +72,7 @@ function tint(hexStr, amount) {
 
 const hex = computed(() => theme.value?.hex || '#e59bb3')
 const main = computed(() => theme.value?.main || tint(hex.value, 0.18))
-/** 渐变三段：浅 → 主 → 深（与 Test 英雄区一致） */
+/** 渐变三段：浅  主  深（与 Test 英雄区一致） */
 const heroVars = computed(() => ({
   '--ah-hex': hex.value,
   '--ah-h1': tint(main.value, 0.28),
@@ -184,7 +184,7 @@ onBeforeUnmount(() => {
   text-shadow: 0 2px 0 var(--ah-shadow), 0 3px 12px var(--ah-shadow);
 }
 .ah-sub { font-size: 15px; color: rgba(255,255,255,0.92); margin: 0; letter-spacing: 2px; }
-.ah-emoji { font-size: 26px; }
+.ah-emoji { font-size: 26px; display: inline-flex; align-items: center; }
 
 /* 图片图标：白色小圆角底板托住，保证任何主题色下都看得清 */
 .ah-icon-chip {

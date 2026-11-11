@@ -15,7 +15,7 @@
           <button class="group-head" :class="{ open: isOpen(g) }" @click="toggleGroup(g)">
             <span class="g-title">{{ g.title }}</span>
             <span class="g-count">{{ g.items.length }}</span>
-            <span class="g-arrow">▾</span>
+            <span class="g-arrow"><AppIcon name="chevron-down" /></span>
           </button>
           <router-link
             v-for="item in (isOpen(g) ? g.items : [])"
@@ -79,14 +79,14 @@
               </p>
               <p class="pm-hero-sub">{{ form.username || '—' }} · 后台管理账号</p>
             </div>
-            <button class="pm-close" @click="closeProfile">✕</button>
+            <button class="pm-close" @click="closeProfile"><AppIcon name="close" /></button>
           </div>
 
           <!-- 胶囊 Tab -->
           <div class="pm-tabs">
-            <button :class="['pm-tab', profileTab==='basic'?'on':'']" @click="profileTab='basic'">📋 基本资料</button>
-            <button :class="['pm-tab', profileTab==='theme'?'on':'']" @click="profileTab='theme'">🎨 个性化</button>
-            <button :class="['pm-tab', profileTab==='pwd'?'on':'']" @click="profileTab='pwd'">🔐 修改密码</button>
+            <button :class="['pm-tab', profileTab==='basic'?'on':'']" @click="profileTab='basic'"><AppIcon name="clipboard" /> 基本资料</button>
+            <button :class="['pm-tab', profileTab==='theme'?'on':'']" @click="profileTab='theme'"><AppIcon name="palette" /> 个性化</button>
+            <button :class="['pm-tab', profileTab==='pwd'?'on':'']" @click="profileTab='pwd'"><AppIcon name="lock" /> 修改密码</button>
           </div>
 
           <!-- Tab1：基本资料 -->
@@ -98,7 +98,7 @@
               <div class="pm-avatar-meta">
                 <p class="pm-avatar-tip">支持 JPG / PNG，上传后记得点「保存资料」</p>
                 <label class="pm-avatar-btn">
-                  📷 上传头像
+                  <AppIcon name="camera" /> 上传头像
                   <input type="file" accept="image/*" @change="onAvatarUpload" hidden />
                 </label>
               </div>
@@ -123,33 +123,33 @@
               </div>
             </div>
             <div class="pm-actions">
-              <button class="pm-save" :disabled="saving" @click="saveProfile">{{ saving ? '保存中...' : '💾 保存资料' }}</button>
+              <button class="pm-save" :disabled="saving" @click="saveProfile">{{ saving ? '保存中...' : ' 保存资料' }}</button>
             </div>
           </div>
 
           <!-- Tab3：个性化设置 -->
           <div v-show="profileTab==='theme'" class="pm-panel">
             <div class="pm-field">
-              <label>🎨 主题色</label>
+              <label><AppIcon name="palette" /> 主题色</label>
               <div class="pm-dots">
                 <button v-for="c in themeColors" :key="c.name"
                         :class="['pm-dot', { on: form.theme === c.name }]"
                         :style="{ background: c.hex }"
                         @click="form.theme = c.name"
                         :title="c.label">
-                  <span v-if="form.theme === c.name" class="pm-dot-check">✓</span>
+                  <span v-if="form.theme === c.name" class="pm-dot-check"><AppIcon name="check" /></span>
                 </button>
               </div>
             </div>
             <div class="pm-field">
-              <label>🌙 深色模式</label>
+              <label><AppIcon name="moon" /> 深色模式</label>
               <div class="pm-dark-row">
                 <el-switch v-model="form.darkMode" />
                 <span class="pm-dark-tip">{{ form.darkMode ? '已开启深色模式' : '使用浅色模式' }}</span>
               </div>
             </div>
             <div class="pm-field">
-              <label>🖼️ 头像装饰框</label>
+              <label><AppIcon name="image" /> 头像装饰框</label>
               <div class="pm-frame-grid">
                 <button v-for="f in avatarFrameOptions" :key="f.name"
                         :class="['pm-frame-opt', { on: form.avatarFrame === f.name }]"
@@ -166,7 +166,7 @@
               </div>
             </div>
             <div class="pm-actions">
-              <button class="pm-save" :disabled="saving" @click="saveTheme">{{ saving ? '保存中...' : '💾 保存设置' }}</button>
+              <button class="pm-save" :disabled="saving" @click="saveTheme">{{ saving ? '保存中...' : ' 保存设置' }}</button>
             </div>
           </div>
 
@@ -186,9 +186,9 @@
                 <input v-model="pwdForm.confirm" type="password" placeholder="再输一次新密码" />
               </div>
             </div>
-            <p class="pm-pwd-tip">🔒 密码至少 6 位，修改成功后请牢记新密码</p>
+            <p class="pm-pwd-tip"><AppIcon name="lock" /> 密码至少 6 位，修改成功后请牢记新密码</p>
             <div class="pm-actions">
-              <button class="pm-save" :disabled="pwdSaving" @click="changePwd">{{ pwdSaving ? '提交中...' : '🔑 确认修改' }}</button>
+              <button class="pm-save" :disabled="pwdSaving" @click="changePwd">{{ pwdSaving ? '提交中...' : ' 确认修改' }}</button>
             </div>
           </div>
         </div>
@@ -236,14 +236,14 @@ const initWS = async () => {
   notifyRiskAlert(() => {
     window.__alertsLoadData?.()   // 预警管理页开着就同步刷新
   })
-  // 用户标「这不是我」→ 低打扰通知 + 刷新列表（管理员据此判断要不要回访）
+  // 用户标「这不是我」 低打扰通知 + 刷新列表（管理员据此判断要不要回访）
   notifyRiskMisreport(() => {
     window.__alertsLoadData?.()
   })
 }
 
 onMounted(() => {
-  loadAdminInfo()  // 🆕 页面加载时拉管理员信息
+  loadAdminInfo()  //  页面加载时拉管理员信息
   initWS()
   // 窄屏（手机）下默认收起侧栏，点按钮临时滑出
   if (window.innerWidth <= 768) collapsed.value = true
@@ -274,11 +274,11 @@ const drawerOpen = ref(false)
 
 const toggleSide = () => {
   if (!collapsed.value) {
-    // 常驻 → 收起：整条侧栏消失
+    // 常驻  收起：整条侧栏消失
     collapsed.value = true
     drawerOpen.value = false
   } else {
-    // 收起 → 临时滑出；再点一次收起
+    // 收起  临时滑出；再点一次收起
     drawerOpen.value = !drawerOpen.value
   }
   try { localStorage.setItem('adminSideCollapsed', collapsed.value ? '1' : '0') } catch {}
@@ -314,7 +314,7 @@ const menuGroups = [
     { path: 'avatars', icon: '/img/头像审核.png', label: '头像审核', isImg: true },
   ]},
   { title: '情绪洞察', icon: '/img/情绪预警后台图标.png', items: [
-    // 👇 三大创新模块的后台管理端
+    //  三大创新模块的后台管理端
     { path: 'alerts',  icon: '/img/情绪预警后台图标.png', label: '情绪预警', isImg: true },
     { path: 'sense',   icon: '/img/无感记录后台图标.png', label: '无感记录', isImg: true },
     { path: 'lexicon', icon: '/img/情绪词典.png', label: '情绪词典', isImg: true },
@@ -368,7 +368,7 @@ const currentTitle = computed(() => {
   return match ? match.label : '数据大盘'
 })
 
-// ===== 🆕 管理员个人中心 =====
+// =====  管理员个人中心 =====
 const adminInfo = ref({})       // 当前管理员（完整信息）
 const showProfile = ref(false)
 const profileTab = ref('basic')
@@ -434,7 +434,7 @@ const saveProfile = async () => {
   saving.value = true
   try {
     await updateUser({ userId: adminInfo.value.userId, ...form.value })
-    ElMessage.success('资料已保存 ✅')
+    ElMessage.success('资料已保存 ')
     // 同步登录态（store 负责同时更新内存状态与持久化）
     useUserStore().patchUserInfo({ nickname: form.value.nickname })
     adminInfo.value.nickname = form.value.nickname
@@ -456,7 +456,7 @@ const saveTheme = async () => {
       darkMode: form.value.darkMode ? 1 : 0,
       avatarFrame: form.value.avatarFrame,
     })
-    ElMessage.success('设置已保存 ✅')
+    ElMessage.success('设置已保存 ')
     useUserStore().patchUserInfo({
       theme: form.value.theme,
       darkMode: form.value.darkMode ? 1 : 0,
@@ -486,7 +486,7 @@ const changePwd = async () => {
   pwdSaving.value = true
   try {
     await changePassword({ userId: adminInfo.value.userId, oldPassword:f.oldPassword, newPassword:f.newPassword })
-    ElMessage.success('密码已修改 ✅ 请牢记新密码')
+    ElMessage.success('密码已修改  请牢记新密码')
     pwdForm.value = { oldPassword:'', newPassword:'', confirm:'' }
   } catch {
     ElMessage.error('修改失败（旧密码可能不对）')

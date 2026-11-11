@@ -4,7 +4,7 @@
       <div class="page-title"><img src="/img/用户管理.png" class="title-icon" /> 用户管理</div>
       <div style="display:flex; gap:12px; align-items:center">
         <div class="admin-search"><img src="/img/搜索.png" class="search-icon" /><input v-model="keyword" placeholder="搜索用户名/邮箱..." @input="onSearchInput" /></div>
-        <button class="jelly-btn ghost" @click="openImportDialog">📥 批量导入</button>
+        <button class="jelly-btn ghost" @click="openImportDialog"><AppIcon name="inbox" /> 批量导入</button>
         <button class="jelly-btn primary" @click="openDialog(null)">＋ 新增用户</button>
       </div>
     </div>
@@ -15,9 +15,9 @@
         <!-- 批量操作条 -->
         <div v-if="selectedIds.length > 0" class="batch-bar">
           <span class="batch-info">已选择 <b>{{ selectedIds.length }}</b> 个用户</span>
-          <button class="jelly-btn ghost" @click="batchToggle(0)">🚫 批量禁用</button>
-          <button class="jelly-btn ghost" @click="batchToggle(1)">✓ 批量启用</button>
-          <button class="jelly-btn danger" style="background:#ff6b6b" @click="batchDelete">🗑 批量删除</button>
+          <button class="jelly-btn ghost" @click="batchToggle(0)"><AppIcon name="ban" /> 批量禁用</button>
+          <button class="jelly-btn ghost" @click="batchToggle(1)"><AppIcon name="check" /> 批量启用</button>
+          <button class="jelly-btn danger" style="background:#ff6b6b" @click="batchDelete"><AppIcon name="trash" /> 批量删除</button>
         </div>
         <table v-if="list.length > 0" class="admin-table">
         <thead>
@@ -36,7 +36,7 @@
             <td>
               <div class="avatar" style="width:32px;height:32px;font-size:16px;display:flex;align-items:center;justify-content:center">
                 <img v-if="u.avatar && (u.avatar.startsWith('/') || u.avatar.startsWith('http'))" :src="u.avatar" @error="onAvatarError($event, u)" style="width:32px;height:32px;border-radius:50%;object-fit:cover" />
-                <span v-else>{{ u.avatar || '🌸' }}</span>
+                <span v-else>{{ u.avatar || '' }}</span>
               </div>
             </td>
             <td>
@@ -121,14 +121,14 @@
     <el-dialog v-model="importDialogVisible" title="批量导入用户" width="520px" :close-on-click-modal="false">
       <div class="import-area">
         <div class="import-tip">
-          <p>📌 导入说明：</p>
+          <p><AppIcon name="pin" /> 导入说明：</p>
           <ul>
             <li>支持 .xlsx 格式的 Excel 文件</li>
             <li>用户名和密码为必填项</li>
             <li>角色填写"管理员"或"普通用户"</li>
             <li>用户名不能重复</li>
           </ul>
-          <button class="jelly-btn ghost tiny" @click="downloadTemplate">📄 下载导入模板</button>
+          <button class="jelly-btn ghost tiny" @click="downloadTemplate"><AppIcon name="file-text" /> 下载导入模板</button>
         </div>
 
         <!-- 拖拽上传区 -->
@@ -139,12 +139,12 @@
              @drop.prevent="onFileDrop">
           <input type="file" ref="importFileInput" accept=".xlsx,.xls" @change="onFileSelect" hidden />
           <div v-if="!importFile" class="upload-placeholder" @click="$refs.importFileInput.click()">
-            <div class="upload-icon">📁</div>
+            <div class="upload-icon"><AppIcon name="folder" /></div>
             <div class="upload-text">点击或拖拽 Excel 文件到此处</div>
             <div class="upload-hint">支持 .xlsx 格式</div>
           </div>
           <div v-else class="file-info">
-            <span class="file-name">📄 {{ importFile.name }}</span>
+            <span class="file-name"><AppIcon name="file-text" /> {{ importFile.name }}</span>
             <span class="file-size">{{ formatFileSize(importFile.size) }}</span>
             <button class="jelly-btn tiny danger" @click.stop="clearImportFile">移除</button>
           </div>
@@ -306,7 +306,7 @@ const onAvatarError = (e, u) => {
 
 const keyword = ref('')
 const dialogVisible = ref(false)
-const form = ref({ userId: null, username: '', nickname: '', password: '', email: '', role: 'user', active: true, avatar: '🌸', createdAt: '', theme: 'green', darkMode: false })
+const form = ref({ userId: null, username: '', nickname: '', password: '', email: '', role: 'user', active: true, avatar: '', createdAt: '', theme: 'green', darkMode: false })
 
 const list = ref([])
 const loading = ref(false)

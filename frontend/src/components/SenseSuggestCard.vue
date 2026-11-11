@@ -9,7 +9,7 @@
   -->
   <div v-if="data" class="sc-root">
     <div class="sc-head">
-      <span class="sc-title">✨ 今日情绪推测</span>
+      <span class="sc-title"><AppIcon name="sparkles" /> 今日情绪推测</span>
       <span class="sc-tip">仅供参考 · 以你的感受为准</span>
     </div>
 
@@ -77,7 +77,7 @@ async function doGuess() {
     const res = await generatePrediction(null)
     if (res?.code !== 200) {
       // 业务失败（如 403 未开启）：透出后端 msg，不给含糊的兜底文案
-      ElMessage.warning({ message: res?.msg || '无感记录未开启，可到「个人中心 → 无感记录」开启', grouping: true })
+      ElMessage.warning({ message: res?.msg || '无感记录未开启，可到「个人中心  无感记录」开启', grouping: true })
     } else if (res.data?.hasSuggestion) {
       data.value = res.data
       ElMessage.success('已重新生成推测')

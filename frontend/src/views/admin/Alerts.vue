@@ -7,7 +7,7 @@
 
     <!-- 非医疗边界声明：后台侧同样必须展示，防止管理员把它当诊断结果使用 -->
     <div class="ext-note">
-      ⚠️ {{ disclaimer || '本提示仅基于用户自行记录的情绪数据做统计参考，不属于医疗诊断，不能替代专业评估。' }}
+      <AppIcon name="alert-triangle" /> {{ disclaimer || '本提示仅基于用户自行记录的情绪数据做统计参考，不属于医疗诊断，不能替代专业评估。' }}
       后台同样遵循隐私红线：<b>不展示任何用户的日记正文与行为明细</b>，仅呈现聚合统计指标。
     </div>
 
@@ -76,7 +76,7 @@
     <div class="ext-box" style="margin-bottom:18px">
       <h3><img src="/img/情绪风险预警等级分布.png" /> 预警词库管理（改完立即生效，无需重启）</h3>
       <div class="wl-note">
-        危机词命中 → 三级红色关怀；预警词命中 → 二级中度提醒；例外短语 → 命中词附近出现时判为亲昵/夸张用法，不触发（如「想死你了」）。
+        危机词命中 <AppIcon name="arrow-right" /> 三级红色关怀；预警词命中 <AppIcon name="arrow-right" /> 二级中度提醒；例外短语 <AppIcon name="arrow-right" /> 命中词附近出现时判为亲昵/夸张用法，不触发（如「想死你了」）。
         词表改动会记录操作人，并落库持久化，重启后依然有效。
       </div>
       <div class="wl-groups">
@@ -115,7 +115,7 @@
           <input v-model="keyword" placeholder="搜索用户名..." @input="onSearchInput" />
         </div>
         <button class="export-btn" :disabled="exporting" @click="onExport">
-          {{ exporting ? '导出中…' : '⬇ 导出 Excel' }}
+          <template v-if="exporting">导出中…</template><template v-else><AppIcon name="download" /> 导出 Excel</template>
         </button>
       </div>
 
@@ -189,7 +189,7 @@
         <div class="d-block">
           <div class="d-title">管理员处置</div>
           <div v-if="detail.misreport" class="d-text misreport-note">
-            ⚠️ 用户已将本条标记为<b>误报（「这不是我」）</b><template v-if="fmtTime(detail.misreportTime)"> · {{ fmtTime(detail.misreportTime) }}</template>。处置前建议先与用户确认真实状态。
+            <AppIcon name="alert-triangle" /> 用户已将本条标记为<b>误报（「这不是我」）</b><template v-if="fmtTime(detail.misreportTime)"> · {{ fmtTime(detail.misreportTime) }}</template>。处置前建议先与用户确认真实状态。
           </div>
           <div class="d-text" v-if="detail.disposition">
             {{ detail.disposition }}
@@ -380,7 +380,7 @@ const saveDisposition = async () => {
       note: dispNote.value.trim() || '',
     })
     if (res?.code !== 200) { ElMessage.error(res?.msg || '处置保存失败'); return }
-    ElMessage.success('✅ 处置已记录')
+    ElMessage.success('处置已记录')
     detail.value.disposition = dispWay.value
     detail.value.dispositionNote = dispNote.value.trim() || null
     detail.value.dispositionTime = new Date().toISOString().slice(0, 19)
@@ -395,8 +395,8 @@ const saveDisposition = async () => {
 // ==================== 预警词库管理（危机词/预警词/例外短语） ====================
 // 三组词表都是「内存立即生效 + sys_config 持久化」——演示时改完直接发日记验证，不用重启后端
 const wordGroups = reactive([
-  { type: 'crisis',   label: '危机词',   desc: '命中 → 三级红色关怀', words: [], draft: '', saving: false },
-  { type: 'warning',  label: '预警词',   desc: '命中 → 二级中度提醒', words: [], draft: '', saving: false },
+  { type: 'crisis',   label: '危机词',   desc: '命中  三级红色关怀', words: [], draft: '', saving: false },
+  { type: 'warning',  label: '预警词',   desc: '命中  二级中度提醒', words: [], draft: '', saving: false },
   { type: 'excludes', label: '例外短语', desc: '亲昵/夸张用法豁免',   words: [], draft: '', saving: false },
 ])
 

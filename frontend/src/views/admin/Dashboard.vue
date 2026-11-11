@@ -21,7 +21,7 @@
       <div class="dash-tools">
         <span class="refresh-time" v-if="lastRefreshTime">上次更新：{{ lastRefreshTime }}</span>
         <button class="jelly-btn primary refresh-btn" @click="loadData" :disabled="loading">
-          <span :class="{ 'spin': loading }">🔄</span>
+          <span :class="{ 'spin': loading }"><AppIcon name="refresh" /></span>
           {{ loading ? '刷新中...' : '刷新数据' }}
         </button>
       </div>
@@ -63,25 +63,25 @@
         <div class="s-icon"><img src="/img/用户管理.png" /></div>
         <div class="s-label">用户总数</div>
         <div class="s-value">{{ stats.totalUsers }}</div>
-        <div class="s-trend up">↑ 今日 +{{ stats.newUsersToday }}</div>
+        <div class="s-trend up"><AppIcon name="arrow-up" /> 今日 +{{ stats.newUsersToday }}</div>
       </div>
       <div class="stat-card bg-core">
         <div class="s-icon"><img src="/img/情绪日记.png" /></div>
         <div class="s-label">情绪日记</div>
         <div class="s-value">{{ stats.diaryTotal }}</div>
-        <div class="s-trend up">✍ 手记 {{ stats.diaryManual }} · 推测确认 {{ stats.diaryInferred }}</div>
+        <div class="s-trend up"><AppIcon name="edit" /> 手记 {{ stats.diaryManual }} · 推测确认 {{ stats.diaryInferred }}</div>
       </div>
       <div class="stat-card bg-core">
         <div class="s-icon"><img src="/img/测评量表.png" /></div>
         <div class="s-label">测评参与总数</div>
         <div class="s-value">{{ stats.totalTestRecords }}</div>
-        <div class="s-trend up">↑ 在线量表 {{ stats.totalTests }} 套</div>
+        <div class="s-trend up"><AppIcon name="arrow-up" /> 在线量表 {{ stats.totalTests }} 套</div>
       </div>
       <div class="stat-card bg-core">
         <div class="s-icon"><img src="/img/AI对话次数.png" /></div>
         <div class="s-label">AI 对话次数</div>
         <div class="s-value">{{ stats.aiChatTotal }}</div>
-        <div class="s-trend up">🤖 绪见 AI 陪伴</div>
+        <div class="s-trend up"><AppIcon name="bot" /> 绪见 AI 陪伴</div>
       </div>
     </div>
 
@@ -91,20 +91,20 @@
         <div class="s-icon"><img src="/img/无感记录开启人数.png" /></div>
         <div class="s-label">无感记录开启人数</div>
         <div class="s-value">{{ sense.enabledUsers }}</div>
-        <div class="s-trend up">🌫️ opt-in 自愿开启</div>
+        <div class="s-trend up"><AppIcon name="cloud" /> opt-in 自愿开启</div>
       </div>
       <div class="stat-card bg-ext">
         <div class="s-icon"><img src="/img/无感推测总数.png" /></div>
         <div class="s-label">无感推测总数</div>
         <div class="s-value">{{ sense.predictions }}</div>
-        <div class="s-trend up">✓ 用户采用 {{ sense.adopted }} 条 · 命中率 {{ sense.hitRate }}%</div>
+        <div class="s-trend up"><AppIcon name="check" /> 用户采用 {{ sense.adopted }} 条 · 命中率 {{ sense.hitRate }}%</div>
       </div>
       <div class="stat-card bg-ext">
         <div class="s-icon"><img src="/img/情绪预警总数.png" /></div>
         <div class="s-label">情绪预警总数</div>
         <div class="s-value">{{ risk.total }}</div>
         <div class="s-trend" :class="risk.unread > 0 ? 'warn' : 'up'">
-          {{ risk.unread > 0 ? '!' : '✓' }} 未读 {{ risk.unread }} 条
+          <AppIcon :name="risk.unread > 0 ? 'alert-circle' : 'check-circle'" /> 未读 {{ risk.unread }} 条
         </div>
       </div>
       <div class="stat-card bg-ext">
@@ -112,7 +112,7 @@
         <div class="s-label">今日活跃用户</div>
         <div class="s-value">{{ stats.activeUsersToday }}</div>
         <div class="s-trend" :class="stats.pendingFeedbacks + stats.pendingComments > 0 ? 'up' : 'down'">
-          {{ stats.pendingFeedbacks + stats.pendingComments > 0 ? '!' : '✓' }}
+          <AppIcon :name="stats.pendingFeedbacks + stats.pendingComments > 0 ? 'alert-circle' : 'check-circle'" />
           待处理 {{ stats.pendingFeedbacks + stats.pendingComments }} 条
         </div>
       </div>
@@ -168,7 +168,7 @@
           </thead>
           <tbody>
             <tr v-for="(u, i) in recentUsers" :key="i">
-              <td>🌸 {{ u.username }}</td>
+              <td><AppIcon name="flower" /> {{ u.username }}</td>
               <td>{{ u.activity }}</td>
               <td>{{ u.count }} 次</td>
               <td style="color:#8a9a8a">{{ fmtTime(u.time).slice(0, 16) }}</td>
@@ -526,7 +526,7 @@ const loadData = async () => {
     errorMsg.value = e.response?.data?.msg || e.message || '网络异常，请稍后重试'
   } finally {
     loading.value = false
-    // 数据加载完成后容器高度可能变化 → 补一次 resize
+    // 数据加载完成后容器高度可能变化  补一次 resize
     // （全局监听只在窗口尺寸变化时触发，内容撑高不会被捕获）
     nextTick(() => {
       ;[trendChart, pieChart, barChart, videoRankChart, indexTrendChart, senseChart, riskChart].forEach((c) => c.resize())

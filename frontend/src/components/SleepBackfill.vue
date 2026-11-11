@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div v-if="show" class="sb-mask" @click.self="close">
       <div class="sb-card">
-        <h3>🌙 近 7 天睡眠补录</h3>
+        <h3><AppIcon name="moon" /> 近 7 天睡眠补录</h3>
         <p class="sb-sub">给最近 7 天有日记的日子补上「昨晚睡眠」，数据看板的「睡眠 × 情绪」散点会立刻多出样本</p>
 
         <div v-if="loading" class="sb-loading">加载中...</div>
@@ -113,14 +113,14 @@ const save = async () => {
   try {
     const res = await batchSleep(items)
     if (res?.code === 200) {
-      ElMessage.success(`✅ 已补录 ${res.data ?? items.length} 天的睡眠`)
+      ElMessage.success(` 已补录 ${res.data ?? items.length} 天的睡眠`)
       emit('saved')
       close()
     } else {
-      ElMessage.error('❌ ' + (res?.msg || '保存失败'))
+      ElMessage.error('' + (res?.msg || '保存失败'))
     }
   } catch {
-    ElMessage.error('❌ 网络错误，请重试')
+    ElMessage.error('网络错误，请重试')
   } finally {
     saving.value = false
   }

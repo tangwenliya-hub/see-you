@@ -1,4 +1,6 @@
+import { h } from 'vue'
 import { ElNotification } from 'element-plus'
+import AppIcon from '../components/AppIcon.vue'
 import { useUserStore } from '../stores/user'
 
 /**
@@ -51,11 +53,11 @@ class FeedbackWS {
     }
 
     this.ws.onopen = () => {
-      console.log('[WS] ✅ 连接成功 userId=', userId, 'role=', role)
+      console.log('[WS] 连接成功 userId=', userId, 'role=', role)
     }
 
     this.ws.onmessage = (e) => {
-      console.log('[WS] 📨 收到消息:', e.data)
+      console.log('[WS] 收到消息:', e.data)
       try {
         const msg = JSON.parse(e.data)
         const listeners = this.listeners[msg.type] || []
@@ -79,7 +81,7 @@ class FeedbackWS {
     }
 
     this.ws.onerror = (e) => {
-      console.log('[WS] ❌ 连接出错')
+      console.log('[WS] 连接出错')
       try { this.ws?.close() } catch {}
     }
   }
@@ -131,10 +133,11 @@ const notifyCbs = {}
 export function notifyFeedback(type, callback) {
   if (notifyCbs[type]) feedbackWS.off(type, notifyCbs[type])
   const cb = (data) => {
-    console.log('[WS] 🎯 触发 notifyFeedback type=', type, 'data=', data)
+    console.log('[WS] 触发 notifyFeedback type=', type, 'data=', data)
     if (type === 'reply') {
       ElNotification({
-        title: '📨 管理员回复了你',
+        title: '管理员回复了你',
+        icon: h(AppIcon, { name: 'message', size: 18 }),
         message: data.replyText || '有新的回复',
         type: 'success',
         duration: 5000,
@@ -142,7 +145,8 @@ export function notifyFeedback(type, callback) {
       })
     } else if (type === 'new_feedback') {
       ElNotification({
-        title: '📮 收到新反馈',
+        title: '收到新反馈',
+        icon: h(AppIcon, { name: 'inbox', size: 18 }),
         message: `${data.username || '用户'} 提交了反馈：${data.title || data.content || ''}`,
         type: 'warning',
         duration: 5000,
@@ -150,7 +154,8 @@ export function notifyFeedback(type, callback) {
       })
     } else if (type === 'user_supplement') {
       ElNotification({
-        title: '💬 用户补充了反馈',
+        title: '用户补充了反馈',
+        icon: h(AppIcon, { name: 'message', size: 18 }),
         message: `${data.username || '用户'} 补充了：${(data.content || '').slice(0, 30)}`,
         type: 'info',
         duration: 5000,

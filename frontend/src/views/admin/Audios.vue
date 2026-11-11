@@ -16,7 +16,7 @@
       <!-- 批量操作条 -->
       <div v-if="selectedIds.length > 0" class="batch-bar">
         <span class="batch-info">已选择 <b>{{ selectedIds.length }}</b> 条音频</span>
-        <button class="jelly-btn danger" @click="batchDelete">🗑 批量删除</button>
+        <button class="jelly-btn danger" @click="batchDelete"><AppIcon name="trash" /> 批量删除</button>
       </div>
       <table v-if="list.length > 0" class="admin-table">
         <thead><tr>
@@ -34,7 +34,7 @@
             </td>
             <td>{{ a.audioName || '-' }}</td>
             <td>
-              <button v-if="a.audioUrl" class="jelly-btn ghost" style="padding:4px 14px;font-size:13px" @click="playAudio(a)">🎵 试听</button>
+              <button v-if="a.audioUrl" class="jelly-btn ghost" style="padding:4px 14px;font-size:13px" @click="playAudio(a)"><AppIcon name="music" /> 试听</button>
               <span v-else style="color:#ccc;font-size:12px">-</span>
             </td>
             <td>{{ a.category || '-' }}</td>
@@ -97,13 +97,13 @@
             @paste.prevent="onAudioPaste"
             tabindex="0"
           >
-            <div v-if="uploadingAudio" class="dz-loading">⏳ 上传中... {{ audioProgress }}</div>
+            <div v-if="uploadingAudio" class="dz-loading"><AppIcon name="loader" /> 上传中... {{ audioProgress }}</div>
             <div v-else-if="form.audioUrl" class="dz-filled">
-              🎵 {{ currentAudioFileName }}
-              <button type="button" class="dz-clear" @click.stop="clearAudio">✕ 移除</button>
+              <AppIcon name="music" /> {{ currentAudioFileName }}
+              <button type="button" class="dz-clear" @click.stop="clearAudio"><AppIcon name="close" /> 移除</button>
             </div>
             <div v-else class="dz-hint">
-              📦 拖文件到这里 · Ctrl+V 粘贴 · 或
+              <AppIcon name="package" /> 拖文件到这里 · Ctrl+V 粘贴 · 或
               <button type="button" class="dz-link" @click="$refs.audioInput.click()">点击选择</button>
               <div class="dz-sub">支持 mp3 / wav / m4a / ogg · 可批量拖入</div>
             </div>
@@ -112,11 +112,11 @@
           
           <!-- 已有音频网格（可点选） -->
           <div v-if="audioFileList.length > 0" class="file-section">
-            <div class="file-section-title">📂 已有音频（点选复用）</div>
+            <div class="file-section-title"><AppIcon name="folder-open" /> 已有音频（点选复用）</div>
             <div class="file-grid">
               <div v-for="f in audioFileList" :key="f.name" @click="selectAudio(f)"
                    class="file-chip" :class="{active: form.audioUrl === f.url}">
-                🎵 <span class="fn">{{ f.name }}</span>
+                <AppIcon name="music" /> <span class="fn">{{ f.name }}</span>
               </div>
             </div>
           </div>
@@ -134,9 +134,9 @@
             tabindex="0"
           >
             <img v-if="coverPreviewUrl" :src="coverPreviewUrl" class="dz-cover-img" />
-            <div v-else-if="uploadingCover" class="dz-loading">⏳ 上传中...</div>
+            <div v-else-if="uploadingCover" class="dz-loading"><AppIcon name="loader" /> 上传中...</div>
             <div v-else class="dz-hint">
-              🖼️ 拖图片到这里 · Ctrl+V 粘贴 · 或
+              <AppIcon name="image" /> 拖图片到这里 · Ctrl+V 粘贴 · 或
               <button type="button" class="dz-link" @click="$refs.coverInput.click()">点击选择</button>
               <div class="dz-sub">支持 jpg / png / webp · 自动适配尺寸</div>
             </div>
@@ -145,7 +145,7 @@
           
           <!-- 已有封面网格（可点选） -->
           <div v-if="coverFileList.length > 0" class="file-section">
-            <div class="file-section-title">📂 已有封面（点选复用）</div>
+            <div class="file-section-title"><AppIcon name="folder-open" /> 已有封面（点选复用）</div>
             <div class="cover-grid">
               <div v-for="img in coverFileList" :key="img.name" @click="selectCover(img)"
                    class="cover-chip" :class="{active: form.coverImg === img.url}">
@@ -162,7 +162,7 @@
       </el-form>
       <template #footer>
         <button class="jelly-btn ghost" @click="dialogVisible=false">取消</button>
-        <button class="jelly-btn primary" @click="save">💾 保存</button>
+        <button class="jelly-btn primary" @click="save"><AppIcon name="save" /> 保存</button>
       </template>
     </el-dialog>
 
@@ -229,12 +229,12 @@ const coverZoom = ref(false)
 const playVisible = ref(false)
 const currentAudio = ref(null)
 
-// 🆕 拖拽状态
+//  拖拽状态
 const audioDragging = ref(false)
 const coverDragging = ref(false)
 const audioProgress = ref('')
 
-// 🆕 从 URL 里取文件名（给自动填名称用）
+//  从 URL 里取文件名（给自动填名称用）
 const currentAudioFileName = computed(() => {
   if (!form.value.audioUrl) return ''
   const url = form.value.audioUrl
@@ -270,10 +270,10 @@ const loadFileList = async (dir) => {
 const selectAudio = (f) => { form.value.audioUrl = f.url }
 const selectCover = (img) => { form.value.coverImg = img.url }
 
-// 🆕 移除已选音频
+//  移除已选音频
 const clearAudio = () => { form.value.audioUrl = '' }
 
-// ===== 🆕 拖拽 / 粘贴 / 批量上传 =====
+// =====  拖拽 / 粘贴 / 批量上传 =====
 
 // 上传单个文件（通用）
 const uploadOne = async (file, dir) => {
@@ -308,7 +308,7 @@ const uploadFiles = async (files, dir, label) => {
   if (lastUrl) {
     if (dir === 'audio') form.value.audioUrl = lastUrl
     else form.value.coverImg = lastUrl
-    ElMessage.success(label + ' 上传成功' + (files.length > 1 ? '（共 ' + files.length + ' 个，最后一个已选中）' : ''))
+    ElMessage.success(label + '上传成功' + (files.length > 1 ? '（共 ' + files.length + '个，最后一个已选中）' : ''))
     loadFileList(dir)
   }
   uploadingRef.value = false
@@ -387,7 +387,7 @@ const save = async () => {
     const res = isEdit ? await updateAudio(payload) : await saveAudio(payload)
     if (res.code === 200) {
       dialogVisible.value = false
-      ElMessage.success('保存成功 ✅')
+      ElMessage.success('保存成功 ')
       // 新增后回到第 1 页；编辑则停留在当前页
       if (!isEdit) page.value = 1
       loadData()
