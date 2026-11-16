@@ -75,6 +75,10 @@ p, li, span, td, th, div {
   box-sizing: content-box;
 }
 
+/* 快捷入口第二行的线性图标：PC 端默认不存在这个图标（只给手机端分层用），
+   这里全局隐藏，避免在 >768px 时多出一个图标；手机端在 §2.12 里放开。 */
+.hp-root .entry-item .entry-linear { display: none; }
+
 /* ---------------------------------------------------------------------
  * 1. 平板（769px ~ 1024px）：收窄页面左右留白
  * ------------------------------------------------------------------- */
@@ -119,8 +123,9 @@ p, li, span, td, th, div {
   .trend-svg { min-width: 0 !important; height: 160px !important; }
   /* Test.vue：搜索框 180px */
   .search-box { min-width: 0 !important; width: 100%; }
-  /* Assistant.vue：会话侧栏 260px → 手机上改为全宽，配合 JS 抽屉使用 */
-  .session-sidebar { width: 100% !important; min-width: 0 !important; }
+  /* Assistant.vue：会话侧栏 → 手机端抽屉（默认收起，顶栏「历史」按钮打开），
+     宽 85% 右侧露出遮罩可点击关闭 */
+  .session-sidebar { width: 85% !important; min-width: 0 !important; max-width: 340px !important; }
   /* DataBoard.vue：面板布局min宽 300px → 手机上一行一块 */
   .flex-1, .flex-2 { flex: 1 1 100% !important; min-width: 0 !important; }
   /* Profile.vue：个人信息区 200px、工具栏输入框 220px */
@@ -217,8 +222,35 @@ p, li, span, td, th, div {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* ---- 2.10 主页心情打卡：圆角更软萌 + 选中态主题色高亮（仅手机端，PC 端保持原样）---- */
-  .hp-root .mood-btn { border-radius: 22px !important; }
+  /* ---- 2.10 主页心情打卡：收进卡片 + 3×3 放大（仅手机端，PC 端保持原样）---- */
+  /* 打卡区从裸排改为一张软卡片，和后面快捷入口卡形成分组节奏 */
+  .hp-root .mood-bar {
+    margin-top: 20px !important;
+    padding: 14px 14px 12px !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 14px 28px -20px rgba(60, 90, 70, 0.4) !important;
+    box-sizing: border-box !important;
+  }
+  .hp-root .mood-label { font-size: 13px !important; margin-bottom: 10px !important; }
+  /* 9 个情绪 3×3 对称排满（5+4 右下空一格不平衡），按钮放大表情才看得清 */
+  .hp-root .mood-row {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  .hp-root .mood-btn {
+    border-radius: 16px !important;
+    padding: 10px 4px 8px !important;
+    gap: 3px !important;
+  }
+  .hp-root .mood-btn span { font-size: 12px !important; }
+  /* 贴纸是透明底的，放大 + 轻投影，表情一眼看清 */
+  .hp-root .mood-btn img {
+    width: 44px !important;
+    height: 44px !important;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.14));
+  }
   .hp-root .mood-btn.done {
     background: color-mix(in srgb, var(--c-main) 26%, white) !important;
     box-shadow: 0 0 0 2px var(--c-hex),
@@ -240,13 +272,23 @@ p, li, span, td, th, div {
     width: 5px !important;
     border-radius: 2.5px !important;
   }
-  /* 主/次按钮锁同一高度 47px，不再一鼓一扁 */
-  .hp-root .hp-btn {
-    height: 47px !important;
-    padding: 0 27px !important;
+  /* 主/次按钮并排一行：主按钮约 6 成宽、次按钮 4 成，省一行高度、主次分明 */
+  .hp-root .hero-actions {
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    margin-top: 16px !important;
+  }
+  .hp-root .hero-actions .hp-btn {
+    flex: 1 1 0 !important;
+    height: 46px !important;
+    padding: 0 10px !important;
     box-sizing: border-box !important;
     justify-content: center;
+    font-size: 13.5px !important;
+    white-space: nowrap;
   }
+  .hp-root .hero-actions .hp-btn.primary { flex: 1.45 1 0 !important; }
+  .hp-root .hero-actions .hp-btn.ghost { flex: 1 1 0 !important; }
   /* 「和绪见 AI 聊聊 →」箭头：固定主题色并加粗一档，醒目 */
   .hp-root .btn-arrow { display: inline-flex; color: var(--c-hex) !important; }
   .hp-root .btn-arrow .app-icon { stroke-width: 2.5; width: 1.15em; height: 1.15em; }
@@ -261,6 +303,310 @@ p, li, span, td, th, div {
     background: color-mix(in srgb, var(--c-hex) 22%, white) !important;
     box-shadow: 0 10px 22px color-mix(in srgb, var(--c-hex) 30%, transparent) !important;
   }
+
+  /* ---- 2.12 快捷入口分层：第一行小牛插画 / 第二行功能线性图标（仅手机端）---- */
+  /* 两行入口收进同一张软卡片，和打卡卡呼应；原来的色块分隔条去掉 */
+  .hp-root .entry-row {
+    border-top: none !important;
+    margin-top: 16px !important;
+    padding: 14px 12px 10px !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 14px 28px -20px rgba(60, 90, 70, 0.4) !important;
+    box-sizing: border-box !important;
+  }
+  /* 第二行：与第一行统一用小牛贴纸（用户拍板），隐藏备用线性图标 */
+  .hp-root .entry-func .entry-linear { display: none !important; }
+  /* 入口文字放大一档，拇指点得准、也看得清 */
+  .hp-root .entry-text { font-size: 12.5px !important; }
+
+  /* ---- 2.13 底部导航栏：线性图标换成对应小牛贴纸（tab 栏本身仅手机端渲染）---- */
+  .mobile-tabbar .mt-emoji img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ---- 2.14 主页氛围装饰：太阳/云层是 PC 端宽卡片的装饰，
+     手机窄屏下会从右边缘探进来半截，看起来像内容溢出——手机端直接隐藏 ---- */
+  .hp-root .hero-sun,
+  .hp-root .cloud-layer { display: none !important; }
+
+  /* 天空渐变层（hero-sky）也去掉：手机端背景统一由 .hp-root 的主题色渐变接管，
+     少一层盖在背景图下面的色层 */
+  .hp-root .hero-sky { display: none !important; }
+
+  /* 牛牛背景图（home.jpg）：手机端放回上半屏（用户拍板）。
+     不再用 inset:-3% 全屏铺（那会探边），改为顶部固定高度一块：
+     取景偏右上、向下+向左双向渐隐，左上是问候文字区所以图在那边淡出 */
+  .hp-root .hero-art {
+    display: block !important;
+    inset: auto !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 46vh !important;
+    background: url("/img/home.jpg") no-repeat 62% 22% / cover !important;
+    transform: none !important;
+    -webkit-mask-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0) 4%, rgba(0, 0, 0, 0.85) 48%),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 48%, transparent 92%) !important;
+    -webkit-mask-composite: source-in !important;
+    mask-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0) 4%, rgba(0, 0, 0, 0.85) 48%),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 48%, transparent 92%) !important;
+    mask-composite: intersect !important;
+  }
+
+  /* hero 底部的白色过渡层是给全宽白幕布用的，卡片化后不需要 */
+  .hp-root .hero-blend { display: none !important; }
+
+  /* ---- 2.15 主页白色大底改悬浮卡片（用户拍板）----
+     原本 .hp-body 是全宽白幕布从顶部铺到页底，显得又大又闷；
+     改成左右/底部留边的圆角悬浮卡片，四周露出主题色渐变背景 ---- */
+  .hp-root .hp-body {
+    margin: -18px 12px 16px !important;
+    padding-bottom: 18px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 18px 40px -22px rgba(80, 100, 88, 0.38) !important;
+  }
+
+  /* 页面背景顶部加一点主题色，白卡片才浮得出来（跟随换主题色） */
+  .hp-root {
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--c-main) 14%, #fff8ee) 0%,
+      var(--c-bg1) 34%,
+      var(--c-bg2) 100%) !important;
+  }
+  :root.dark-mode .hp-root {
+    background: linear-gradient(180deg, #1d2430 0%, #182030 45%, #131a26 100%) !important;
+  }
+
+  /* ---- 2.16 首屏大白卡拆成多张小卡（用户拍板）----
+     .hero-card 原本把问候/打卡/入口/数据全装进一张白色大盒子里，
+     手机端几乎占满整屏、显得又大又闷；
+     改成透明容器：打卡卡、入口卡、数据胶囊各自本来就是小白卡，
+     拆掉外层大底后直接浮在渐变背景上 ---- */
+  .hp-root .hero-card {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  /* hero 底部的「看看最近的情绪轨迹」是绝对定位浮层，原垫在大白卡上；
+     拆卡后会压在数据小卡上，手机端有底部 tab 栏引导滚动，直接隐藏 */
+  .hp-root .scroll-hint { display: none !important; }
+
+  /* 问候语被常驻顶栏挡住的修复：hero 是「垂直居中 + 最小 92vh」，
+     首屏内容比一屏高时居中会把顶部（提醒条/日期胶囊/问候语上半截）
+     挤出屏幕顶端、钻进 fixed 顶栏底下；手机端改为从顶栏下方自然向下排 */
+  .hp-root .hero {
+    align-items: flex-start !important;
+    padding-top: 64px !important;
+    /* 下方白色大卡 hp-body 有负 margin 上移，拆卡后会压住最后一张数据卡；
+       上移量已从 -46 收到 -18，这里留 34px 底部安全距离（净空约 16px 过渡） */
+    padding-bottom: 34px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ---- 2.19 今日推荐卡：手机端收一档（用户反馈「调成合适的大小」）----
+     PC 规格的 84px 大图 + 14.5px 标题单行省略，在窄屏上显得又大又憋：
+     图缩小、标题改两行截断，卡片整体紧凑一截 */
+  .hp-root .rec-card {
+    padding: 10px !important;
+    gap: 10px !important;
+    border-radius: 16px !important;
+    /* 关键修复：grid 项默认 min-width:auto，rec-desc 单行 nowrap 的整句长文
+       会把 1fr 轨道撑到 ~513px，卡片溢出网格、文字被屏幕裁切且省略号失效；
+       min-width:0 让卡片收缩回 326px 轨道内，ellipsis 才能生效 */
+    min-width: 0 !important;
+  }
+  .hp-root .rec-thumb {
+    flex: 0 0 62px !important;
+    width: 62px !important;
+    height: 62px !important;
+    border-radius: 14px !important;
+  }
+  /* 兜底贴图与真实封面同尺寸（跟 home.css 的 100%/contain 保持一致，三个 tab 大小统一） */
+  .hp-root .rec-fallback { width: 100% !important; height: 100% !important; }
+  .hp-root .rec-title {
+    font-size: 13.5px !important;
+    /* 窄屏标题允许两行，省得半句话被硬截掉 */
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    white-space: normal !important;
+    line-height: 1.4 !important;
+  }
+  .hp-root .rec-desc { font-size: 12px !important; }
+  .hp-root .rec-foot { padding-top: 6px !important; }
+  .hp-root .rec-go { padding: 3px 10px !important; font-size: 11.5px !important; }
+
+  /* ---- 2.20 今日推荐分类 tab：手机端等宽铺满、文字不换行（用户反馈太奇怪）----
+     PC 的 18px 大内边距在窄屏挤不下，按钮被压扁后「治愈音频」断成两行还叠上小牛图 */
+  .hp-root .sec-side { flex-wrap: nowrap !important; width: 100% !important; }
+  .hp-root .tab-group { flex: 1 !important; min-width: 0 !important; padding: 4px !important; gap: 4px !important; }
+  .hp-root .tab-btn {
+    flex: 1 !important;
+    padding: 7px 4px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  /* ---- 2.25 日记页横幅重排（用户拍板：主按钮突出）----
+     原状：三张统计卡 + 三个按钮全挤在渐变横幅里，卡片压扁、按钮小胶囊一大排；
+     改后：统计卡一行等宽铺满、数字放大；按钮另起一行——
+     「写日记」是绿色大主按钮排在最左，「补睡眠/导出」收成小按钮跟在右边 */
+  .diary-page .ah-hero { padding: 26px 18px 46px !important; }
+  /* 常驻顶栏 52px 会盖住横幅标题，页面整体往下让出顶栏高度 */
+  .diary-page { padding-top: 52px !important; }
+  .diary-page .ah-title h1 { font-size: 26px !important; }
+  .diary-page .ah-sub { font-size: 13px !important; }
+  .diary-page .hero-right { flex-wrap: wrap !important; gap: 10px !important; }
+  /* AnimeHero 组件的 .ah-right 写死 flex-shrink:0，横幅里内容再宽也不缩，
+     手机端必须放开并占满整行，否则统计卡/按钮行会溢出屏幕 */
+  .diary-page .ah-right { flex-shrink: 1 !important; flex: 1 1 100% !important; }
+  /* 统计卡：整行铺满，逼按钮换行 */
+  .diary-page .hero-meta {
+    width: 100% !important;
+    order: -3 !important;
+    gap: 8px !important;
+  }
+  .diary-page .meta-card {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 10px 6px !important;
+  }
+  .diary-page .meta-num { font-size: 22px !important; }
+  .diary-page .meta-label { font-size: 11px !important; letter-spacing: 1px !important; }
+  /* 按钮行：写日记提最前 + 拉大；两个功能按钮收小 */
+  .diary-page .hero-right .write-fab:not(.ghost-fab) {
+    order: -2 !important;
+    flex: 1.6 !important;
+    justify-content: center !important;
+    height: 46px !important;
+    border-radius: 23px !important;
+    font-size: 14.5px !important;
+    background: color-mix(in srgb, var(--c-hex) 82%, white) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.75) !important;
+    box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--c-hex) 70%, transparent) !important;
+  }
+  .diary-page .hero-right .ghost-fab {
+    flex: 1 !important;
+    justify-content: center !important;
+    height: 40px !important;
+    font-size: 12px !important;
+    padding: 0 6px !important;
+  }
+
+  /* ---- 2.26 情绪分布 + 月度小结：PC 是 1fr 1fr 两列网格，
+     手机端每列只剩约 160px，月度小结被挤成窄条，AI 寄语一字一行竖排——
+     手机端改成单列上下堆叠，两张卡都拿全宽 ---- */
+  .diary-page .chart-bottom {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .diary-page .sum-stats { gap: 8px !important; }
+  .diary-page .stat-item { padding: 10px 4px !important; }
+  .diary-page .chart-ai-whisper {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+  }
+  .diary-page .chart-ai-whisper .ai-text { font-size: 13.5px !important; }
+  .diary-page .chart-ai-whisper .ai-refresh { padding: 6px 12px !important; font-size: 12px !important; }
+
+  /* ---- 2.28 AI 对话页：会话侧栏改抽屉模式（用户拍板）----
+     原状：侧栏全宽盖住聊天区、进页默认展开、收起后侧栏整个滑出屏幕再也打不开；
+     改后（JS 在 Assistant.vue，仅 matchMedia 手机端生效）：
+     默认收起直接看聊天区，顶栏「历史」按钮打开抽屉，遮罩/选中会话后自动收起 ---- */
+  .drawer-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 42, 32, 0.38);
+    z-index: 90;
+  }
+  .session-sidebar { background: var(--c-bg1) !important; }
+  .sidebar-header { padding: 14px 14px 10px !important; gap: 10px !important; }
+  .new-chat-btn {
+    flex: 1 !important;
+    height: 44px !important;
+    justify-content: center !important;
+    font-size: 14.5px !important;
+    border-radius: 22px !important;
+  }
+  .toggle-btn { width: 40px !important; height: 40px !important; }
+  /* 会话列表卡片化 */
+  .session-list { padding: 4px 14px 20px !important; overflow-y: auto !important; }
+  .session-item {
+    background: #fff !important;
+    border-radius: 14px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    box-shadow: 0 3px 10px -4px rgba(80, 100, 88, 0.25) !important;
+  }
+  .session-item.active {
+    background: rgba(111, 163, 106, 0.12) !important;
+    border-left: none !important;
+    box-shadow: 0 0 0 2px var(--c-main), 0 3px 10px -4px rgba(80, 100, 88, 0.25) !important;
+  }
+  .session-title { font-size: 14px !important; font-weight: 600 !important; }
+  .session-preview {
+    font-size: 12px !important;
+    margin-top: 4px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    min-width: 0 !important;
+  }
+  .session-time { font-size: 11px !important; margin-top: 4px !important; }
+  .session-empty { font-size: 12.5px; }
+  /* 聊天顶栏「历史」按钮（仅手机端渲染的元素，样式放这里不影响 PC） */
+  .history-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.65);
+    color: var(--c-main);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  /* 常驻顶栏 52px 会盖住聊天顶栏和抽屉顶部：页面整体下移让位，
+     抽屉也从顶栏下方开始（Assistant.vue 自带的 absolute+height:100% 在这里重算） */
+  .ai-chat-page { padding-top: 52px !important; box-sizing: border-box !important; }
+  .ai-chat-page .session-sidebar { top: 52px !important; height: calc(100vh - 52px) !important; }
+  /* 聊天顶栏在手机上收一档，聊天区可见高度更多；
+     390px 宽度下标题/用户名会被挤成一字一行竖排，隐藏次要元素 + 禁止换行。
+     注意：组件里 .header-icon 带 !important 且 scoped 属性选择器权重高、注入顺序靠后，
+     这里必须用三层选择器压过它 */
+  .ai-chat-page .chat-header { padding: 8px 12px !important; gap: 8px !important; }
+  .ai-chat-page .chat-header .header-left { flex: 1 !important; min-width: 0 !important; gap: 10px !important; }
+  .ai-chat-page .chat-header .header-right { flex-shrink: 0 !important; gap: 8px !important; }
+  .ai-chat-page .chat-header .header-icon { width: 34px !important; height: 34px !important; }
+  .ai-chat-page .chat-header .header-title { font-size: 16px !important; white-space: nowrap !important; }
+  .ai-chat-page .chat-header .header-sub { display: none !important; }
+  .ai-chat-page .chat-header .user-name { display: none !important; }
+  .ai-chat-page .chat-header .status-badge { display: none !important; }
+
+  /* 消息区：PC 的 24px/28px 大内边距 + msg-item 75% 限宽在手机上把气泡挤成细窄柱，
+     手机端放开到 88% 并收掉留白，气泡才有一屏宽的呼吸感 */
+  .ai-chat-page .chat-messages { padding: 14px 12px !important; gap: 12px !important; }
+  .ai-chat-page .chat-messages .msg-item { max-width: 88% !important; }
+  .ai-chat-page .chat-messages .msg-bubble { font-size: 14px !important; padding: 10px 13px !important; }
+  .ai-chat-page .chat-messages .msg-avatar { width: 34px !important; height: 34px !important; }
+  .ai-chat-page .chat-input-area { padding: 10px 14px 14px !important; }
+  .ai-chat-page .quick-action-btn { padding: 7px 12px !important; font-size: 12.5px !important; }
 }
 
 /* ---------------------------------------------------------------------

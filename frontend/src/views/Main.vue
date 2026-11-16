@@ -97,8 +97,15 @@
 
           <!-- 快捷入口 -->
           <nav class="entry-row">
-            <router-link v-for="q in quickEntries" :key="q.to + q.title" :to="q.to" class="entry-item">
-              <span class="entry-icon"><img :src="q.icon" :alt="q.title" /></span>
+            <router-link
+              v-for="q in entryList" :key="q.to + q.title" :to="q.to"
+              class="entry-item" :class="{ 'entry-func': q.linear }"
+            >
+              <span class="entry-icon">
+                <img :src="q.icon" :alt="q.title" />
+                <!-- 手机端第二行功能入口改用线性图标（PC 端由 mobile.css 全局隐藏，不显示） -->
+                <AppIcon v-if="q.linear" class="entry-linear" :name="q.linear" />
+              </span>
               <span class="entry-text">{{ q.title }}</span>
             </router-link>
           </nav>
@@ -447,16 +454,39 @@ const papers = ref([])
 const collectCount = ref(0)
 const whisper = ref('')
 
+// 前四个是内容型入口（保留小牛插画）；后四个是功能型入口，linear 字段指定手机端
+// 使用的线性图标（书 / 饼图 / 星星 / 对话框），与小牛情绪插画在视觉上分层
 const quickEntries = [
   { to: '/diary', icon: '/img/绪见日记.png', title: '日记' },
   { to: '/assistant', icon: '/img/AI对话历史.png', title: 'AI' },
   { to: '/test', icon: '/img/测评量表.png', title: '测评' },
   { to: '/fm', icon: '/img/治愈音频.png', title: 'FM' },
+  { to: '/classroom', icon: '/img/心理视频.png', title: '学堂', linear: 'book' },
+  { to: '/profile?tab=weekReport', icon: '/img/情绪周报.png', title: '周报', linear: 'pie-chart' },
+  { to: '/profile?tab=fav', icon: '/img/我的收藏.png', title: '收藏', linear: 'star' },
+  { to: '/feedback', icon: '/img/用户反馈.png', title: '反馈', linear: 'message-square' },
+]
+
+// 手机端入口：底部 Tab 已有「主页/日记/AI/FM/我的」，这里不再重复放日记/AI/FM，
+// 换成不重复的功能入口（前四个内容型保留小牛插画，后四个功能型用线性图标）
+const mobileEntries = [
+  { to: '/test', icon: '/img/测评量表.png', title: '测评' },
   { to: '/classroom', icon: '/img/心理视频.png', title: '学堂' },
   { to: '/profile?tab=weekReport', icon: '/img/情绪周报.png', title: '周报' },
   { to: '/profile?tab=fav', icon: '/img/我的收藏.png', title: '收藏' },
-  { to: '/feedback', icon: '/img/用户反馈.png', title: '反馈' },
+  { to: '/databoard', icon: '/img/情绪周报.png', title: '数据统计', linear: 'chart-bar' },
+  { to: '/diary?tab=calendar', icon: '/img/本月打卡.png', title: '心情日历', linear: 'calendar' },
+  { to: '/profile?tab=setting', icon: '/img/账号设置.png', title: '设置', linear: 'sliders' },
+  { to: '/feedback', icon: '/img/我的反馈.png', title: '反馈', linear: 'message-square' },
 ]
+
+// 响应式切换：PC 用原 8 个入口（视觉与原来完全一致），手机端用去重后的入口
+const mobileMq = window.matchMedia('(max-width: 768px)')
+const isMobile = ref(mobileMq.matches)
+const onMqChange = (e) => { isMobile.value = e.matches }
+onMounted(() => mobileMq.addEventListener('change', onMqChange))
+onBeforeUnmount(() => mobileMq.removeEventListener('change', onMqChange))
+const entryList = computed(() => (isMobile.value ? mobileEntries : quickEntries))
 
 const loadAll = async () => {
   // 游客路径也必须 await：否则 loadAll 立即 resolve，initReveal 会在推荐卡渲染前跑完，

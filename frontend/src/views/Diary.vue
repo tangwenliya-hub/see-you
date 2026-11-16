@@ -317,7 +317,12 @@ const whisperPool = {
 }
 
 // ===== 状态 =====
-const diaryTab = ref('summary')
+// 支持 ?tab=summary|calendar|book 直达对应栏目（主页「心情日历」入口用）
+const DIARY_TABS = ['summary', 'calendar', 'book']
+const diaryTab = ref(DIARY_TABS.includes(route.query.tab) ? route.query.tab : 'summary')
+watch(() => route.query.tab, (t) => {
+  if (DIARY_TABS.includes(t)) diaryTab.value = t
+})
 const diaryList = ref([])
 const diaryPageIndex = ref(0)
 const currentDiary = computed(() => diaryList.value[diaryPageIndex.value] || null)

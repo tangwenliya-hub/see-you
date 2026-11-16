@@ -52,7 +52,7 @@
     <nav class="mobile-tabbar">
       <router-link v-for="t in mobileTabs" :key="t.to" :to="t.to"
                    class="mt-item" :class="{ active: isTabActive(t) }">
-        <span class="mt-emoji"><AppIcon :name="t.icon" /></span>
+        <span class="mt-emoji"><img :src="t.icon" alt="" /></span>
         <span>{{ t.label }}</span>
         <span v-if="t.badge && unreadAlerts > 0" class="mt-dot" :title="`${unreadAlerts} 条未读关怀提醒`"></span>
       </router-link>
@@ -204,11 +204,11 @@ const doLogout = async () => {
 
 // ===== 移动端底部导航 =====
 const mobileTabs = [
-  { to: '/main',      label: '主页', icon: 'home', match: (p) => p === '/main' || p === '/' || p === '/home' },
-  { to: '/diary',     label: '日记', icon: 'notebook', match: (p) => p.startsWith('/diary') },
-  { to: '/assistant', label: 'AI',   icon: 'message', match: (p) => p.startsWith('/assistant') },
-  { to: '/fm',        label: 'FM',   icon: 'music', match: (p) => p.startsWith('/fm') },
-  { to: '/profile',   label: '我的', icon: 'user', badge: true, match: (p) => p.startsWith('/profile') },
+  { to: '/main',      label: '主页', icon: '/img/绪见后台管理.png', match: (p) => p === '/main' || p === '/' || p === '/home' },
+  { to: '/diary',     label: '日记', icon: '/img/我的日记本.png', match: (p) => p.startsWith('/diary') },
+  { to: '/assistant', label: 'AI',   icon: '/img/AI对话历史.png', match: (p) => p.startsWith('/assistant') },
+  { to: '/fm',        label: 'FM',   icon: '/img/治愈音频.png', match: (p) => p.startsWith('/fm') },
+  { to: '/profile',   label: '我的', icon: '/img/开心牛牛.png', badge: true, match: (p) => p.startsWith('/profile') },
 ]
 const isTabActive = (t) => t.match(route.path)
 

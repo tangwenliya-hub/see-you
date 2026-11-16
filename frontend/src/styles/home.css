@@ -709,7 +709,9 @@
 }
 .hp-root .rec-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
 .hp-root .rec-card:hover .rec-thumb img { transform: scale(1.07); }
-.hp-root .rec-fallback { width: 50px !important; height: 50px !important; object-fit: contain !important; }
+/* 兜底贴图与真实封面同尺寸：铺满同一个缩略图容器，contain 不裁剪不变形。
+   之前写死 50px，导致"心理测评"等无封面 tab 的图比有封面的 tab 小一圈 */
+.hp-root .rec-fallback { width: 100% !important; height: 100% !important; object-fit: contain !important; }
 .hp-root .rec-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .hp-root .rec-title {
     font-size: 14.5px;

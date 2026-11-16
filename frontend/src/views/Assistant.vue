@@ -39,11 +39,26 @@
       </div>
     </aside>
 
+    <!-- 手机端抽屉遮罩：点遮罩收起会话抽屉（仅手机端渲染，PC 端永远不出现） -->
+    <div
+      v-if="isMobile && !sidebarCollapsed"
+      class="drawer-mask"
+      @click="sidebarCollapsed = true"
+    ></div>
+
     <!-- 主聊天区域 -->
     <div class="chat-main">
       <!-- 顶部标题栏 -->
       <header class="chat-header">
         <div class="header-left">
+          <!-- 手机端历史会话入口：抽屉收起后从这里重新打开（仅手机端渲染） -->
+          <button v-if="isMobile" class="history-toggle-btn" @click="sidebarCollapsed = false" title="历史会话">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+              <path d="M12 7v5l4 2"/>
+            </svg>
+          </button>
           <img src="/img/AI对话历史.png" class="header-icon" alt="" />
           <div class="header-info">
             <h2 class="header-title">绪见AI</h2>
@@ -394,6 +409,18 @@ const sessions = ref([])
 const currentSessionId = ref('')
 const sidebarCollapsed = ref(false)
 
+// 手机端（≤768px）抽屉逻辑：侧栏默认收起、进页面直接看聊天区，从聊天顶栏「历史」按钮打开。
+// PC 端 isMobile 恒为 false，所有新增分支都不生效，行为与原来完全一致
+const mobileMq = window.matchMedia('(max-width: 768px)')
+const isMobile = ref(mobileMq.matches)
+const onMqChange = (e) => {
+  isMobile.value = e.matches
+  if (e.matches) sidebarCollapsed.value = true // 切到手机尺寸时收起抽屉
+}
+mobileMq.addEventListener('change', onMqChange)
+onUnmounted(() => mobileMq.removeEventListener('change', onMqChange))
+if (mobileMq.matches) sidebarCollapsed.value = true // 手机端首次进入默认收起
+
 const draftKey = (sid) => DRAFT_PREFIX + sid
 
 const saveDraft = () => {
@@ -424,6 +451,7 @@ const createNewSession = async () => {
     sessions.value.unshift({ sessionId: sid, title: '新对话', preview: '', lastTime: null, rounds: 0 })
     messages.value = []
     inputText.value = ''
+    if (isMobile.value) sidebarCollapsed.value = true // 手机端：建好会话自动收起抽屉
     nextTick(() => {
       autoResize()
       scrollToBottom()
@@ -457,6 +485,7 @@ const loadMessages = async (sid) => {
 
 // 切换会话
 const switchSession = async (sid) => {
+  if (isMobile.value) sidebarCollapsed.value = true // 手机端：选完会话自动收起抽屉（点当前会话也收）
   if (!sid || sid === currentSessionId.value) return
   if (isTyping.value) {
     ElMessage.warning('AI 正在回复中，请稍候再切换')
