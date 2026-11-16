@@ -571,7 +571,7 @@ onBeforeUnmount(() => { if (bubbleTimer) clearInterval(bubbleTimer) })
   border: 1.5px solid #c6e0d2; border-radius: 12px; background: rgba(255,255,255,.9);
   color: #5a6b60; font-size: 14px; box-sizing: border-box; outline: none;
 }
-.fp-input:focus { border-color: #9ccfb2; box-shadow: 0 0 0 3px rgba(140,194,105,.18); }
+.fp-input:focus { border-color: var(--c-hex); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-hex) 18%, transparent); }
 .fp-done { text-align: center; font-size: 14px; color: var(--c-hex); }
 
 /* 注册引导 */

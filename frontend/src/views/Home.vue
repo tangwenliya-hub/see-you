@@ -187,10 +187,10 @@ onBeforeUnmount(() => {
   color: #fff;
   background: linear-gradient(135deg, #9fd48a, #7cbf6d);
   border-radius: 999px;
-  box-shadow: 0 6px 16px rgba(124, 168, 130, .38);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--c-hex) 38%, transparent);
   transition: transform .22s, box-shadow .22s;
 }
-.tb-start:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(124, 168, 130, .48); }
+.tb-start:hover { transform: translateY(-1px); box-shadow: 0 9px 20px color-mix(in srgb, var(--c-hex) 48%, transparent); }
 
 /* ===== 泡泡 ===== */
 .bubble {
@@ -259,10 +259,10 @@ onBeforeUnmount(() => {
   color: #fff;
   background: linear-gradient(135deg, #9fd48a, #7cbf6d);
   border-radius: 999px;
-  box-shadow: 0 10px 24px rgba(124, 168, 130, .42);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--c-hex) 42%, transparent);
   transition: transform .25s, box-shadow .25s;
 }
-.cta-main:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(124, 168, 130, .52); }
+.cta-main:hover { transform: translateY(-2px); box-shadow: 0 14px 30px color-mix(in srgb, var(--c-hex) 52%, transparent); }
 .cta-ghost {
   padding: 13px 30px;
   font-size: 15px;

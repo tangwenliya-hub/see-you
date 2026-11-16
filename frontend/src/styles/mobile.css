@@ -1004,3 +1004,94 @@ p, li, span, td, th, div {
     padding: 24px 15px 22px;
   }
 }
+
+/* ---------------------------------------------------------------------
+ * 2.38 FM 播放器（≤768px）：PC 右侧信息栏写死 380px + flex-shrink:0，
+ *     手机上把黑胶区挤没、自己被压成一字宽 → 文字一字一行竖排。
+ *     另：迷你播放条的音频名可能是超长句且无省略限制，会把整条撑高、
+ *     文字压成竖排——单行省略，并抬到底部 Tab 栏上方。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .fm-page .player-body {
+    flex-direction: column !important;
+    padding: 0 16px !important;
+    gap: 16px !important;
+  }
+  .fm-page .player-main { gap: 0 !important; }
+  .fm-page .player-side {
+    width: 100% !important;
+    flex-shrink: 1 !important;
+    max-height: 42vh !important;
+  }
+
+  /* 迷你播放条：单行省略 + 让出底部 Tab 栏 */
+  .fm-page .mini-bar {
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 10px 14px !important;
+    gap: 10px !important;
+  }
+  .fm-page .mini-cover { width: 42px !important; height: 42px !important; }
+  .fm-page .mini-name {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 14px !important;
+  }
+  .fm-page .mini-cat { display: none !important; }
+  .fm-page .mini-btn { width: 36px !important; height: 36px !important; }
+  .fm-page .mini-btn.play { width: 42px !important; height: 42px !important; }
+}
+
+/* ---------------------------------------------------------------------
+ * 2.39 FM 列表页（≤768px）：横幅标题 34px + 长文案 letter-spacing 2px
+ *     断成四行，占掉近半屏；横幅与分类标签之间又空一大条；标签挤三行、
+ *     搜索框缩在右侧一行——首屏几乎全是字和空白，看不到音频卡片。
+ *     收紧横幅 → 标签流式换行 → 搜索框独占一行铺满 → 卡片信息区收薄。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* 横幅：标题/副标题收敛，去掉大字距的难看断行 */
+  .fm-page .ah-hero {
+    padding: 22px 16px 44px !important;
+    margin-bottom: 0 !important;
+  }
+  .fm-page .ah-title h1 {
+    font-size: 21px !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 4px !important;
+  }
+  .fm-page .ah-emoji { font-size: 19px !important; }
+  .fm-page .ah-sub {
+    font-size: 12.5px !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1.65 !important;
+  }
+  .fm-page .ah-wave { height: 30px !important; }
+
+  /* 列表区：贴紧横幅，别再空出一大条背景色 */
+  .fm-page .list-view { padding: 14px 14px 120px !important; }
+
+  /* 分类标签：流式换行收紧间距；搜索框独占一行铺满 */
+  .fm-page .cat-tabs {
+    gap: 8px !important;
+    row-gap: 8px !important;
+    margin-bottom: 14px !important;
+  }
+  .fm-page .cat-tab {
+    padding: 6px 13px !important;
+    font-size: 12.5px !important;
+    min-height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+  .fm-page .fm-search { margin-left: 0 !important; flex: 1 1 100% !important; }
+  .fm-page .fm-search input { width: 100% !important; }
+
+  /* 卡片：间隙与信息区收薄，首屏能看到更多内容 */
+  .fm-page .card-grid { gap: 12px !important; }
+  .fm-page .song-card { border-radius: 14px !important; }
+  .fm-page .card-info { padding: 9px 12px 11px !important; }
+  .fm-page .card-title { font-size: 13.5px !important; }
+  .fm-page .card-cat { font-size: 11px !important; }
+  .fm-page .card-play-icon { font-size: 30px !important; }
+  .fm-page .empty-tip { padding: 40px 16px !important; }
+}

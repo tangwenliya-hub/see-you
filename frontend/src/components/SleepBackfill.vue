@@ -142,7 +142,7 @@ const isToday = (s) => s === new Date().toLocaleDateString('sv-SE') // sv-SE: YY
   width: 430px; max-width: 94vw; max-height: 86vh; overflow: auto;
   background: rgba(255, 255, 255, 0.96);
   border-radius: 20px; padding: 24px 26px 18px;
-  box-shadow: 0 18px 50px rgba(80, 120, 95, 0.25);
+  box-shadow: 0 18px 50px color-mix(in srgb, var(--c-hex) 26%, transparent);
   box-sizing: border-box;
 }
 .sb-card h3 { margin: 0 0 6px; font-size: 17px; color: #446c3a; letter-spacing: 2px; }
@@ -153,11 +153,11 @@ const isToday = (s) => s === new Date().toLocaleDateString('sv-SE') // sv-SE: YY
 .sb-row {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 12px; border-radius: 12px;
-  background: rgba(140, 194, 105, 0.07);
-  border: 1px solid rgba(140, 194, 105, 0.18);
+  background: color-mix(in srgb, var(--c-hex) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-hex) 18%, transparent);
   transition: all 0.2s;
 }
-.sb-row.changed { background: rgba(140, 194, 105, 0.14); border-color: #8cc269; }
+.sb-row.changed { background: color-mix(in srgb, var(--c-hex) 14%, transparent); border-color: var(--c-hex); }
 .sb-row.disabled { opacity: 0.55; }
 .sb-date { width: 92px; display: flex; flex-direction: column; line-height: 1.3; }
 .sb-date b { font-size: 13.5px; color: #44603a; }
@@ -167,7 +167,7 @@ const isToday = (s) => s === new Date().toLocaleDateString('sv-SE') // sv-SE: YY
   border: 1.5px solid #d0e0d0; background: #fff;
   font-size: 13px; color: #444; font-family: inherit; text-align: center; outline: none;
 }
-.sb-input:focus { border-color: #8cc269; box-shadow: 0 0 0 3px rgba(140,194,105,0.12); }
+.sb-input:focus { border-color: var(--c-hex); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-hex) 12%, transparent); }
 .sb-input::-webkit-outer-spin-button,
 .sb-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .sb-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
@@ -186,12 +186,12 @@ const isToday = (s) => s === new Date().toLocaleDateString('sv-SE') // sv-SE: YY
   padding: 8px 18px; border-radius: 999px; border: 1.5px solid #d0e0d0;
   background: #fff; color: #6b7a72; font-size: 13px; cursor: pointer;
 }
-.sb-cancel:hover { border-color: #b8d49a; }
+.sb-cancel:hover { border-color: color-mix(in srgb, var(--c-hex) 55%, #ffffff); }
 .sb-save {
   padding: 8px 22px; border-radius: 999px; border: none;
-  background: linear-gradient(135deg, #8cc269, #6eb464);
+  background: linear-gradient(135deg, var(--c-hex), var(--c-accent-deep));
   color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
-  box-shadow: 0 4px 14px rgba(140,194,105,0.32);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--c-hex) 32%, transparent);
 }
 .sb-save:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
 .sb-tip { margin: 10px 0 0; font-size: 11px; color: #b5c2b0; line-height: 1.6; }

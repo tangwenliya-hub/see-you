@@ -2825,8 +2825,8 @@ const saveStatus = async () => {
 @keyframes adjustPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 .bg-ripple { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.95); border: 2px solid var(--c-hex); transform: translate(-50%, -50%); pointer-events: none; z-index: 3; animation: bgRipple 0.7s ease-out forwards; }
 @keyframes bgRipple {
-  0% { box-shadow: 0 0 0 0 rgba(123, 196, 123, 0.55); opacity: 1; }
-  100% { box-shadow: 0 0 0 20px rgba(123, 196, 123, 0); opacity: 0; }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-hex) 55%, transparent); opacity: 1; }
+  100% { box-shadow: 0 0 0 20px transparent; opacity: 0; }
 }
 .bg-adjust-tip { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 3; display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 16px; border-radius: 999px; background: rgba(255,255,255,0.94); backdrop-filter: blur(8px); box-shadow: 0 4px 16px rgba(0,0,0,0.18); font-size: 13px; color: #555; white-space: nowrap; }
 .bg-adjust-done { padding: 4px 14px; border-radius: 999px; border: none; background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff; font-size: 12px; cursor: pointer; }
@@ -3234,12 +3234,12 @@ const saveStatus = async () => {
 .emo-btn.on { border-color: var(--c-hex); background: var(--c-bg2); transform: scale(1.15); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .diary-date { font-size: 13px; color: #9ca3af; }
 .diary-input-card textarea, .fb-input-card textarea { width: 100%; padding: 12px; border: 1px solid var(--c-border); border-radius: 10px; font-size: 14px; font-family: inherit; resize: vertical; background: var(--c-bg1); transition: all 0.2s; box-sizing: border-box; }
-.diary-input-card textarea:focus, .fb-input-card textarea:focus { outline: none; border-color: var(--c-hex); background: #fff; box-shadow: 0 0 0 3px rgba(144,219,144,0.12); }
+.diary-input-card textarea:focus, .fb-input-card textarea:focus { outline: none; border-color: var(--c-hex); background: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-hex) 12%, transparent); }
 .diary-input-bottom, .fb-input-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 .char-count { font-size: 12px; color: #9ca3af; }
 .primary-btn, .danger-btn { padding: 13px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.25s; }
-.primary-btn { background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff; box-shadow: 0 3px 12px rgba(144,219,144,0.35); }
-.primary-btn:hover { box-shadow: 0 6px 20px rgba(144,219,144,0.5); transform: translateY(-1px); }
+.primary-btn { background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff; box-shadow: 0 3px 12px color-mix(in srgb, var(--c-hex) 35%, transparent); }
+.primary-btn:hover { box-shadow: 0 6px 20px color-mix(in srgb, var(--c-hex) 50%, transparent); transform: translateY(-1px); }
 .primary-btn.small { padding: 8px 22px; font-size: 13px; }
 .danger-btn { background: linear-gradient(135deg, #f87171, #ef4444); color: #fff; box-shadow: 0 3px 12px rgba(239,68,68,0.35); }
 .danger-btn.small { padding: 8px 22px; font-size: 13px; }
@@ -3392,7 +3392,7 @@ const saveStatus = async () => {
 .uc-uname-hint { margin: 0; font-size: 11.5px; color: #9ca3af; }
 .form-item label { font-size: 13px; color: #6b7280; }
 .form-item input { padding: 11px 14px; border: 1px solid var(--c-border); border-radius: 10px; font-size: 14px; background: var(--c-bg1); transition: all 0.2s; outline: none; color: #374151; }
-.form-item input:focus { border-color: var(--c-hex); background: #fff; box-shadow: 0 0 0 3px rgba(144,219,144,0.12); }
+.form-item input:focus { border-color: var(--c-hex); background: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-hex) 12%, transparent); }
 .form-item input:disabled { background: var(--c-bg2); color: #9ca3af; }
 .link-btn { background: none; border: none; color: var(--c-hex); font-size: 13px; cursor: pointer; padding: 0; margin-top: 4px; }
 .link-btn:hover { text-decoration: underline; }
@@ -3442,7 +3442,7 @@ const saveStatus = async () => {
 .avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 22px; }
 .avatar-opt { width: 90px; height: 90px; margin: 0 auto; border-radius: 50%; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
 .avatar-opt img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.avatar-opt.on { border-color: var(--c-hex); transform: scale(1.06); box-shadow: 0 4px 14px rgba(123,196,123,0.4); }
+.avatar-opt.on { border-color: var(--c-hex); transform: scale(1.06); box-shadow: 0 4px 14px color-mix(in srgb, var(--c-hex) 40%, transparent); }
 .picker-actions { display: flex; justify-content: center; }
 .cancel { padding: 10px 30px; border: 1px solid var(--c-border); border-radius: 10px; background: #fff; cursor: pointer; font-size: 14px; color: #6b7280; }
 .cancel:hover { border-color: #ccc; color: #374151; }
@@ -3522,7 +3522,7 @@ const saveStatus = async () => {
 .lt-label { font-size: 13px; color: #6b7280; font-weight: 500; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
 .lt-icon { width: 14px; height: 14px; object-fit: contain; }
 .lt-input { padding: 7px 12px; border: 1px solid var(--c-border); border-radius: 8px; font-size: 13px; background: var(--c-bg1); outline: none; min-width: 220px; transition: all 0.2s; color: #374151; }
-.lt-input:focus { border-color: var(--c-hex); background: #fff; box-shadow: 0 0 0 3px rgba(144,219,144,0.12); }
+.lt-input:focus { border-color: var(--c-hex); background: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-hex) 12%, transparent); }
 .lt-date { padding: 7px 10px; border: 1px solid var(--c-border); border-radius: 8px; font-size: 13px; background: var(--c-bg1); outline: none; transition: all 0.2s; color: #374151; }
 .lt-date:focus { border-color: var(--c-hex); background: #fff; }
 .lt-sep { font-size: 13px; color: #9ca3af; }

@@ -11,18 +11,18 @@
   border-radius: 999px !important;
   padding: 10px 20px !important;
   min-width: 0 !important;
-  border: 1px solid rgba(140, 194, 105, 0.35) !important;
+  border: 1px solid color-mix(in srgb, var(--c-hex) 35%, transparent) !important;
   background: rgba(255, 255, 255, 0.94) !important;
-  box-shadow: 0 10px 26px rgba(80, 120, 95, 0.16) !important;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--c-accent-deep) 18%, transparent) !important;
   backdrop-filter: blur(8px);
 }
 .el-message .el-message__content { font-size: 13.5px; font-weight: 600; letter-spacing: 0.2px; }
 .el-message .el-message__icon { font-size: 16px; }
 
-/* 成功：嫩绿 */
-.el-message--success { background: rgba(246, 251, 241, 0.96) !important; border-color: rgba(140, 194, 105, 0.5) !important; }
-.el-message--success .el-message__content { color: #3f5a34 !important; }
-.el-message--success .el-message__icon { color: #7fb84f !important; }
+/* 成功：主题色系 */
+.el-message--success { background: color-mix(in srgb, var(--c-hex) 8%, #ffffff) !important; border-color: color-mix(in srgb, var(--c-hex) 50%, transparent) !important; }
+.el-message--success .el-message__content { color: var(--c-ink) !important; }
+.el-message--success .el-message__icon { color: var(--c-hex) !important; }
 
 /* 错误：柔和珊瑚红 */
 .el-message--error { background: rgba(253, 241, 240, 0.96) !important; border-color: rgba(226, 92, 80, 0.42) !important; }
@@ -42,16 +42,16 @@
 /* ---------- 2. ElNotification 右上角卡片通知 ---------- */
 .el-notification {
   border-radius: 16px !important;
-  border: 1px solid rgba(140, 194, 105, 0.35) !important;
+  border: 1px solid color-mix(in srgb, var(--c-hex) 35%, transparent) !important;
   background: rgba(255, 255, 255, 0.97) !important;
-  box-shadow: 0 16px 40px rgba(80, 120, 95, 0.18) !important;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--c-accent-deep) 20%, transparent) !important;
   padding: 16px 18px !important;
 }
 .el-notification__title { color: #2f4a3a !important; font-weight: 700; font-size: 14px; }
 .el-notification__content { color: #55635c !important; font-size: 13px; line-height: 1.65; }
 .el-notification__closeBtn { color: #9aa79a; }
 /* 左侧色条区分类型 */
-.el-notification--success { border-left: 4px solid #8cc269 !important; }
+.el-notification--success { border-left: 4px solid var(--c-hex) !important; }
 .el-notification--warning { border-left: 4px solid #e8b25c !important; }
 .el-notification--info { border-left: 4px solid #e879a0 !important; }
 .el-notification--error { border-left: 4px solid #e25c50 !important; }
@@ -59,8 +59,8 @@
 /* ---------- 3. ElMessageBox 默认确认框（未走 jellyConfirm 的老代码兜底） ---------- */
 .el-message-box:not(.jelly-confirm) {
   border-radius: 18px !important;
-  border: 1px solid rgba(140, 194, 105, 0.35) !important;
-  box-shadow: 0 18px 50px rgba(80, 120, 95, 0.18) !important;
+  border: 1px solid color-mix(in srgb, var(--c-hex) 35%, transparent) !important;
+  box-shadow: 0 18px 50px color-mix(in srgb, var(--c-accent-deep) 20%, transparent) !important;
   padding: 18px 22px 16px !important;
   max-width: 92vw;
 }

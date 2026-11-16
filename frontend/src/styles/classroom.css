@@ -49,7 +49,7 @@
     background: linear-gradient(135deg, var(--c-main), var(--c-hex));
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 3px 10px rgba(144, 219, 144, 0.5);
+    box-shadow: 0 3px 10px color-mix(in srgb, var(--c-hex) 50%, transparent);
 }
 .classroom-page .search-box {
     margin-left: auto;
@@ -59,7 +59,7 @@
 .classroom-page .search-box input {
     padding: 7px 16px 7px 36px;
     border-radius: 999px;
-    border: 1px solid rgba(144, 219, 144, 0.4);
+    border: 1px solid color-mix(in srgb, var(--c-hex) 40%, transparent);
     background: rgba(255, 255, 255, 0.7) url('/img/搜索.png') no-repeat 14px center;
     background-size: 14px 14px;
     font-size: 13px;
@@ -267,7 +267,7 @@
 .classroom-page .side-tabs {
     display: flex;
     padding: 8px 14px 0;
-    border-bottom: 1px solid rgba(144, 219, 144, 0.18);
+    border-bottom: 1px solid color-mix(in srgb, var(--c-hex) 18%, transparent);
     flex-shrink: 0;
 }
 .classroom-page .side-tab {
@@ -417,16 +417,16 @@
 }
 .classroom-page .act-btn {
     padding: 10px 20px; border-radius: 999px; font-size: 14px;
-    cursor: pointer; border: 1px solid rgba(144, 219, 144, 0.45);
+    cursor: pointer; border: 1px solid color-mix(in srgb, var(--c-hex) 45%, transparent);
     background: rgba(255, 255, 255, 0.75); color: var(--c-text-weak);
     transition: all 0.25s ease;
     display: flex; align-items: center; gap: 5px;
 }
-.classroom-page .act-btn:hover { transform: translateY(-2px); box-shadow: 0 3px 10px rgba(144, 219, 144, 0.3); }
+.classroom-page .act-btn:hover { transform: translateY(-2px); box-shadow: 0 3px 10px color-mix(in srgb, var(--c-hex) 30%, transparent); }
 .classroom-page .act-btn.on {
     background: linear-gradient(135deg, var(--c-main), var(--c-hex));
     color: #fff; border-color: transparent;
-    box-shadow: 0 3px 12px rgba(144, 219, 144, 0.4);
+    box-shadow: 0 3px 12px color-mix(in srgb, var(--c-hex) 40%, transparent);
 }
 .classroom-page .act-num {
     font-size: 12px;
@@ -474,7 +474,7 @@
 .classroom-page .comment-input { display: flex; gap: 10px; margin-bottom: 18px; }
 .classroom-page .comment-input input {
     flex: 1; padding: 10px 14px; border-radius: 999px;
-    border: 1px solid rgba(144, 219, 144, 0.3);
+    border: 1px solid color-mix(in srgb, var(--c-hex) 30%, transparent);
     background: rgba(255, 255, 255, 0.8); font-size: 14px;
     outline: none; transition: border-color 0.2s;
 }
@@ -485,7 +485,7 @@
     background: linear-gradient(135deg, var(--c-main), var(--c-hex));
     color: #fff;
 }
-.classroom-page .send-btn:hover { box-shadow: 0 3px 10px rgba(144, 219, 144, 0.5); }
+.classroom-page .send-btn:hover { box-shadow: 0 3px 10px color-mix(in srgb, var(--c-hex) 50%, transparent); }
 
 .classroom-page .comment-list { display: flex; flex-direction: column; gap: 14px; }
 .classroom-page .comment-item { display: flex; gap: 12px; }

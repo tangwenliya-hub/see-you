@@ -149,6 +149,17 @@ body { font-family: "宋体", "Microsoft YaHei", sans-serif; }
   --c-s4: #D4537E;
   --c-s5: #534AB7;
   --c-s6: #1D9E75;
+
+  /* ===== 主题派生色（页面里原来写死的薄荷绿/墨绿，换成这组就跟着主题走）=====
+     applyTheme 只注入 --c-hex/--c-main/--c-bg1/--c-bg2，所以其余颜色一律从 --c-hex
+     用 color-mix 混出来：换任何主题，卡片淡底、描边、投影、标题墨色自动同步 */
+  --c-accent: var(--c-hex);                                        /* 强调实色 */
+  --c-accent-deep: color-mix(in srgb, var(--c-hex) 72%, #233a28);  /* 渐变深端/深色块 */
+  --c-accent-soft: color-mix(in srgb, var(--c-hex) 14%, #ffffff);  /* 淡底（选中/标签/提示条） */
+  --c-accent-tint: color-mix(in srgb, var(--c-hex) 7%, #ffffff);   /* 极淡底（hover/斑马纹） */
+  --c-accent-line: color-mix(in srgb, var(--c-hex) 30%, transparent); /* 描边 */
+  --c-accent-glow: color-mix(in srgb, var(--c-hex) 32%, transparent); /* 光晕/彩色投影 */
+  --c-ink: color-mix(in srgb, var(--c-hex) 28%, #2a3630);          /* 标题墨色（原写死 #3d5145） */
 }
 
 /* ===== 全局深色模式 ===== */
@@ -172,6 +183,13 @@ body { font-family: "宋体", "Microsoft YaHei", sans-serif; }
   --c-s4: #f472b6;
   --c-s5: #a78bfa;
   --c-s6: #34d399;
+
+  /* 派生色在深色底上要混深色，否则淡底会白得发亮、墨色标题会糊成一团 */
+  --c-accent-deep: color-mix(in srgb, var(--c-hex) 82%, #0f1a13);
+  --c-accent-soft: color-mix(in srgb, var(--c-hex) 22%, #1f2937);
+  --c-accent-tint: color-mix(in srgb, var(--c-hex) 12%, #1f2937);
+  --c-accent-line: color-mix(in srgb, var(--c-hex) 42%, transparent);
+  --c-ink: color-mix(in srgb, var(--c-hex) 38%, #e8eee9);
 }
 :root.dark-mode body {
   background: linear-gradient(135deg, #1f2937, #111827, #1f2937);

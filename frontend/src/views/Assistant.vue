@@ -73,6 +73,7 @@
               <polyline points="7 10 12 15 17 10"/>
               <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
+            <span class="export-label">导出</span>
           </button>
           <!-- 用户信息 -->
           <div class="user-info-bar">
@@ -118,8 +119,9 @@
           </div>
         </div>
 
-        <!-- 写日记面板 -->
-        <div v-if="showDiaryPanel" class="diary-panel-wrap">
+        <!-- 写日记面板：PC 内嵌在消息列表顶部；手机端由 mobile.css 变成底部弹层，
+             点遮罩（面板外的空白处）也可关闭 -->
+        <div v-if="showDiaryPanel" class="diary-panel-wrap" @click.self="isMobile && closeDiaryPanel()">
           <div class="diary-panel">
             <div class="diary-panel-header">
               <h4><AppIcon name="edit" /> 写日记给AI</h4>
@@ -255,6 +257,9 @@
 
       <!-- 底部输入区域 -->
       <div class="chat-input-area">
+        <!-- 选择日记/测评面板层：PC 用 display:contents 不参与布局（面板平铺在输入区上方）；
+             手机端变成全屏遮罩+底部弹层（同写日记面板），点遮罩空白处关闭 -->
+        <div v-if="showDiaryPicker || showTestPicker" class="picker-layer" @click.self="closeAllPickers">
         <!-- 选择日记面板 -->
         <div v-if="showDiaryPicker" class="bottom-picker-panel">
           <div class="picker-panel-header">
@@ -312,10 +317,11 @@
             </div>
           </div>
         </div>
+        </div><!-- /picker-layer -->
 
         <!-- 快捷功能按钮 -->
         <div class="quick-actions-bar">
-          <button class="quick-action-btn" @click="showDiaryPanel = true">
+          <button class="quick-action-btn" @click="openWriteDiaryPanel">
             <span class="qa-icon"><AppIcon name="edit" /></span>
             <span class="qa-text">写日记</span>
           </button>
@@ -1045,6 +1051,10 @@ const formatDate = (dateStr) => {
 
 // 打开日记选择器
 const openDiaryPicker = async () => {
+  // 互斥：同一时间只允许一个面板打开（否则手机端两个弹层会叠在一起）
+  showTestPicker.value = false
+  testList.value = []
+  showDiaryPanel.value = false
   showDiaryPicker.value = true
   loadingDiary.value = true
   try {
@@ -1078,6 +1088,10 @@ const selectDiary = async (diary) => {
 
 // 打开测评选择器
 const openTestPicker = async () => {
+  // 互斥：同一时间只允许一个面板打开
+  showDiaryPicker.value = false
+  diaryList.value = []
+  showDiaryPanel.value = false
   showTestPicker.value = true
   loadingTest.value = true
   try {
@@ -1096,6 +1110,22 @@ const openTestPicker = async () => {
 const closeTestPicker = () => {
   showTestPicker.value = false
   testList.value = []
+}
+
+// 关闭全部选择面板（手机端弹层点遮罩用）
+const closeAllPickers = () => {
+  closeDiaryPicker()
+  closeTestPicker()
+  showDiaryPanel.value = false
+}
+
+// 打开「写日记」面板（互斥：先关掉选日记/选测评）
+const openWriteDiaryPanel = () => {
+  showDiaryPicker.value = false
+  diaryList.value = []
+  showTestPicker.value = false
+  testList.value = []
+  showDiaryPanel.value = true
 }
 
 // 选择测评发给AI
@@ -1206,13 +1236,10 @@ watch(inputText, saveDraft)
 
 onMounted(async () => {
   loadUserInfo()
-  // 会话与消息统一从后端加载：不再读本地快照，也不会被后端历史覆盖
+  // 会话列表从后端加载（左侧历史列表可用）；当前会话故意留空：
+  // 进入页面默认显示欢迎页，而不是自动续上一次的聊天记录；
+  // 历史会话仍可从左侧列表点进去，真正发消息时 ensureSession 懒创建新会话
   await loadSessions()
-  if (sessions.value.length > 0) {
-    await switchSession(sessions.value[0].sessionId)
-  } else {
-    await createNewSession()
-  }
   // 监听 localStorage 变化（跨页面同步头像、头像框）
   window.addEventListener('storage', handleStorageChange)
   // 同标签页内 Profile 保存后立刻同步
@@ -1246,6 +1273,26 @@ onUnmounted(() => {
   background: linear-gradient(180deg, color-mix(in srgb, var(--c-main) 20%, #fff) 0%, var(--c-bg1) 100%);
   overflow: hidden;
   box-sizing: border-box;
+
+  /* ===== 主题派生色：整页颜色从主题变量派生，换主题色/深色模式时自动跟随，
+     不再写死粉蓝。--c-main 浅主色 / --c-hex 深主色，都用 color-mix 兑白/兑透明 ===== */
+  --ai-grad-soft: linear-gradient(135deg,
+      color-mix(in srgb, var(--c-main) 24%, #fff),
+      color-mix(in srgb, var(--c-hex) 14%, #fff));                    /* 浅渐变（卡片/气泡底） */
+  --ai-grad-soft-80: linear-gradient(135deg,
+      color-mix(in srgb, var(--c-main) 24%, var(--c-surface-weak)),
+      color-mix(in srgb, var(--c-hex) 14%, var(--c-surface-weak)));
+  --ai-grad-soft-90: linear-gradient(135deg,
+      color-mix(in srgb, var(--c-main) 24%, rgba(255, 255, 255, 0.9)),
+      color-mix(in srgb, var(--c-hex) 14%, rgba(255, 255, 255, 0.9)));
+  --ai-grad-strong: linear-gradient(135deg,
+      color-mix(in srgb, var(--c-main) 72%, #fff),
+      color-mix(in srgb, var(--c-hex) 68%, #fff));                    /* 深渐变（用户气泡/主按钮） */
+  --ai-accent: color-mix(in srgb, var(--c-hex) 85%, #444);            /* 强调文字/图标 */
+  --ai-line: color-mix(in srgb, var(--c-main) 55%, #fff);             /* 浅描边 */
+  --ai-shadow: color-mix(in srgb, var(--c-main) 34%, transparent);   /* 主题色柔光投影 */
+  --ai-chip: color-mix(in srgb, var(--c-hex) 10%, transparent);      /* 按钮淡底 */
+  --ai-chip-strong: color-mix(in srgb, var(--c-hex) 20%, transparent);
 }
 
 /* ========== 侧边栏 ========== */
@@ -1253,7 +1300,7 @@ onUnmounted(() => {
   width: 260px;
   min-width: 260px;
   background: var(--c-bg1);
-  border-right: 1px solid rgba(111, 163, 106, 0.15);
+  border-right: 1px solid var(--ai-chip);
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
@@ -1270,7 +1317,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 50px 12px 16px;
-  border-bottom: 1px solid rgba(111, 163, 106, 0.1);
+  border-bottom: 1px solid var(--ai-chip);
 }
 
 .new-chat-btn {
@@ -1293,7 +1340,7 @@ onUnmounted(() => {
 
 .new-chat-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(111, 163, 106, 0.4);
+  box-shadow: 0 4px 12px var(--ai-shadow);
 }
 
 .plus-icon {
@@ -1305,7 +1352,7 @@ onUnmounted(() => {
   width: 28px;
   height: 28px;
   border: none;
-  background: rgba(111, 163, 106, 0.1);
+  background: var(--ai-chip);
   border-radius: 8px;
   cursor: pointer;
   color: var(--c-hex);
@@ -1318,7 +1365,7 @@ onUnmounted(() => {
 }
 
 .toggle-btn:hover {
-  background: rgba(111, 163, 106, 0.2);
+  background: var(--ai-chip-strong);
 }
 
 .session-list {
@@ -1329,7 +1376,7 @@ onUnmounted(() => {
 
 .session-list::-webkit-scrollbar { width: 4px; }
 .session-list::-webkit-scrollbar-thumb {
-  background: rgba(111, 163, 106, 0.3);
+  background: var(--ai-chip-strong);
   border-radius: 2px;
 }
 
@@ -1343,11 +1390,11 @@ onUnmounted(() => {
 }
 
 .session-item:hover {
-  background: rgba(111, 163, 106, 0.12);
+  background: var(--ai-chip);
 }
 
 .session-item.active {
-  background: rgba(111, 163, 106, 0.2);
+  background: var(--ai-chip-strong);
   border-left: 3px solid var(--c-hex);
 }
 
@@ -1388,9 +1435,9 @@ onUnmounted(() => {
 /* 右键菜单 */
 .context-menu {
   position: fixed;
-  background: #fff;
+  background: var(--c-surface-solid);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px var(--c-shadow-soft);
   padding: 4px;
   z-index: 1000;
   min-width: 120px;
@@ -1429,9 +1476,9 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 18px 28px;
-  background: linear-gradient(135deg, rgba(253, 231, 238, 0.9) 0%, rgba(205, 232, 248, 0.9) 100%);
+  background: var(--ai-grad-soft-90);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid var(--c-surface-line);
 }
 
 .header-left {
@@ -1452,7 +1499,7 @@ onUnmounted(() => {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  background: linear-gradient(135deg, #e879a0, #7ba8d8);
+  background: linear-gradient(135deg, var(--c-main), var(--c-hex));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1461,7 +1508,7 @@ onUnmounted(() => {
 .header-sub {
   margin: 0;
   font-size: 13px;
-  color: #8a8a9a;
+  color: var(--c-text-weak);
 }
 
 .header-right {
@@ -1475,7 +1522,7 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border: none;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--c-surface-weak);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -1486,7 +1533,7 @@ onUnmounted(() => {
 }
 
 .export-btn:hover {
-  background: rgba(111, 163, 106, 0.15);
+  background: var(--ai-chip);
   transform: scale(1.1);
 }
 
@@ -1496,7 +1543,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 6px 16px 6px 8px;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--c-surface-weak);
   border-radius: 28px;
 }
 
@@ -1515,8 +1562,8 @@ onUnmounted(() => {
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--c-surface-solid);
+  box-shadow: 0 2px 6px var(--c-shadow-soft);
   position: relative;
   z-index: 1;
   display: block;
@@ -1542,7 +1589,7 @@ onUnmounted(() => {
 .user-name {
   font-size: 14px;
   font-weight: 600;
-  color: #4b5563;
+  color: var(--c-text);
 }
 
 .status-badge {
@@ -1550,7 +1597,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--c-surface-weak);
   border-radius: 20px;
 }
 
@@ -1570,7 +1617,7 @@ onUnmounted(() => {
 
 .online-text {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--c-text-weak);
   font-weight: 500;
 }
 
@@ -1586,7 +1633,7 @@ onUnmounted(() => {
 
 .chat-messages::-webkit-scrollbar { width: 6px; }
 .chat-messages::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #f8c9d8, #cde8f8);
+  background: var(--ai-grad-strong);
   border-radius: 3px;
 }
 
@@ -1614,13 +1661,13 @@ onUnmounted(() => {
 .welcome-box h3 {
   margin: 0 0 8px;
   font-size: 20px;
-  color: #374151;
+  color: var(--c-text);
 }
 
 .welcome-box > p {
   margin: 0 0 24px;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--c-text-weak);
 }
 
 .quick-questions {
@@ -1634,8 +1681,8 @@ onUnmounted(() => {
   padding: 8px 18px;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(253, 231, 238, 0.8), rgba(205, 232, 248, 0.8));
-  color: #6b7280;
+  background: var(--ai-grad-soft-80);
+  color: var(--c-text-weak);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.25s;
@@ -1643,8 +1690,8 @@ onUnmounted(() => {
 
 .quick-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(248, 201, 216, 0.3);
-  color: #e879a0;
+  box-shadow: 0 4px 12px var(--ai-shadow);
+  color: var(--ai-accent);
 }
 
 /* 欢迎区域功能入口 */
@@ -1663,18 +1710,18 @@ onUnmounted(() => {
   padding: 12px 24px;
   border: none;
   border-radius: 24px;
-  background: linear-gradient(135deg, #fde7ee, #cde8f8);
-  color: #4b5563;
+  background: var(--ai-grad-soft);
+  color: var(--c-text);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(248, 201, 216, 0.2);
+  box-shadow: 0 4px 12px var(--ai-shadow);
 }
 
 .action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(248, 201, 216, 0.35);
+  box-shadow: 0 6px 16px var(--ai-shadow);
 }
 
 .action-icon {
@@ -1697,9 +1744,9 @@ onUnmounted(() => {
 .diary-panel {
   width: 100%;
   max-width: 520px;
-  background: #fff;
+  background: var(--c-surface-solid);
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px var(--c-shadow-soft);
   overflow: hidden;
 }
 
@@ -1708,24 +1755,24 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: linear-gradient(135deg, #fde7ee, #cde8f8);
+  background: var(--ai-grad-soft);
 }
 
 .diary-panel-header h4 {
   margin: 0;
   font-size: 16px;
-  color: #4b5563;
+  color: var(--c-text);
 }
 
 .close-btn {
   width: 28px;
   height: 28px;
   border: none;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--c-surface-weak);
   border-radius: 50%;
   cursor: pointer;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--c-text-weak);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1733,8 +1780,8 @@ onUnmounted(() => {
 }
 
 .close-btn:hover {
-  background: #fff;
-  color: #e879a0;
+  background: var(--c-surface-solid);
+  color: var(--ai-accent);
 }
 
 .diary-form {
@@ -1744,12 +1791,12 @@ onUnmounted(() => {
 .form-label {
   font-size: 14px;
   font-weight: 600;
-  color: #4b5563;
+  color: var(--c-text);
   margin-bottom: 10px;
 }
 
 .form-label .required {
-  color: #e879a0;
+  color: var(--ai-accent);
 }
 
 .emotion-picker {
@@ -1780,8 +1827,8 @@ onUnmounted(() => {
 
 .emo-item.active {
   opacity: 1;
-  border-color: #e879a0;
-  box-shadow: 0 4px 12px rgba(232, 121, 160, 0.3);
+  border-color: var(--ai-accent);
+  box-shadow: 0 4px 12px var(--ai-shadow);
 }
 
 .emo-item img {
@@ -1791,7 +1838,7 @@ onUnmounted(() => {
 
 .emo-item span {
   font-size: 12px;
-  color: #4b5563;
+  color: var(--c-text);
   font-weight: 500;
 }
 
@@ -1802,7 +1849,7 @@ onUnmounted(() => {
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.6;
-  color: #374151;
+  color: var(--c-text);
   resize: vertical;
   min-height: 100px;
   outline: none;
@@ -1812,11 +1859,11 @@ onUnmounted(() => {
 }
 
 .diary-textarea:focus {
-  border-color: #f8c9d8;
+  border-color: var(--ai-line);
 }
 
 .diary-textarea::placeholder {
-  color: #c0c0cc;
+  color: var(--c-text-weak);
 }
 
 .diary-panel-footer {
@@ -1824,15 +1871,15 @@ onUnmounted(() => {
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 20px;
-  background: #fafafa;
-  border-top: 1px solid #f0f0f0;
+  background: var(--c-bg1);
+  border-top: 1px solid var(--c-border);
 }
 
 .cancel-btn {
   padding: 8px 20px;
   border: 1px solid var(--c-border-strong);
-  background: #fff;
-  color: #6b7280;
+  background: var(--c-surface-solid);
+  color: var(--c-text-weak);
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
@@ -1846,7 +1893,7 @@ onUnmounted(() => {
 .submit-diary-btn {
   padding: 8px 20px;
   border: none;
-  background: linear-gradient(135deg, #f8c9d8, #e8a0c0);
+  background: var(--ai-grad-strong);
   color: #fff;
   border-radius: 20px;
   cursor: pointer;
@@ -1857,7 +1904,7 @@ onUnmounted(() => {
 
 .submit-diary-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(248, 201, 216, 0.4);
+  box-shadow: 0 4px 12px var(--ai-shadow);
 }
 
 .submit-diary-btn:disabled {
@@ -1867,9 +1914,9 @@ onUnmounted(() => {
 
 /* 底部选择面板 */
 .bottom-picker-panel {
-  background: #fff;
+  background: var(--c-surface-solid);
   border-radius: 16px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 20px var(--c-shadow-soft);
   margin-bottom: 12px;
   overflow: hidden;
   max-height: 300px;
@@ -1882,13 +1929,13 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: linear-gradient(135deg, #fde7ee, #cde8f8);
+  background: var(--ai-grad-soft);
 }
 
 .picker-panel-header h4 {
   margin: 0;
   font-size: 16px;
-  color: #4b5563;
+  color: var(--c-text);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1915,7 +1962,7 @@ onUnmounted(() => {
 .loading-tip, .empty-tip {
   text-align: center;
   padding: 24px 20px;
-  color: #9ca3af;
+  color: var(--c-text-weak);
   font-size: 14px;
 }
 
@@ -1926,7 +1973,7 @@ onUnmounted(() => {
 .link-btn {
   background: none;
   border: none;
-  color: #e879a0;
+  color: var(--ai-accent);
   font-size: 14px;
   cursor: pointer;
   text-decoration: underline;
@@ -1972,7 +2019,7 @@ onUnmounted(() => {
   justify-content: center;
   font-size: 22px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #fde7ee, #cde8f8);
+  background: var(--ai-grad-soft);
 }
 
 .item-content {
@@ -1982,7 +2029,7 @@ onUnmounted(() => {
 
 .item-text {
   font-size: 14px;
-  color: #374151;
+  color: var(--c-text);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1992,30 +2039,30 @@ onUnmounted(() => {
 
 .item-date {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--c-text-weak);
   margin-top: 4px;
 }
 
 .item-title {
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--c-text);
   margin-bottom: 4px;
 }
 
 .item-desc {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--c-text-weak);
 }
 
 .item-arrow {
-  color: #d1d5db;
+  color: var(--c-border-strong);
   font-size: 18px;
   flex-shrink: 0;
 }
 
 .picker-item:hover .item-arrow {
-  color: #e879a0;
+  color: var(--ai-accent);
 }
 
 /* 消息气泡 */
@@ -2037,7 +2084,7 @@ onUnmounted(() => {
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(135deg, #fde7ee, #cde8f8);
+  background: var(--ai-grad-soft);
   padding: 2px;
 }
 
@@ -2110,17 +2157,17 @@ onUnmounted(() => {
 }
 
 .msg-item.ai .msg-bubble {
-  background: #fff;
+  background: var(--c-surface-solid);
   border-top-left-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-  color: #374151;
+  box-shadow: 0 2px 10px var(--c-shadow-soft);
+  color: var(--c-text);
 }
 
 .msg-item.user .msg-bubble {
-  background: linear-gradient(135deg, #f8c9d8, #e8a0c0);
+  background: var(--ai-grad-strong);
   border-top-right-radius: 6px;
   color: #fff;
-  box-shadow: 0 2px 10px rgba(248, 201, 216, 0.3);
+  box-shadow: 0 2px 10px var(--ai-shadow);
 }
 
 .msg-content { white-space: pre-wrap; }
@@ -2157,7 +2204,7 @@ onUnmounted(() => {
   gap: 6px;
   margin-top: 8px;
   padding-top: 6px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid var(--c-border);
 }
 
 .msg-action-btn {
@@ -2166,7 +2213,7 @@ onUnmounted(() => {
   gap: 4px;
   padding: 4px 10px;
   border: none;
-  background: rgba(111, 163, 106, 0.1);
+  background: var(--ai-chip);
   border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
@@ -2175,7 +2222,7 @@ onUnmounted(() => {
 }
 
 .msg-action-btn:hover {
-  background: rgba(111, 163, 106, 0.2);
+  background: var(--ai-chip-strong);
   transform: translateY(-1px);
 }
 
@@ -2187,7 +2234,7 @@ onUnmounted(() => {
   gap: 6px;
   margin-top: 10px;
   padding-top: 8px;
-  border-top: 1px dashed rgba(111, 163, 106, 0.2);
+  border-top: 1px dashed var(--ai-chip-strong);
 }
 
 .rec-label {
@@ -2198,7 +2245,7 @@ onUnmounted(() => {
 .rec-tag {
   display: inline-block;
   padding: 4px 10px;
-  background: linear-gradient(135deg, rgba(111, 163, 106, 0.15), rgba(61, 92, 50, 0.1));
+  background: linear-gradient(135deg, var(--ai-chip), transparent);
   color: var(--c-text);
   font-size: 12px;
   border-radius: 10px;
@@ -2208,9 +2255,9 @@ onUnmounted(() => {
 }
 
 .rec-tag:hover {
-  background: linear-gradient(135deg, rgba(111, 163, 106, 0.3), rgba(61, 92, 50, 0.2));
+  background: linear-gradient(135deg, var(--ai-chip-strong), var(--ai-chip));
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(111, 163, 106, 0.2);
+  box-shadow: 0 2px 6px var(--ai-shadow);
 }
 
 /* 正在输入 */
@@ -2243,9 +2290,9 @@ onUnmounted(() => {
 /* 底部输入区域 */
 .chat-input-area {
   padding: 12px 28px 16px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--c-surface-weak);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(248, 201, 216, 0.3);
+  border-top: 1px solid var(--ai-line);
 }
 
 /* 快捷功能栏 */
@@ -2260,21 +2307,21 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border: 1px solid rgba(248, 201, 216, 0.4);
-  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--ai-line);
+  background: var(--c-surface-weak);
   border-radius: 18px;
   cursor: pointer;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--c-text-weak);
   transition: all 0.25s;
 }
 
 .quick-action-btn:hover {
-  background: linear-gradient(135deg, #fde7ee, #cde8f8);
-  color: #e879a0;
+  background: var(--ai-grad-soft);
+  color: var(--ai-accent);
   border-color: transparent;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(248, 201, 216, 0.3);
+  box-shadow: 0 2px 8px var(--ai-shadow);
 }
 
 .qa-icon {
@@ -2291,11 +2338,11 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  background: #fff;
+  background: var(--c-surface-solid);
   border-radius: 24px;
   padding: 10px 10px 10px 14px;
-  box-shadow: 0 2px 12px rgba(248, 201, 216, 0.15);
-  border: 1px solid rgba(248, 201, 216, 0.3);
+  box-shadow: 0 2px 12px var(--ai-shadow);
+  border: 1px solid var(--ai-line);
 }
 
 /* 语音按钮 */
@@ -2303,7 +2350,7 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border: none;
-  background: rgba(111, 163, 106, 0.1);
+  background: var(--ai-chip);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -2315,7 +2362,7 @@ onUnmounted(() => {
 }
 
 .image-btn:hover {
-  background: rgba(111, 163, 106, 0.2);
+  background: var(--ai-chip-strong);
   transform: scale(1.1);
 }
 
@@ -2323,7 +2370,7 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border: none;
-  background: rgba(111, 163, 106, 0.1);
+  background: var(--ai-chip);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -2336,7 +2383,7 @@ onUnmounted(() => {
 }
 
 .voice-btn:hover {
-  background: rgba(111, 163, 106, 0.2);
+  background: var(--ai-chip-strong);
   transform: scale(1.1);
 }
 
@@ -2411,7 +2458,7 @@ onUnmounted(() => {
   outline: none;
   resize: none;
   font-size: 15px;
-  color: #374151;
+  color: var(--c-text);
   background: transparent;
   line-height: 1.5;
   max-height: 120px;
@@ -2419,14 +2466,14 @@ onUnmounted(() => {
   min-height: 24px;
 }
 
-.chat-input::placeholder { color: #c0c0cc; }
+.chat-input::placeholder { color: var(--c-text-weak); }
 
 .send-btn {
   width: 60px;
   height: 40px;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(135deg, #f8c9d8, #e8a0c0);
+  background: var(--ai-grad-strong);
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -2440,7 +2487,7 @@ onUnmounted(() => {
 
 .send-btn:hover:not(:disabled) {
   transform: scale(1.08);
-  box-shadow: 0 4px 12px rgba(248, 201, 216, 0.4);
+  box-shadow: 0 4px 12px var(--ai-shadow);
 }
 
 .send-btn:disabled {
@@ -2452,7 +2499,7 @@ onUnmounted(() => {
   margin: 8px 0 0;
   text-align: center;
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--c-text-weak);
 }
 
 /* 响应式 */
@@ -2461,7 +2508,7 @@ onUnmounted(() => {
     position: absolute;
     z-index: 100;
     height: 100%;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 12px var(--c-shadow-soft);
   }
   .session-sidebar.collapsed {
     transform: translateX(-100%);

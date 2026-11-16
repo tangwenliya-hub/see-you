@@ -935,8 +935,8 @@ watch(diaryList, async (list) => {
   box-shadow: 
     inset 0 1px 0 rgba(255,255,255,0.6),
     inset 0 -1px 0 rgba(0,0,0,0.05),
-    0 8px 24px rgba(100, 140, 90, 0.18),
-    0 2px 6px rgba(100, 140, 90, 0.1);
+    0 8px 24px color-mix(in srgb, var(--c-hex) 22%, transparent),
+    0 2px 6px color-mix(in srgb, var(--c-hex) 12%, transparent);
   position: relative;
   overflow: hidden;
   border-radius: 0;
@@ -1135,7 +1135,7 @@ watch(diaryList, async (list) => {
 
 .save-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(110, 180, 100, 0.45);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--c-hex) 45%, transparent);
 }
 .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -1429,7 +1429,7 @@ watch(diaryList, async (list) => {
   font-weight: 600;
   letter-spacing: 1px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(100,140,90,0.15);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--c-hex) 15%, transparent);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1439,7 +1439,7 @@ watch(diaryList, async (list) => {
 }
 .write-fab:hover { 
   transform: translateY(-2px); 
-  box-shadow: 0 4px 12px rgba(100,140,90,0.25);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 25%, transparent);
   background: #fff;
 }
 .fab-icon { width: 18px; height: 18px; object-fit: contain; }
@@ -1449,10 +1449,10 @@ watch(diaryList, async (list) => {
 .title-icon.lg { width: 52px; height: 52px; vertical-align: -14px; }
 .card-icon { width: 22px; height: 22px; object-fit: contain; vertical-align: middle; margin-right: 4px; }
 .card-icon.sm { width: 16px; height: 16px; }
-.write-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(110,180,100,0.45); }
+.write-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 24px color-mix(in srgb, var(--c-hex) 45%, transparent); }
 /* 导出按钮：同款胶囊的弱化版 */
 .write-fab.ghost-fab { font-weight: 500; color: var(--c-text-weak); }
-.write-fab.ghost-fab:hover { box-shadow: 0 6px 16px rgba(110,180,100,0.25); }
+.write-fab.ghost-fab:hover { box-shadow: 0 6px 16px color-mix(in srgb, var(--c-hex) 25%, transparent); }
 
 /* ===== 双栏布局 ===== */
 .top-grid {
@@ -1754,7 +1754,7 @@ watch(diaryList, async (list) => {
 }
 .cal-today-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(140,194, 105,0.4);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--c-hex) 40%, transparent);
 }
 
 /* 日历格子恢复正常尺寸（之前调大过数字） */
@@ -1920,10 +1920,10 @@ watch(diaryList, async (list) => {
   background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff;
   font-size: 15px; font-weight: 600; letter-spacing: 3px;
   cursor: pointer; transition: all 0.25s;
-  box-shadow: 0 4px 16px rgba(110,180,100,0.35);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--c-hex) 35%, transparent);
 }
 .sf-save-btn:hover:not(:disabled) {
-  transform: translateY(-2px); box-shadow: 0 8px 24px rgba(110,180,100,0.45);
+  transform: translateY(-2px); box-shadow: 0 8px 24px color-mix(in srgb, var(--c-hex) 45%, transparent);
 }
 .sf-save-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
 

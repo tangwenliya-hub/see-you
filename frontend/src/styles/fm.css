@@ -25,7 +25,7 @@
   font-size: 13px; outline: none; width: 200px;
   transition: all 0.25s;
 }
-.fm-page .fm-search input:focus { border-color: var(--c-hex); box-shadow: 0 0 0 4px rgba(140, 194, 105, 0.15); }
+.fm-page .fm-search input:focus { border-color: var(--c-hex); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-hex) 15%, transparent); }
 .fm-page .cat-tab {
   padding: 8px 22px; background: #fff;
   border-radius: 22px; font-size: 14px; color: #8b8b8b;

@@ -56,6 +56,25 @@
       </div>
     </section>
 
+    <!-- ===== AI 情绪周报 ===== -->
+    <section class="panel glass wr-panel">
+      <div class="panel-head">
+        <h2><AppIcon name="bot" /> AI 情绪周报</h2>
+        <span class="panel-tip">近 7 天日记与生活数据的 AI 回顾 · {{ wrMeta }}</span>
+        <button class="wr-refresh" :disabled="wrLoading" @click="loadWeeklyReport(true)">
+          <template v-if="wrLoading">生成中…</template>
+          <template v-else><AppIcon name="refresh" /> {{ wrReport ? '换一份' : '生成周报' }}</template>
+        </button>
+      </div>
+      <div v-if="wrLoading" class="wr-body wr-hint">AI 正在翻看你这一周的日记，稍等片刻…</div>
+      <div v-else-if="wrErr" class="wr-body wr-hint">{{ wrErr }}</div>
+      <div v-else-if="wrReport" class="wr-body wr-content">{{ wrReport }}</div>
+      <div v-else class="wr-body wr-hint">
+        还没有生成过周报。点右上角「生成周报」，AI 会回顾你近 7 天的日记，写一份只属于你的小结。
+      </div>
+      <p class="wr-disclaimer">周报由 AI 生成，仅为情绪记录的回顾与陪伴参考，不构成任何医疗建议。</p>
+    </section>
+
     <!-- ===== 年度打卡热力图 ===== -->
     <section class="panel glass">
       <div class="panel-head">
@@ -251,6 +270,7 @@ import {
   getOverview, getResourceStats, getVideoRank,
 } from '../api'
 import { getSenseTimeline, getSenseAccuracy, getSenseCorrelation } from '../api/sense'
+import { getWeeklyReport } from '../api/ai'
 import { useUserStore } from '../stores/user'
 import { isAdminFromServer } from '../router'
 
@@ -299,6 +319,38 @@ const heatRamp = () => {
 // 情绪字典唯一真源（utils/constants.js），color 字段用于图表配色
 
 const loading = ref(true)
+
+// ===== AI 情绪周报 =====
+// 静默预取缓存：进页面就拉一次（refresh=false），后端有缓存就秒回，没有就保持空态等用户手动生成；
+// 后端未配 AI_API_KEY / 本周没日记 → 业务 code 400，透出 msg 当提示，不算页面故障（不进 loadErr）。
+const wrReport = ref('')
+const wrLoading = ref(false)
+const wrErr = ref('')
+const wrCount = ref(0)
+const wrMeta = computed(() => (wrCount.value ? `本次纳入 ${wrCount.value} 篇日记` : ''))
+
+const loadWeeklyReport = async (refresh = false) => {
+  wrLoading.value = true
+  wrErr.value = ''
+  try {
+    const res = await getWeeklyReport(refresh)
+    if (res?.code === 200 && res.data?.content) {
+      wrReport.value = res.data.content
+      wrCount.value = res.data.diaryCount || 0
+    } else if (res?.code !== 200) {
+      wrReport.value = ''
+      wrErr.value = res?.msg || '周报暂时生成不了，稍后再试试'
+    } else {
+      wrReport.value = ''
+    }
+  } catch {
+    // 网络/超时失败保持空态即可：周报是加分项，不该在看板上报警
+    wrReport.value = ''
+    if (refresh) wrErr.value = '网络不给力，稍后再试试'
+  } finally {
+    wrLoading.value = false
+  }
+}
 
 // ===== 加载失败提示（原来 catch 静默吞掉，接口挂了用户完全无感知）=====
 const loadErr = ref('')
@@ -1112,6 +1164,8 @@ onMounted(async () => {
   window.addEventListener('profile-updated', onThemeChanged)
   // 向服务端确认一次管理员身份（结果 30 秒内缓存，不会每次都请求）
   isAdmin.value = (await isAdminFromServer(useUserStore().token)) === true
+  // AI 周报缓存预取（有缓存就显示，没缓存保持空态；失败静默，不打扰看板主体）
+  loadWeeklyReport(false)
 })
 
 onBeforeUnmount(() => {
@@ -1295,5 +1349,36 @@ onBeforeUnmount(() => {
   /* 无感扩展：窄屏下高度用 clamp() 收一收，避免一屏塞太多图 */
   .beh-heat-chart { height: clamp(240px, 58vw, 300px); }
   .chart-empty, .chart-note { font-size: 11.5px; }
+}
+
+/* ===== AI 情绪周报 ===== */
+.wr-panel .panel-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.wr-panel .panel-tip { flex: 1; min-width: 180px; }
+.wr-refresh {
+  padding: 7px 16px; border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--p-hex) 55%, transparent);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--p-hex); font-size: 13px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.22s;
+}
+.wr-refresh:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px color-mix(in srgb, var(--p-main) 30%, transparent); }
+.wr-refresh:disabled { opacity: 0.55; cursor: not-allowed; }
+.wr-body {
+  padding: 6px 4px 0;
+  font-size: 14px; line-height: 2;
+  white-space: pre-wrap;
+  color: var(--c-text, #444);
+}
+.wr-hint { color: var(--c-text-weak, #999); font-size: 13px; }
+.wr-content { color: var(--c-text, #444); }
+.wr-disclaimer {
+  margin: 10px 0 0; padding-top: 8px;
+  border-top: 1px dashed color-mix(in srgb, var(--p-hex) 25%, transparent);
+  font-size: 11px; color: var(--c-text-weak, #aaa); line-height: 1.6;
+}
+@media (max-width: 700px) {
+  .wr-body { font-size: 13px; }
+  .wr-refresh { flex: 1 1 100%; justify-content: center; min-height: 40px; }
 }
 </style>

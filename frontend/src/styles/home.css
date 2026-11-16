@@ -237,7 +237,7 @@
     line-height: 1.25;
     font-weight: 700;
     letter-spacing: 1px;
-    color: #3d5145;
+    color: var(--c-ink);
 }
 .hp-root .hero-name {
     background: linear-gradient(100deg, var(--c-hex), color-mix(in srgb, var(--c-hex) 45%, #ff9bb5));
@@ -349,7 +349,7 @@
     background: color-mix(in srgb, var(--ip) 38%, white);
     box-shadow: 0 8px 16px -8px color-mix(in srgb, var(--ip) 80%, transparent);
 }
-.hp-root .ip-btn:hover b { color: #3d5145; }
+.hp-root .ip-btn:hover b { color: var(--c-ink); }
 .hp-root .ip-cancel {
     flex: 0 0 30px;
     border: none;
@@ -511,7 +511,7 @@
     font-size: clamp(22px, 2.4vw, 30px);
     font-weight: 700;
     letter-spacing: 1px;
-    color: #3d5145;
+    color: var(--c-ink);
 }
 .hp-root .sec-sub { margin-top: 8px; font-size: 13.5px; color: #9aa39d; }
 .hp-root .sec-side { display: flex; align-items: center; gap: 14px; }
@@ -567,7 +567,7 @@
 }
 .hp-root .card:hover { transform: translateY(-6px); box-shadow: 0 30px 56px -26px rgba(126, 116, 148, 0.42); }
 .hp-root .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.hp-root .card-head h3 { font-size: 16.5px; font-weight: 700; color: #3d5145; letter-spacing: 0.5px; }
+.hp-root .card-head h3 { font-size: 16.5px; font-weight: 700; color: var(--c-ink); letter-spacing: 0.5px; }
 .hp-root .tag {
     font-size: 11.5px;
     padding: 5px 12px;
@@ -649,7 +649,7 @@
 .hp-root .whisper-text { font-size: 13.5px; line-height: 1.9; color: #66736c; }
 /* 未登录引导卡 */
 .hp-root .guest-card { text-align: center; padding: 46px 30px; }
-.hp-root .guest-card h3 { font-size: 19px; color: #3d5145; margin-bottom: 12px; }
+.hp-root .guest-card h3 { font-size: 19px; color: var(--c-ink); margin-bottom: 12px; }
 .hp-root .guest-desc { font-size: 13.5px; line-height: 1.9; color: #8a9490; max-width: 520px; margin: 0 auto 22px; }
 .hp-root .guest-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 /* ---------- 推荐 Tab ---------- */
@@ -716,7 +716,7 @@
 .hp-root .rec-title {
     font-size: 14.5px;
     font-weight: 700;
-    color: #3d5145;
+    color: var(--c-ink);
     margin-bottom: 5px;
     white-space: nowrap;
     overflow: hidden;
@@ -808,7 +808,7 @@
     filter: drop-shadow(0 10px 16px rgba(126, 116, 148, 0.22));
     animation: floaty 5s ease-in-out infinite;
 }
-.hp-root .hc-title { font-size: clamp(17px, 2vw, 22px); font-weight: 700; color: #3d5145; letter-spacing: 1px; }
+.hp-root .hc-title { font-size: clamp(17px, 2vw, 22px); font-weight: 700; color: var(--c-ink); letter-spacing: 1px; }
 .hp-root .hc-slogan { margin-top: 10px; font-size: 13.5px; color: #7d8a82; }
 .hp-root .hc-links { display: flex; justify-content: center; gap: 18px; margin: 20px 0 16px; }
 .hp-root .hc-links a { font-size: 13px; color: var(--c-hex); text-decoration: none; }

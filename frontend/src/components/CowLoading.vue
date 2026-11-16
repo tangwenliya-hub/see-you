@@ -102,8 +102,8 @@ const IMG_SIZE = { lg: 200, md: 138, sm: 92 }
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: radial-gradient(circle, #d9ffdf 0%, #66e07a 55%, rgba(102, 224, 122, 0) 100%);
-  box-shadow: 0 0 10px 3px rgba(102, 224, 122, 0.5);
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-hex) 22%, #ffffff) 0%, var(--c-hex) 55%, transparent 100%);
+  box-shadow: 0 0 10px 3px color-mix(in srgb, var(--c-hex) 50%, transparent);
 }
 .cow-orbit span:nth-child(1) { top: -3px; left: 50%; transform: translateX(-50%); }
 .cow-orbit span:nth-child(2) { top: 22%; right: -3px; width: 9px; height: 9px; }
@@ -116,8 +116,8 @@ const IMG_SIZE = { lg: 200, md: 138, sm: 92 }
   inset: -6px;
   border-radius: 50%;
   border: 3px solid transparent;
-  border-bottom-color: rgba(102, 224, 122, 0.6);
-  border-top-color: rgba(102, 224, 122, 0.22);
+  border-bottom-color: color-mix(in srgb, var(--c-hex) 60%, transparent);
+  border-top-color: color-mix(in srgb, var(--c-hex) 22%, transparent);
   animation: cow-spin 2.8s linear infinite;
 }
 

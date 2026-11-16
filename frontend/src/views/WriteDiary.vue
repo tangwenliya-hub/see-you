@@ -143,6 +143,29 @@
         <span class="sf-counter">{{ form.content.length }}/300</span>
       </div>
 
+      <!-- AI 生活助手：润色 / 语音输入（贴近生活的小入口：懒得打字就说，写得糙就润） -->
+      <div class="sf-ai-row">
+        <button class="sf-ai-tool" :disabled="polishing || recording || transcribing || !form.content.trim()" @click="polishContent" title="把随手写的流水账整理成通顺日记（原文先不动，确认后才替换）">
+          <span v-if="polishing">润色中…</span><span v-else><AppIcon name="wand" /> AI 润色</span>
+        </button>
+        <button class="sf-ai-tool" :class="{ recording: recording }" :disabled="polishing || transcribing" @click="toggleRecord" :title="recording ? '点击停止录音' : '对着麦克风说一段话，自动转成文字'">
+          <span v-if="recording"><AppIcon name="stop" /> 停止录音（{{ recordSeconds }}s）</span>
+          <span v-else-if="transcribing">识别中…</span>
+          <span v-else><AppIcon name="mic" /> 语音输入</span>
+        </button>
+      </div>
+      <p v-if="aiTip" class="sf-ai-tip">{{ aiTip }}</p>
+
+      <!-- 润色结果预览：确认采用才替换正文，原文永远先不动 -->
+      <div v-if="polishResult" class="sf-polish-box">
+        <b><AppIcon name="sparkles" /> AI 润色草稿</b>
+        <p class="sf-polish-text">{{ polishResult }}</p>
+        <div class="sf-polish-actions">
+          <button class="sf-polish-use" @click="usePolished"><AppIcon name="check" /> 采用并替换</button>
+          <button class="sf-polish-deny" @click="polishResult = ''">不用了</button>
+        </div>
+      </div>
+
       <!-- 图片上传 -->
       <div class="sf-block">
         <label class="sf-label">图片 <span class="sf-opt">· 可选</span></label>
@@ -183,6 +206,8 @@ import {
   getTodayPrediction, generatePrediction, analyzeText,
   confirmPrediction, rejectPrediction, getSenseConfig,
 } from '../api/sense'
+import { polishDiary as apiPolishDiary, voiceToText } from '../api/ai'
+import { startWavRecorder } from '../utils/voiceRecorder'
 
 const router = useRouter()
 const route = useRoute()
@@ -358,6 +383,106 @@ async function scanText() {
   }
 }
 
+// ==================== AI 生活助手：润色 / 语音输入 ====================
+// 设计原则与无感推测一致：AI 只产出「草稿」，采用与否永远由用户决定；
+// 润色结果和语音转写都只停留在编辑器里，不落库、不留痕。
+
+const polishing = ref(false)
+const polishResult = ref('')      // 润色草稿（确认采用前原文不动）
+const transcribing = ref(false)
+const recording = ref(false)
+const recordSeconds = ref(0)
+const aiTip = ref('')
+let recorder = null               // startWavRecorder() 返回的句柄
+let recordTimer = null
+
+/** 「AI 润色」：当前正文 → 通顺草稿，弹出预览等用户确认 */
+async function polishContent() {
+  const text = form.value.content?.trim()
+  if (!text) return
+  polishing.value = true
+  polishResult.value = ''
+  aiTip.value = ''
+  try {
+    const res = await apiPolishDiary(text)
+    if (res?.code === 200 && res.data?.content) {
+      polishResult.value = res.data.content
+    } else if (res?.code !== 200) {
+      // 拦截器对业务 code!==200 不 reject：必须显式透出后端 msg（如未配 AI_API_KEY）
+      ElMessage.warning({ message: res?.msg || '润色暂时不可用', grouping: true })
+    }
+  } catch (e) {
+    ElMessage.warning({ message: e?.response?.data?.msg || '网络错误，润色失败', grouping: true })
+  } finally {
+    polishing.value = false
+  }
+}
+
+/** 采用润色草稿：替换正文，并记住原文（点「不用了」前的后悔药） */
+function usePolished() {
+  form.value.content = polishResult.value
+  polishResult.value = ''
+  ElMessage.success({ message: '已替换成润色后的版本，你还可以继续修改', grouping: true })
+}
+
+/** 「语音输入」：点一下开始录音，再点一下停止并转文字，结果追加到正文 */
+async function toggleRecord() {
+  if (recording.value) {
+    // 停止 → 转写
+    recording.value = false
+    clearInterval(recordTimer)
+    transcribing.value = true
+    aiTip.value = '正在识别…'
+    try {
+      const wav = await recorder.stop()
+      recorder = null
+      if (!wav) {
+        aiTip.value = '这段录音没有采到声音，再说一次吧'
+        return
+      }
+      const res = await voiceToText(wav)
+      if (res?.code === 200 && res.data?.text) {
+        const text = res.data.text
+        // 已有内容就追加（中间补个空格），空着就直接填
+        form.value.content = form.value.content.trim()
+          ? form.value.content.trimEnd() + ' ' + text
+          : text
+        aiTip.value = `识别完成：「${text}」（已填入正文，可自行修改）`
+      } else if (res?.code !== 200) {
+        aiTip.value = ''
+        ElMessage.warning({ message: res?.msg || '语音识别失败', grouping: true })
+      }
+    } catch (e) {
+      aiTip.value = ''
+      ElMessage.warning({ message: e?.response?.data?.msg || '录音或识别失败，请再试一次', grouping: true })
+    } finally {
+      transcribing.value = false
+      recordSeconds.value = 0
+    }
+    return
+  }
+  // 开始录音
+  try {
+    recorder = await startWavRecorder()
+    recording.value = true
+    recordSeconds.value = 0
+    aiTip.value = '在听你说话了，说完点「停止录音」（最长 1 分钟）'
+    recordTimer = setInterval(() => {
+      recordSeconds.value++
+      // 超过 60 秒自动停，防止录出超大文件
+      if (recordSeconds.value >= 60) toggleRecord()
+    }, 1000)
+  } catch (e) {
+    recorder = null
+    ElMessage.warning({
+      message: e?.name === 'NotAllowedError'
+        ? '麦克风权限被拒绝了，请在浏览器地址栏允许麦克风后重试'
+        : '没有可用的麦克风，或当前浏览器不支持录音',
+      grouping: true,
+    })
+  }
+}
+
 /** 采用推测  预填充表单（此时仍不入库，等用户点保存） */
 function adoptSuggestion() {
   if (!suggestion.value) return
@@ -498,7 +623,7 @@ const saveDiary = async () => {
   max-width: 820px;
   border-radius: 20px;
   background: linear-gradient(120deg, rgba(255,255,255,0.85), rgba(255,255,255,0.6));
-  box-shadow: 0 6px 22px rgba(140, 194, 105, 0.14);
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--c-hex) 14%, transparent);
   backdrop-filter: blur(10px);
   box-sizing: border-box;
 }
@@ -594,7 +719,7 @@ const saveDiary = async () => {
   padding: 9px 18px; border-radius: 999px; border: none;
   background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff;
   font-size: 13.5px; font-weight: 600; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(140, 194, 105, 0.3); transition: all 0.25s;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 30%, transparent); transition: all 0.25s;
 }
 .sense-adopt:hover, .sense-guess:hover:not(:disabled) { transform: translateY(-2px); }
 .sense-ignore, .sense-textscan {
@@ -664,7 +789,7 @@ const saveDiary = async () => {
   font-size: 14px; color: var(--c-text); cursor: pointer;
   transition: all 0.22s; flex-shrink: 0;
 }
-.sf-sleep-chip:hover { transform: translateY(-2px); border-color: #b8d49a; box-shadow: 0 6px 14px color-mix(in srgb, var(--c-main) 16%, transparent); }
+.sf-sleep-chip:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--c-hex) 55%, #ffffff); box-shadow: 0 6px 14px color-mix(in srgb, var(--c-main) 16%, transparent); }
 .sf-sleep-chip.active {
   background: var(--c-hex); border-color: var(--c-hex); color: #fff; font-weight: 700;
   box-shadow: 0 4px 14px color-mix(in srgb, var(--c-main) 32%, transparent);
@@ -705,6 +830,51 @@ const saveDiary = async () => {
 .sf-textarea:focus { outline: none; border-color: var(--c-hex); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-main) 12%, transparent); }
 .sf-textarea::placeholder { color: #bbb; }
 .sf-counter { position: absolute; right: 16px; bottom: 10px; font-size: 11px; color: #bbb; }
+
+/* ===== AI 生活助手：润色 / 语音输入 ===== */
+.sf-ai-row { display: flex; flex-wrap: wrap; gap: 10px; margin: -8px 0 14px; }
+.sf-ai-tool {
+  padding: 9px 20px; border-radius: 999px;
+  border: 1.5px dashed #f0b98c; background: rgba(255, 249, 240, 0.9);
+  color: #c07a3a; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.22s;
+}
+.sf-ai-tool:hover:not(:disabled) { transform: translateY(-1px); border-style: solid; box-shadow: 0 4px 12px rgba(240, 185, 140, 0.3); }
+.sf-ai-tool:disabled { opacity: 0.55; cursor: not-allowed; }
+.sf-ai-tool.recording {
+  border-style: solid; border-color: #e879a0;
+  background: rgba(253, 231, 238, 0.95); color: #d4557f;
+  animation: sf-rec-pulse 1.4s ease-in-out infinite;
+}
+@keyframes sf-rec-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 121, 160, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(232, 121, 160, 0.12); }
+}
+.sf-ai-tip { margin: -6px 0 14px; font-size: 12px; color: #a3742a; line-height: 1.6; }
+.sf-polish-box {
+  margin: -2px 0 18px; padding: 14px 16px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(253, 231, 238, 0.85), rgba(228, 240, 251, 0.85));
+  border: 1.5px solid #f0b98c;
+}
+.sf-polish-box > b {
+  font-size: 13px; color: #c07a3a; display: flex; align-items: center; gap: 6px;
+}
+.sf-polish-text { margin: 8px 0 0; font-size: 14px; line-height: 1.9; color: #555; white-space: pre-wrap; }
+.sf-polish-actions { display: flex; gap: 10px; margin-top: 12px; }
+.sf-polish-use {
+  padding: 8px 18px; border-radius: 999px; border: none;
+  background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.22s;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.sf-polish-use:hover { transform: translateY(-1px); box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 35%, transparent); }
+.sf-polish-deny {
+  padding: 8px 18px; border-radius: 999px;
+  border: 1.5px solid var(--c-border); background: rgba(255, 255, 255, 0.9);
+  color: var(--c-text-weak); font-size: 13px; cursor: pointer; transition: all 0.22s;
+}
+.sf-polish-deny:hover { border-color: var(--c-hex); }
 
 /* 图片 */
 .sf-img-placeholder {

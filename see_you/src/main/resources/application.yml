@@ -60,6 +60,13 @@ ai:
   api-key: ${AI_API_KEY:}
   model: ${AI_MODEL:deepseek-chat}
   timeout: 15000
+  # ---- 语音识别（ASR）：写日记页「语音输入」用。默认硅基流动 SenseVoice（模型免费，注册 https://siliconflow.cn 拿 key）----
+  # ⚠️ key 必须用环境变量注入（AI_ASR_KEY），仓库里不保存任何真实 Key；未配置时语音输入不可用，其余功能不受影响。
+  #    也可换成任何 OpenAI 兼容 /v1/audio/transcriptions 转写服务（改 AI_ASR_URL / AI_ASR_MODEL 即可）。
+  asr:
+    api-url: ${AI_ASR_URL:https://api.siliconflow.cn/v1/audio/transcriptions}
+    api-key: ${AI_ASR_KEY:}
+    model: ${AI_ASR_MODEL:FunAudioLLM/SenseVoiceSmall}
 
 # JWT 签名密钥：必须外部注入。
 # 说明：之所以不给默认值，是因为"内置默认密钥"意味着任何人都能自签 token 冒充任意用户。
