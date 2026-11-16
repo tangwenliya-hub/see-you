@@ -79,6 +79,14 @@ p, li, span, td, th, div {
    这里全局隐藏，避免在 >768px 时多出一个图标；手机端在 §2.12 里放开。 */
 .hp-root .entry-item .entry-linear { display: none; }
 
+/* AI 页「选日记/选测评」面板的外层：PC 端 display:contents 让这层完全不参与布局，
+   面板保持原来的平铺卡片；手机端在 §2.28 里改成全屏遮罩+底部弹层 */
+.picker-layer { display: contents; }
+
+/* 导出按钮的「导出」文字标签：为手机端能看清按钮用途而加（用户反馈纯图标认不出），
+   PC 端保持纯图标圆形按钮，全局隐藏文字；手机端在 §2.28 里放开 */
+.export-btn .export-label { display: none; }
+
 /* ---------------------------------------------------------------------
  * 1. 平板（769px ~ 1024px）：收窄页面左右留白
  * ------------------------------------------------------------------- */
@@ -440,6 +448,10 @@ p, li, span, td, th, div {
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
+    /* 关键：标题块固定占 2 行高（2 × 1.4 行高 = 2.8em）。
+       治愈音频标题长占满 2 行、视频/测评标题短只占 1 行，导致三个 tab
+       卡片高度不一（111px vs 92px）、"播放次数"行位置参差；固定后统一 */
+    min-height: 2.8em !important;
     white-space: normal !important;
     line-height: 1.4 !important;
   }
@@ -583,9 +595,15 @@ p, li, span, td, th, div {
     flex-shrink: 0;
   }
   /* 常驻顶栏 52px 会盖住聊天顶栏和抽屉顶部：页面整体下移让位，
-     抽屉也从顶栏下方开始（Assistant.vue 自带的 absolute+height:100% 在这里重算） */
-  .ai-chat-page { padding-top: 52px !important; box-sizing: border-box !important; }
-  .ai-chat-page .session-sidebar { top: 52px !important; height: calc(100vh - 52px) !important; }
+     抽屉也从顶栏下方开始（Assistant.vue 自带的 absolute+height:100% 在这里重算）；
+     底部再把 58px 的 Tab 栏高度让出来——否则固定 Tab 栏直接压在输入区上（用户反馈「挤」） */
+  .ai-chat-page {
+    padding-top: 52px !important;
+    padding-bottom: 12px !important;
+    box-sizing: border-box !important;
+    height: calc(100vh - 58px - env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .ai-chat-page .session-sidebar { top: 52px !important; height: calc(100vh - 52px - 58px - env(safe-area-inset-bottom, 0px)) !important; }
   /* 聊天顶栏在手机上收一档，聊天区可见高度更多；
      390px 宽度下标题/用户名会被挤成一字一行竖排，隐藏次要元素 + 禁止换行。
      注意：组件里 .header-icon 带 !important 且 scoped 属性选择器权重高、注入顺序靠后，
@@ -598,6 +616,22 @@ p, li, span, td, th, div {
   .ai-chat-page .chat-header .header-sub { display: none !important; }
   .ai-chat-page .chat-header .user-name { display: none !important; }
   .ai-chat-page .chat-header .status-badge { display: none !important; }
+  /* 导出按钮：纯图标小圆圈认不出（用户反馈），手机端变带文字的绿色胶囊 */
+  .ai-chat-page .chat-header .export-btn {
+    width: auto !important;
+    height: 36px !important;
+    padding: 0 14px !important;
+    border-radius: 18px !important;
+    gap: 5px !important;
+    background: linear-gradient(135deg, var(--c-main), var(--c-hex)) !important;
+    color: #fff !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+  }
+  .ai-chat-page .chat-header .export-btn .export-label { display: inline !important; }
+  /* 头像框 40px 在 390px 顶栏里太大且头像框贴纸溢出屏幕边，收成 34px */
+  .ai-chat-page .chat-header .user-avatar-wrap,
+  .ai-chat-page .chat-header .user-avatar-mini { width: 34px !important; height: 34px !important; }
 
   /* 消息区：PC 的 24px/28px 大内边距 + msg-item 75% 限宽在手机上把气泡挤成细窄柱，
      手机端放开到 88% 并收掉留白，气泡才有一屏宽的呼吸感 */
@@ -605,8 +639,69 @@ p, li, span, td, th, div {
   .ai-chat-page .chat-messages .msg-item { max-width: 88% !important; }
   .ai-chat-page .chat-messages .msg-bubble { font-size: 14px !important; padding: 10px 13px !important; }
   .ai-chat-page .chat-messages .msg-avatar { width: 34px !important; height: 34px !important; }
-  .ai-chat-page .chat-input-area { padding: 10px 14px 14px !important; }
-  .ai-chat-page .quick-action-btn { padding: 7px 12px !important; font-size: 12.5px !important; }
+  .ai-chat-page .chat-input-area { padding: 8px 12px 8px !important; }
+  /* 输入区整体收一档（用户反馈「有点大」）：胶囊内按钮 32px、间距收紧、提示语缩小 */
+  .ai-chat-page .quick-actions-bar { gap: 8px !important; margin-bottom: 8px !important; }
+  .ai-chat-page .quick-action-btn { padding: 6px 10px !important; font-size: 12px !important; }
+  .ai-chat-page .input-wrapper { padding: 6px 6px 6px 12px !important; gap: 8px !important; border-radius: 22px !important; }
+  .ai-chat-page .image-btn,
+  .ai-chat-page .voice-btn { width: 32px !important; height: 32px !important; }
+  .ai-chat-page .image-btn svg,
+  .ai-chat-page .voice-btn svg { width: 17px !important; height: 17px !important; }
+  .ai-chat-page .chat-input { font-size: 14px !important; }
+  .ai-chat-page .chat-input-area .send-btn {
+    width: 56px !important;
+    height: 36px !important;
+    font-size: 13.5px !important;
+    border-radius: 18px !important;
+    flex-shrink: 0 !important;
+  }
+  .ai-chat-page .input-tip { font-size: 10.5px !important; margin-top: 5px !important; }
+
+  /* 写日记面板：原本内嵌在消息列表顶部（点「写日记」后开在屏幕上方看不见），
+     手机端改成底部弹层——固定铺满、半透明遮罩、点遮罩可关（Assistant.vue 配了 @click.self） */
+  .ai-chat-page .diary-panel-wrap {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important; /* 让出底部 Tab 栏 */
+    z-index: 1150 !important;
+    padding: 0 !important;
+    background: rgba(30, 42, 32, 0.38) !important;
+    align-items: flex-end !important;
+  }
+  .ai-chat-page .diary-panel {
+    max-width: 100% !important;
+    max-height: 76vh !important;
+    overflow-y: auto !important;
+    border-radius: 22px 22px 0 0 !important;
+    box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  /* 「选日记/选测评」面板：外层从 display:contents 变成全屏遮罩+底部弹层，
+     两个面板互斥（JS 已保证），出现样式和「写日记」弹层一致 */
+  .ai-chat-page .picker-layer {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important; /* 让出底部 Tab 栏 */
+    z-index: 1150 !important;
+    background: rgba(30, 42, 32, 0.38) !important;
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  .ai-chat-page .picker-layer .bottom-picker-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 68vh !important;
+    margin: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+    box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.18) !important;
+    overflow-y: auto !important;
+  }
 }
 
 /* ---------------------------------------------------------------------
