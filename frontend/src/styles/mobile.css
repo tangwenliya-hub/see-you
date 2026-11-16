@@ -444,16 +444,14 @@ p, li, span, td, th, div {
   .hp-root .rec-fallback { width: 100% !important; height: 100% !important; }
   .hp-root .rec-title {
     font-size: 13.5px !important;
-    /* 窄屏标题允许两行，省得半句话被硬截掉 */
+    /* 标题统一只显示 1 行（与桌面端一致），超出省略号截断。
+       三个 tab 卡片高度因此天然一致（92px），长标题不会把音频 tab 的卡片撑高 */
     display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
+    -webkit-line-clamp: 1 !important;
     -webkit-box-orient: vertical !important;
-    /* 关键：标题块固定占 2 行高（2 × 1.4 行高 = 2.8em）。
-       治愈音频标题长占满 2 行、视频/测评标题短只占 1 行，导致三个 tab
-       卡片高度不一（111px vs 92px）、"播放次数"行位置参差；固定后统一 */
-    min-height: 2.8em !important;
     white-space: normal !important;
     line-height: 1.4 !important;
+    overflow: hidden !important;
   }
   .hp-root .rec-desc { font-size: 12px !important; }
   .hp-root .rec-foot { padding-top: 6px !important; }
@@ -558,16 +556,16 @@ p, li, span, td, th, div {
   /* 会话列表卡片化 */
   .session-list { padding: 4px 14px 20px !important; overflow-y: auto !important; }
   .session-item {
-    background: #fff !important;
+    background: var(--c-surface-solid) !important;
     border-radius: 14px !important;
     padding: 12px 14px !important;
     margin-bottom: 10px !important;
-    box-shadow: 0 3px 10px -4px rgba(80, 100, 88, 0.25) !important;
+    box-shadow: 0 3px 10px -4px var(--c-shadow-soft) !important;
   }
   .session-item.active {
-    background: rgba(111, 163, 106, 0.12) !important;
+    background: color-mix(in srgb, var(--c-hex) 12%, transparent) !important;
     border-left: none !important;
-    box-shadow: 0 0 0 2px var(--c-main), 0 3px 10px -4px rgba(80, 100, 88, 0.25) !important;
+    box-shadow: 0 0 0 2px var(--c-main), 0 3px 10px -4px var(--c-shadow-soft) !important;
   }
   .session-title { font-size: 14px !important; font-weight: 600 !important; }
   .session-preview {
@@ -589,8 +587,8 @@ p, li, span, td, th, div {
     height: 38px;
     border: none;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.65);
-    color: var(--c-main);
+    background: var(--c-surface-weak);
+    color: var(--c-hex);
     cursor: pointer;
     flex-shrink: 0;
   }
