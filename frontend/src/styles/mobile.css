@@ -639,7 +639,13 @@ p, li, span, td, th, div {
   .ai-chat-page .chat-messages .msg-item { max-width: 88% !important; }
   .ai-chat-page .chat-messages .msg-bubble { font-size: 14px !important; padding: 10px 13px !important; }
   .ai-chat-page .chat-messages .msg-avatar { width: 34px !important; height: 34px !important; }
-  .ai-chat-page .chat-input-area { padding: 8px 12px 8px !important; }
+  .ai-chat-page .chat-input-area {
+    padding: 8px 12px 8px !important;
+    /* 关键：backdrop-filter 会把 fixed 后代（选日记/选测评弹层的遮罩）的定位
+       基准劫持成输入区自己，导致弹层困在输入区里不贴底。手机端去掉 blur，
+       背景仍是半透明白，视觉几乎无差；弹层恢复相对视口定位 */
+    backdrop-filter: none !important;
+  }
   /* 输入区整体收一档（用户反馈「有点大」）：胶囊内按钮 32px、间距收紧、提示语缩小 */
   .ai-chat-page .quick-actions-bar { gap: 8px !important; margin-bottom: 8px !important; }
   .ai-chat-page .quick-action-btn { padding: 6px 10px !important; font-size: 12px !important; }
