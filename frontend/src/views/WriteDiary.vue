@@ -828,12 +828,12 @@ const saveDiary = async () => {
 .sf-ai-row { display: flex; flex-wrap: wrap; gap: 10px; margin: -8px 0 14px; }
 .sf-ai-tool {
   padding: 9px 20px; border-radius: 999px;
-  border: 1.5px dashed #f0b98c; background: rgba(255, 249, 240, 0.9);
-  color: #c07a3a; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  border: 1.5px dashed color-mix(in srgb, var(--c-hex) 55%, #fff); background: color-mix(in srgb, var(--c-hex) 7%, #fff);
+  color: var(--c-main); font-size: 13.5px; font-weight: 600; cursor: pointer;
   display: inline-flex; align-items: center; gap: 6px;
   transition: all 0.22s;
 }
-.sf-ai-tool:hover:not(:disabled) { transform: translateY(-1px); border-style: solid; box-shadow: 0 4px 12px rgba(240, 185, 140, 0.3); }
+.sf-ai-tool:hover:not(:disabled) { transform: translateY(-1px); border-style: solid; box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 30%, transparent); }
 .sf-ai-tool:disabled { opacity: 0.55; cursor: not-allowed; }
 .sf-ai-tool.recording {
   border-style: solid; border-color: #e879a0;
@@ -844,14 +844,14 @@ const saveDiary = async () => {
   0%, 100% { box-shadow: 0 0 0 0 rgba(232, 121, 160, 0.35); }
   50% { box-shadow: 0 0 0 6px rgba(232, 121, 160, 0.12); }
 }
-.sf-ai-tip { margin: -6px 0 14px; font-size: 12px; color: #a3742a; line-height: 1.6; }
+.sf-ai-tip { margin: -6px 0 14px; font-size: 12px; color: color-mix(in srgb, var(--c-hex) 60%, #8a7a5a); line-height: 1.6; }
 .sf-polish-box {
   margin: -2px 0 18px; padding: 14px 16px; border-radius: 14px;
-  background: linear-gradient(135deg, rgba(253, 231, 238, 0.85), rgba(228, 240, 251, 0.85));
-  border: 1.5px solid #f0b98c;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c-hex) 9%, #fff), color-mix(in srgb, var(--c-main) 7%, #fff));
+  border: 1.5px solid color-mix(in srgb, var(--c-hex) 50%, #fff);
 }
 .sf-polish-box > b {
-  font-size: 13px; color: #c07a3a; display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--c-main); display: flex; align-items: center; gap: 6px;
 }
 .sf-polish-text { margin: 8px 0 0; font-size: 14px; line-height: 1.9; color: #555; white-space: pre-wrap; }
 .sf-polish-actions { display: flex; gap: 10px; margin-top: 12px; }
@@ -922,22 +922,6 @@ const saveDiary = async () => {
 }
 .sf-save-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 26px color-mix(in srgb, var(--c-main) 45%, transparent); }
 .sf-save-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; opacity: 0.8; }
-
-.sf-ai-btn {
-  width: 100%; padding: 14px; border-radius: 14px;
-  border: 2px solid #f8c9d8;
-  background: linear-gradient(135deg, rgba(253, 231, 238, 0.8) 0%, rgba(205, 232, 248, 0.8) 100%);
-  color: #e879a0; font-size: 15px; font-weight: 600;
-  cursor: pointer; transition: all 0.3s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 4px 14px rgba(248, 201, 216, 0.2);
-}
-.sf-ai-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(248, 201, 216, 0.35);
-  background: linear-gradient(135deg, #fde7ee 0%, #cde8f8 100%);
-}
-.sf-ai-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ===== 移动端适配 ===== */
 @media (max-width: 700px) {

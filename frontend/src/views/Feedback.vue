@@ -174,6 +174,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { saveFeedback, getMyFeedbackList, softDeleteFeedback, supplementFeedback, getFeedbackMessages, fetchAllPages } from '../api'
 import { ElMessage } from 'element-plus'
+import { jellyConfirm } from '@/utils/confirm'
+import { useBackCloser } from '@/utils/backNav'
 import AnimeHero from '@/components/AnimeHero.vue'
 import CowLoading from '@/components/CowLoading.vue'
 
@@ -194,6 +196,8 @@ const myList = ref([])
 const loading = ref(false)
 const suppContent = ref('')
 const chatTarget = ref(null)
+// 反馈对话是一层「详情」：手机端左滑返回先收起它，回到我的反馈列表原位
+useBackCloser(() => !!chatTarget.value, () => { chatTarget.value = null })
 const chatMessages = ref([])
 const pageNum = ref(1)
 const pageSize = ref(10)
@@ -280,7 +284,8 @@ const openDrawer = () => {
 }
 
 const remove = async (id) => {
-  if (!confirm('从你的记录中移除？（后台仍会保留）')) return
+  const ok = await jellyConfirm('从你的记录中移除？（后台仍会保留）', { title: '移除反馈', confirmText: '移除', danger: true })
+  if (!ok) return
   try {
     const res = await softDeleteFeedback(id)
     if (res.code === 200) {

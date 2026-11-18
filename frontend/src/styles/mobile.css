@@ -1390,6 +1390,8 @@ p, li, span, td, th, div {
     display: block;
     width: 100%;
     background: var(--c-bg1, #fff);
+    /* 页面切换动画（§2.57）：滑出旧页用 position:absolute 叠在容器里，需要定位基准 */
+    position: relative;
   }
   /* 拖动中：右缘投影做出「页面被拎起来」的层次感 */
   .page-wrap.is-swiping {
@@ -2063,25 +2065,50 @@ p, li, span, td, th, div {
 }
 
 /* -------------------------------------------------------------------
- * §2.54 个人中心弹窗手机端（2026-11-18）：PC 小卡片 → 底部弹层
- * 编辑个人资料弹窗在手机上贴底全宽展示，按钮加大、表单单列，方便触控。
- * 只作用于 ≤768px；PC 端保持原样。
+ * §2.54 个人中心编辑页手机端（2026-11-18 二次修订）：底部弹层 → 完整页面
+ * 约定：长表单/多步骤流程用完整页面 —— 编辑资料（基本资料/个性化/改密码
+ * 三 Tab）在手机端全屏展示（覆盖层实现，关闭走 history.back()，原位停留），
+ * 带顶部返回条；PC 端保持居中弹窗不变。
  * ------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  .uc-mask { align-items: flex-end !important; padding: 0 !important; }
+  .uc-mask { align-items: stretch !important; padding: 0 !important; background: var(--c-bg1, #f7f4f0) !important; backdrop-filter: none !important; }
   .uc-modal {
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 88vh !important;
-    border-radius: 20px 20px 0 0 !important;
-    padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    height: 100% !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    padding: 0 16px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow-y: auto !important;
+    box-shadow: none !important;
+    animation: none !important;
+    box-sizing: border-box !important;
   }
-  /* 顶部：标题居中 + 关闭按钮右上 */
-  .uc-head { text-align: center; font-size: 16px !important; margin-bottom: 12px !important; }
-  .uc-close { top: 12px !important; right: 14px !important; width: 32px !important; height: 32px !important; }
+  /* 顶部返回条：固定在页面顶端（全屏页面级导航） */
+  .uc-back {
+    display: inline-flex !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5;
+    align-items: center;
+    gap: 6px;
+    margin: 0 -16px 10px !important;
+    padding: 13px 16px !important;
+    border: none !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(6px);
+    color: var(--c-text, #5c4a56) !important;
+    font-size: 15px !important;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .uc-back svg { width: 18px; height: 18px; }
+  /* 原右上角小 X 在全屏形态下不再需要 */
+  .uc-close { display: none !important; }
+  .uc-head { text-align: center; font-size: 17px !important; margin: 4px 0 14px !important; }
   /* 三个标签等宽铺满一行 */
   .uc-tabs { gap: 8px !important; margin-bottom: 14px !important; }
-  .uc-tab { flex: 1 1 0 !important; min-width: 0 !important; padding: 9px 0 !important; text-align: center; font-size: 13px !important; }
+  .uc-tab { flex: 1 1 0 !important; min-width: 0 !important; padding: 10px 0 !important; text-align: center; font-size: 13px !important; }
   /* 表单：单列 + 输入框加大 */
   .uc-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
   .uc-body .form-item input { width: 100% !important; padding: 11px 12px !important; font-size: 14px !important; box-sizing: border-box; }
@@ -2184,4 +2211,51 @@ p, li, span, td, th, div {
 @media (max-width: 768px) {
   .calendar-card .cal-nav .cal-picker { display: none !important; }
   .calendar-card .cal-nav .cal-date-btn { display: inline-flex !important; }
+}
+
+/* ==========================================================================
+ * §2.57 页面切换动画（2026-11-18，方向判定在 App.vue）
+ * 进下一级：新页从右滑入（~300ms），旧页向左淡出；
+ * 返回：旧页反方向向右滑出，新页自左淡入；
+ * 底部 Tab 互切 / 同级页：淡入淡出，不再硬切。
+ * 只在手机端生效 —— 动画类在 PC 端没有对应 CSS，Vue 检测到时长为 0 会立即收尾，
+ * PC 保持原有瞬时切换。动画只 transform/opacity，动画后不留常驻 transform。
+ * ========================================================================== */
+@media (max-width: 768px) {
+  /* 新页从右滑入时防横向滚动条闪现 */
+  html, body { overflow-x: hidden; }
+
+  .page-forward-enter-active,
+  .page-forward-leave-active,
+  .page-back-enter-active,
+  .page-back-leave-active {
+    transition: transform 0.3s cubic-bezier(0.22, 0.9, 0.24, 1), opacity 0.3s ease;
+    will-change: transform;
+  }
+  .page-fade-enter-active,
+  .page-fade-leave-active { transition: opacity 0.24s ease; will-change: opacity; }
+
+  /* 离场页叠底：绝对定位脱离文档流，两个页面才能同框滑动 */
+  .page-forward-leave-active,
+  .page-back-leave-active,
+  .page-fade-leave-active {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* 前进：新页 100%→0，旧页 0→-28% 同时变淡（iOS 推入感） */
+  .page-forward-enter-from { transform: translateX(100%); }
+  .page-forward-leave-to { transform: translateX(-28%); opacity: 0; }
+
+  /* 返回：旧页 0→100% 向右滑出（反方向），新页 -28%→0 自左淡入 */
+  .page-back-enter-from { transform: translateX(-28%); opacity: 0.5; }
+  .page-back-leave-to { transform: translateX(100%); }
+
+  /* Tab / 同级：纯淡入淡出 */
+  .page-fade-enter-from,
+  .page-fade-leave-to { opacity: 0; }
 }

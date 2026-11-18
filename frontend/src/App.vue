@@ -3,11 +3,20 @@
        1. /login / 
        2. /admin/*  （后台有自己的 AdminLayout）
        这些路由自己渲染自己的布局 -->
-  <router-view v-if="noLayout" :key="route.fullPath" />
+  <router-view v-if="noLayout" v-slot="{ Component }">
+    <transition :name="pageTrans">
+      <component :is="Component" :key="route.fullPath" />
+    </transition>
+  </router-view>
   <!-- 其他普通用户页面：套 AppLayout（顶部导航 + 左侧悬浮导航） -->
   <AppLayout v-else>
-    <!-- :key 用 fullPath：同一路由只换 query（如 /test?testId=1→2）时也要重建组件 -->
-    <router-view :key="route.fullPath" />
+    <!-- :key 用 fullPath：同一路由只换 query（如 /test?testId=1→2）时也要重建组件。
+         页面切换动画见下方 pageTrans：进下一级从右滑入、返回反向滑出、底部 Tab 淡入淡出 -->
+    <router-view v-slot="{ Component }">
+      <transition :name="pageTrans">
+        <component :is="Component" :key="route.fullPath" />
+      </transition>
+    </router-view>
   </AppLayout>
 
   <!-- 全局路由切换加载页（仅非首次进站时出现） -->
@@ -30,32 +39,56 @@ import './styles/mobile.css'
 const route = useRoute()
 const router = useRouter()
 
+// ===== 页面切换动画方向（2026-11-18 约定）=====
+// 进下一级（层级变深）→ 新页从右滑入；返回 → 旧页反方向滑出；
+// 底部 Tab 互切 / 同级页 → 淡入淡出；同页只换 query（?tab= / ?testId=）→ 不动画（保持硬切重建）。
+// CSS 动画本体在 mobile.css §2.57（只在手机端生效，PC 保持现状）。
+const MOBILE_TABS = ['/main', '/diary', '/assistant', '/fm']   // 与 AppLayout.mobileTabs 一致
+const pageDepth = (r) => (Array.isArray(r.meta?.crumbs) ? r.meta.crumbs.length : 1)
+const pageTrans = ref('')
+router.beforeEach((to, from, next) => {
+  if (!from.name || to.path === from.path) { pageTrans.value = ''; next(); return }
+  const tabToTab = MOBILE_TABS.includes(to.path) && MOBILE_TABS.includes(from.path)
+  if (tabToTab) pageTrans.value = 'page-fade'
+  else if (pageDepth(to) > pageDepth(from)) pageTrans.value = 'page-forward'
+  else if (pageDepth(to) < pageDepth(from)) pageTrans.value = 'page-back'
+  else pageTrans.value = 'page-fade'
+  next()
+})
+
 // ===== 路由切换加载页 =====
+// 2026-11-18 改为「慢了才出现」：导航超过 180ms 还没完成才亮加载页，
+// 否则不透明的加载屏会把页面滑入动画整个盖住（原来每次切换固定亮 350ms）。
 const routeLoading = ref(false)
-let switchStart = 0
 // 保存定时器 id：连续快速切路由时，上一次的 setTimeout 必须清掉，
 // 否则它会在新页面加载中途把 routeLoading 置 false，加载页闪一下就消失
 let loadingTimer = null
+let loadingHideTimer = null
 router.beforeEach((to, from, next) => {
   // from.name 为空说明是首次进站，交给首屏加载页处理
   if (from.name) {
-    routeLoading.value = true
-    switchStart = Date.now()
+    clearTimeout(loadingTimer)
+    loadingTimer = setTimeout(() => { routeLoading.value = true }, 180)
   }
   next()
 })
 router.afterEach(() => {
+  if (loadingTimer) { clearTimeout(loadingTimer); loadingTimer = null }
   if (!routeLoading.value) return
-  // 最少显示 350ms，避免闪一下就消失
-  const elapsed = Date.now() - switchStart
-  if (loadingTimer) clearTimeout(loadingTimer)
-  loadingTimer = setTimeout(() => {
+  // 已经亮出来了：最少显示 250ms，避免闪一下就消失
+  if (loadingHideTimer) clearTimeout(loadingHideTimer)
+  loadingHideTimer = setTimeout(() => {
     routeLoading.value = false
-    loadingTimer = null
-  }, Math.max(0, 350 - elapsed))
+    loadingHideTimer = null
+  }, 250)
+})
+router.onError(() => {
+  clearTimeout(loadingTimer)
+  routeLoading.value = false
 })
 onBeforeUnmount(() => {
-  if (loadingTimer) clearTimeout(loadingTimer)
+  clearTimeout(loadingTimer)
+  clearTimeout(loadingHideTimer)
 })
 // 不套用户导航栏的页面：登录页、欢迎页（/ 与 /home 同一页面）、后台管理
 const noLayout = computed(() => {

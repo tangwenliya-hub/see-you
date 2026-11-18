@@ -980,9 +980,11 @@
     </BottomSheet>
 
     <!-- ========== 个人中心弹窗（基本资料 / 个性化设置 / 修改密码） ========== -->
-    <div v-if="showUserCenter" class="mask uc-mask" @click.self="showUserCenter = false">
+    <div v-if="showUserCenter" class="mask uc-mask" @click.self="closeUserCenter">
       <div class="uc-modal">
-        <button class="uc-close" @click="showUserCenter = false" title="关闭"><AppIcon name="close" /></button>
+        <button class="uc-close" @click="closeUserCenter" title="关闭"><AppIcon name="close" /></button>
+        <!-- 手机端全屏页面形态：顶部返回条（PC 隐藏） -->
+        <button class="uc-back" @click="closeUserCenter"><AppIcon name="arrow-left" /> 返回</button>
         <div class="uc-head"><AppIcon name="user" /> 个人中心</div>
         <div class="uc-tabs">
           <button v-for="t in ucTabs" :key="t.key" :class="['uc-tab', { on: ucTab === t.key }]" @click="ucTab = t.key"><AppIcon :name="t.icon" /> {{ t.label }}</button>
@@ -1036,11 +1038,11 @@
 
         <div class="uc-footer">
           <template v-if="ucTab === 'basic'">
-            <button class="cancel" @click="showUserCenter = false">取消</button>
+            <button class="cancel" @click="closeUserCenter">取消</button>
             <button class="primary-btn small" @click="saveProfile"><AppIcon name="save" /> 保存资料</button>
           </template>
           <template v-else-if="ucTab === 'personal'">
-            <button class="primary-btn small" @click="showUserCenter = false"><AppIcon name="check" /> 完成</button>
+            <button class="primary-btn small" @click="closeUserCenter"><AppIcon name="check" /> 完成</button>
           </template>
           <template v-else>
             <button class="danger-btn small" :disabled="pwdSaving" @click="savePassword">{{ pwdSaving ? '提交中…' : ' 确认修改密码' }}</button>
@@ -1058,6 +1060,7 @@ import { jellyConfirm } from '@/utils/confirm'
 import { AVATAR_FRAMES, FRAME_SCALES } from '@/lib/avatarFrames'
 import CowLoading from '@/components/CowLoading.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
+import { useBackCloser } from '@/utils/backNav'
 import { clearUserPrefs } from '../utils/userPrefs'
 import { useUserStore } from '../stores/user'
 import { feedbackWS } from '../utils/ws'
@@ -1101,7 +1104,10 @@ const showFramePicker = ref(false)
 const showBgPicker = ref(false)
 const avatarUploadRef = ref(null)
 
-// ===== 个人中心弹窗（编辑个人资料按钮打开；基本资料/个性化设置/修改密码 三合一） =====
+// ===== 个人中心（编辑个人资料按钮打开；基本资料/个性化设置/修改密码 三合一） =====
+// 长表单约定（2026-11-18）：手机端呈现为「完整页面」形态（全屏覆盖层 + 返回条），
+// 关闭只是收起覆盖层 —— 原页面滚动位置原样保留（App.vue 的 router-view 按 fullPath
+// remount，query 同步会让组件重置，所以这里刻意不走路由）。
 const showUserCenter = ref(false)
 const ucTab = ref('basic')
 const ucTabs = [
@@ -1109,6 +1115,9 @@ const ucTabs = [
   { key: 'personal', icon: 'palette', label: '个性化设置' },
   { key: 'pwd', icon: 'lock', label: '修改密码' },
 ]
+const closeUserCenter = () => { showUserCenter.value = false }
+// 全屏编辑页也是一层「详情」：手机端左滑返回先关掉它，回到个人中心原位
+useBackCloser(showUserCenter, closeUserCenter)
 const openUserCenter = () => {
   // 每次打开都用当前用户信息重置表单，避免上次未保存的改动残留
   editForm.value.nickname = user.value.nickname || ''
@@ -2168,7 +2177,7 @@ const saveProfile = async () => {
   const res = await updateUser({ userId: user.value.userId, nickname: editForm.value.nickname, email: editForm.value.email, avatar: editForm.value.avatar })
   if (res.code === 200) {
     ElMessage.success('保存成功！')
-    showUserCenter.value = false
+    closeUserCenter()
     // 同步登录态里的用户信息
     useUserStore().patchUserInfo({
       nickname: editForm.value.nickname,
@@ -2202,7 +2211,7 @@ const savePassword = async () => {
   pwdSaving.value = true
   try {
     const res = await changePassword({ userId: user.value.userId, oldPassword: pwdForm.value.oldPassword, newPassword: pwdForm.value.newPassword })
-    if (res.code === 200) { ElMessage.success('密码修改成功！请重新登录'); showUserCenter.value = false; logout() }
+    if (res.code === 200) { ElMessage.success('密码修改成功！请重新登录'); closeUserCenter(); logout() }
     else ElMessage.error(res.msg || '修改失败')
   } catch { ElMessage.error('网络异常，请稍后再试') }
   finally { pwdSaving.value = false }
@@ -2362,6 +2371,13 @@ onMounted(async () => {
   loadUser()
   loadSessions()
   await loadAll()
+  // 深链：/profile?tab=feedback&feedbackId=12 直接展开这条反馈对话
+  //（从「管理员回复了你」的通知点进来，返回就停在我的反馈列表）
+  const qFb = Number(route.query.feedbackId)
+  if (qFb) {
+    const f = fbList.value.find(x => Number(x.feedbackId) === qFb)
+    if (f) { activeTab.value = 'feedback'; openFbDetail(f) }
+  }
   loadCmtCounts()          // 侧边胶囊只要条数，明细等切到标签页再懒加载
   // 直接通过 ?tab=xxx 打开页面时 watch 感知不到初始值，这里补一次对应 tab 的懒加载
   const t = activeTab.value
@@ -3464,6 +3480,8 @@ const saveStatus = async () => {
 .uc-mask { z-index: 9990; } /* 低于头像/背景/头像框选择弹窗(9999)，保证二级弹窗盖在上面 */
 .uc-modal { position: relative; background: #fff; border-radius: 20px; padding: 22px 28px 20px; width: 560px; max-width: 92vw; max-height: 86vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
 .uc-close { position: absolute; top: 14px; right: 16px; width: 30px; height: 30px; border-radius: 50%; border: none; background: var(--c-bg2); color: #6b7280; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+/* 手机端全屏页面形态的返回条：PC 恒隐藏（样式在 mobile.css §2.54） */
+.uc-back { display: none; border: none; background: none; cursor: pointer; align-items: center; gap: 6px; color: #6b7280; font-size: 14px; padding: 0; }
 .uc-close:hover { background: var(--c-hex); color: #fff; transform: rotate(90deg); }
 .uc-head { font-size: 16px; font-weight: 700; color: #374151; margin-bottom: 14px; }
 .uc-tabs { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }

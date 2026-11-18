@@ -18,6 +18,7 @@
  */
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { closeTopDetail, goBack } from '@/utils/backNav'
 
 const HOME_PATHS = ['/', '/home', '/main']
 const EDGE = 24        // 触发区：屏幕左边缘 24px
@@ -111,12 +112,20 @@ export function useSwipeBack(wrapRef) {
     const w = window.innerWidth
     const passed = lastDx > w * 0.5
     if (passed) {
+      // 页面里还有展开的详情（底部弹层/量表详情等）：这一划等于「收起详情」，
+      // 原地回到它所在的列表，不离开当前路由
+      if (closeTopDetail()) {
+        setX(0, true)
+        timer = setTimeout(clear, 260)
+        lastDx = 0
+        return
+      }
       // 滑过一半：整页顺势推出屏幕，然后返回
+      // goBack 内部：有站内历史就后退；深链直接进站的就回到该内容所属的列表页（不是首页）
       setX(w, true)
       timer = setTimeout(() => {
         clear()
-        if (window.history.state?.back) router.back()
-        else router.push('/main')
+        goBack(router, route, { skipDetail: true })
       }, 230)
     } else {
       // 不到一半：弹回原位

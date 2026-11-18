@@ -70,11 +70,17 @@ b,strong{
     transition: background 0.3s ease;
 }
 
-/* 返回按钮 */
+/* 返回按钮（<button>：点它按「当前内容所属的列表」返回，不再一律回首页） */
 .app-bar .back-btn {
     padding: 6px 14px;
     border-radius: 999px;
     font-size: 13px;
+    font-family: inherit;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     text-decoration: none;
     color: var(--c-hex);
     background: rgba(255, 255, 255, 0.7);

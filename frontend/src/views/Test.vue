@@ -283,6 +283,7 @@ import { getTestPaperList, getRecordList, saveRecord, getQuestionList, getOption
 import CowLoading from '../components/CowLoading.vue'
 import { ElMessage } from 'element-plus'
 import { jellyConfirm } from '@/utils/confirm'
+import { useBackCloser } from '@/utils/backNav'
 
 const route = useRoute()
 const router = useRouter()
@@ -449,6 +450,9 @@ const showPaperDetail = (paper) => {
   detailPaper.value = paper
   showDetail.value = true
 }
+// 量表详情是一层「详情」：手机端左滑返回先收起它，回到量表列表原位
+// （从 /test?testId=x 分享链接直接进来的用户，收起后就是列表，不会掉回首页）
+useBackCloser(showDetail, () => { showDetail.value = false })
 const confirmStartTest = () => {
   showDetail.value = false
   startTest(detailPaper.value)

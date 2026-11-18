@@ -60,7 +60,7 @@
     <!-- ===== 双栏：情绪统计 + 今日小结 ===== -->
     <section class="top-grid">
       <!-- 左：情绪统计图 -->
-      <div class="chart-card glass sticky-note note-beige">
+      <div class="chart-card glass sticky-note">
 
         <div class="card-head">
           <h3><img class="card-icon" src="/img/本月情绪趋势.png" alt="" /> 本月情绪趋势</h3>
@@ -71,11 +71,6 @@
           </div>
         </div>
         <div ref="chartRef" class="chart-box"></div>
-        <div class="chart-legend">
-          <span class="lg-item"><span class="lg-dot" style="background:#b8d49a"></span>积极</span>
-          <span class="lg-item"><span class="lg-dot" style="background:#f8c9d8"></span>消极</span>
-          <span class="lg-item"><span class="lg-dot" style="background:#a8d4f0"></span>中性</span>
-        </div>
         
         <!-- 情绪分布 + 月度小结 -->
         <div class="chart-bottom">
@@ -123,13 +118,13 @@
       <!-- 右：今日小结 + 日历打卡 -->
       <div class="side-col">
        <!-- 锚点导航（tab 切换）===== -->
-        <nav class="anchor-nav glass sticky-note note-yellow">
+        <nav class="anchor-nav glass sticky-note">
           <a :class="['an-btn', {on: diaryTab==='summary'}]" @click="diaryTab='summary'"><img class="card-icon" src="/img/今日小结.png" alt="" />今日小结</a>
           <a :class="['an-btn', {on: diaryTab==='calendar'}]" @click="diaryTab='calendar'"><img class="card-icon" src="/img/本月打卡.png" alt="" />本月打卡</a>
           <a :class="['an-btn', {on: diaryTab==='book'}]" @click="diaryTab='book'"><img class="card-icon" src="/img/我的日记本.png" alt="" />我的日记</a>
         </nav>
         <!-- 今日小结 -->
-        <div v-if="diaryTab==='summary'" class="summary-card glass sticky-note note-pink">
+        <div v-if="diaryTab==='summary'" class="summary-card glass sticky-note">
 
           <div class="card-head">
             <h3><img class="card-icon" src="/img/今日小结.png" alt="" /> 今日小结</h3>
@@ -160,7 +155,7 @@
         </div>
 
         <!-- 日历打卡 -->
-        <div v-if="diaryTab==='calendar'" class="calendar-card glass sticky-note note-blue">
+        <div v-if="diaryTab==='calendar'" class="calendar-card glass sticky-note">
 
           <div class="card-head">
             <h3><img class="card-icon" src="/img/本月打卡.png" alt="" /> 本月打卡</h3>
@@ -261,10 +256,9 @@
     <!-- ===== 近 7 天睡眠补录 ===== -->
     <SleepBackfill v-model:show="sleepBackfillVisible" />
 
-    <!-- ===== 编辑弹窗 ===== -->
-    <div v-if="editTarget" class="modal-mask" @click.self="editTarget = null">
-      <div class="modal-card glass">
-        <h3><AppIcon name="pen" /> {{ isAutoFilled(editTarget) ? '把这条变成我的日记' : '编辑日记' }}</h3>
+    <!-- ===== 编辑日记（底部弹层） ===== -->
+    <BottomSheet :open="!!editTarget" :title="editTarget && isAutoFilled(editTarget) ? '把这条变成我的日记' : '编辑日记'" @close="editTarget = null">
+      <template v-if="editTarget">
         <p v-if="isAutoFilled(editTarget)" class="edit-auto-hint">
           这条是系统按使用痕迹代记的。写上你的真实感受并保存，它就会变成为你亲笔记录，同时获得经验值。
         </p>
@@ -287,8 +281,8 @@
           <button class="cancel-btn" @click="editTarget = null">取消</button>
           <button class="save-btn" @click="confirmEdit"><AppIcon name="save" /> 保存</button>
         </div>
-      </div>
-    </div>
+      </template>
+    </BottomSheet>
 
     <!-- ===== 选日期（底部弹层：下滑或点遮罩关闭，关掉后停在日历原位） ===== -->
     <BottomSheet :open="showDateSheet" title="选择年月" @close="showDateSheet = false">
@@ -319,6 +313,8 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+import { jellyConfirm } from '@/utils/confirm'
 import { EMOTIONS as emotions } from '@/utils/constants'  // 情绪字典唯一真源（utils/constants.js）
 import * as echarts from '../lib/echarts.js'
 import { useChart } from '@/composables/useChart'
@@ -869,15 +865,17 @@ const confirmEdit = async () => {
 const delDiary = async (d) => {
   const id = typeof d === 'object' && d ? d.diaryId : d
   if (!id) return
-  if (!confirm('确定删除这篇日记吗？删除后无法恢复。')) return
+  // 确认删除走底部弹层（下滑/点遮罩关闭），不再用浏览器原生 confirm
+  const ok = await jellyConfirm('确定删除这篇日记吗？删除后无法恢复。', { title: '删除日记', confirmText: '删除', cancelText: '再想想', danger: true })
+  if (!ok) return
   try {
     await apiDeleteDiary(id)
     flippedId.value = null
     dayDiaryTarget.value = null
     editTarget.value = null
     await loadDiaries()
-    alert(' 日记已删除')
-  } catch { alert(' 删除失败') }
+    ElMessage.success('日记已删除')
+  } catch { ElMessage.error('删除失败') }
 }
 
 onMounted(async () => {
@@ -885,6 +883,15 @@ onMounted(async () => {
   await nextTick()
   renderChart()
   pickWhisper()
+  // 深链：/diary?date=2026-11-01 直接打开这一天的那条日记（从分享链接 / 提醒通知进来），
+  // 关掉弹层就是日记列表 —— 返回不会掉到首页
+  const qDate = String(route.query.date || '')
+  if (/^\d{4}-\d{2}-\d{2}$/.test(qDate)) {
+    const [y, m] = qDate.split('-').map(Number)
+    calYear.value = y
+    calMonth.value = m
+    openDiaryOfDay(qDate)
+  }
   // resize / dispose 由 useChart 全局托管，无需单独注册
 })
 
@@ -967,26 +974,6 @@ watch(diaryList, async (list) => {
     0 20px 36px rgba(0, 0, 0, 0.12);
   z-index: 5;
 }
-.note-beige {
-  background: #fef9e7;
-}
-.note-pink {
-  background: #fde4ec;
-}
-.note-blue {
-  background: #e4f0fb;
-}
-.note-green {
-  background: var(--c-bg2);
-}
-.note-yellow {
-  background: #fff5d6;
-}
-.note-coral {
-  background: #fde8d8;
-}
-
-
 
 /* ===== 顶部横幅（手账本封面风） ===== */
 .hero {
@@ -1616,8 +1603,8 @@ watch(diaryList, async (list) => {
   margin-top: 14px;
   padding: 18px 22px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(253,232,216,0.85), rgba(255,240,220,0.9));
-  border: 1px solid rgba(240,180,140,0.4);
+  background: var(--c-accent-tint);
+  border: 1px solid var(--c-accent-line);
   display: flex; align-items: center; gap: 16px;
   min-height: 72px;
 }
@@ -1629,16 +1616,16 @@ watch(diaryList, async (list) => {
 }
 .chart-ai-whisper .ai-text {
   flex: 1; margin: 0; font-size: 16px; line-height: 1.6;
-  color: #6b5040;
+  color: var(--c-ink);
 }
 .chart-ai-whisper .ai-refresh {
   padding: 7px 16px; border-radius: 999px; border: none;
-  background: linear-gradient(135deg, #ffb89a, #ff9570);
+  background: linear-gradient(135deg, var(--c-main), var(--c-hex));
   color: #fff; font-size: 13px; cursor: pointer; flex-shrink: 0;
   transition: all 0.2s;
   font-weight: 600;
 }
-.chart-ai-whisper .ai-refresh:hover { transform: scale(1.05); filter: brightness(1.06); box-shadow: 0 4px 12px rgba(255, 149, 112, 0.4); }
+.chart-ai-whisper .ai-refresh:hover { transform: scale(1.05); filter: brightness(1.06); box-shadow: 0 4px 12px var(--c-accent-glow); }
 .dist-title {
   font-size: 15px;
   color: var(--c-text);
@@ -1657,7 +1644,7 @@ watch(diaryList, async (list) => {
 .dist-label { font-size: 13px; color: #555; min-width: 36px; flex-shrink: 0; font-weight: 500; }
 .dist-bar-bg {
   flex: 1; height: 14px; border-radius: 7px;
-  background: rgba(180, 200, 180, 0.2); overflow: hidden;
+  background: var(--c-border); overflow: hidden;
 }
 .dist-bar-fill {
   height: 100%; border-radius: 7px;
@@ -1728,12 +1715,10 @@ watch(diaryList, async (list) => {
   padding: 10px 14px;
   margin-bottom: 14px;
   border-radius: 14px;
-  background: #fff5d6 !important;
-  box-shadow: 0 4px 14px rgba(180, 150, 80, 0.18) !important;
 }
 .an-label {
   font-size: 12px;
-  color: #8a7a4f;
+  color: var(--c-text-weak);
   letter-spacing: 1px;
   padding-right: 8px;
   border-right: 1.5px dashed rgba(138, 122, 79, 0.3);
@@ -1874,6 +1859,14 @@ watch(diaryList, async (list) => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
+}
+/* 年份行：横向滚动，胶囊不收缩（防止 2026 被压成竖排） */
+.ds-years .ds-chip {
+  flex: 0 0 auto;
+  min-width: 58px;
+  padding: 0 14px;
+  line-height: 38px;
 }
 .ds-chip:hover { border-color: var(--c-hex); }
 .ds-chip.on {

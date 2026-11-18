@@ -9,10 +9,11 @@
         </svg>
       </button>
 
-      <!-- 返回按钮（除了主页 /main 都显示） -->
-      <router-link v-if="!isHome" to="/main" class="back-btn" title="返回主页">
+      <!-- 返回按钮（除了主页 /main 都显示）：
+           回到这条内容所属的列表页（按 meta.listPath），没有站内历史时不至于退出应用 -->
+      <button v-if="!isHome" type="button" class="back-btn" title="返回上一层" @click="onBack">
         <AppIcon name="arrow-left" /> 返回
-      </router-link>
+      </button>
 
       <router-link to="/main" class="logo">
         <img class="logo-cow" src="/img/绪见后台管理.png" alt="绪见" />
@@ -134,6 +135,7 @@ import { useUserStore } from '../stores/user'
 import { senseTracker } from '../utils/senseTracker'
 import { getSenseConfig, getRiskOverview } from '../api/sense'
 import { useSwipeBack } from '../composables/useSwipeBack'
+import { goBack } from '../utils/backNav'
 import RiskAlertDialog from '../components/RiskAlertDialog.vue'
 
 const route = useRoute()
@@ -331,6 +333,8 @@ function handleVisibilityChange() {
 
 onMounted(() => {
   initWS()
+  // 点「管理员回复了你」等通知 → 直接打开那条反馈对话（深链，回到它的列表）
+  window.addEventListener('open-feedback-detail', onOpenFeedbackDetail)
   // 给底部 Tab 栏留出空间（只在手机上真的占位，见 mobile.css）
   document.body.classList.add('has-mobile-tabbar')
   loadRiskBadge()
@@ -355,6 +359,7 @@ onBeforeUnmount(() => {
   document.body.classList.remove('has-mobile-tabbar')
   window.removeEventListener('sense-config-changed', handleSenseChange)
   window.removeEventListener('risk-alert-read', handleRiskRead)
+  window.removeEventListener('open-feedback-detail', onOpenFeedbackDetail)
   window.removeEventListener('storage', handleStorageChange)
   window.removeEventListener('profile-updated', handleProfileUpdated)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
@@ -365,6 +370,16 @@ onBeforeUnmount(() => {
 
 // 是否主页（主页不显示返回按钮）
 const isHome = computed(() => route.path === '/main' || route.path === '/')
+
+// 顶栏返回：与手机端「左边缘右滑返回」同一套规则 ——
+// 页面里有展开的详情先收起；有站内历史就后退；从分享/通知深链直接进站的回到它所属的列表
+const onBack = () => goBack(router, route)
+
+// 点通知直达对应反馈对话：个人中心 → 我的反馈 → 展开这一条
+const onOpenFeedbackDetail = (e) => {
+  const id = e?.detail?.feedbackId
+  router.push({ path: '/profile', query: { tab: 'feedback', ...(id ? { feedbackId: String(id) } : {}) } })
+}
 
 // 统一的导航栏菜单项（顶部导航栏）
 const navItems = [

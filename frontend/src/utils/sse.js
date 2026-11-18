@@ -21,7 +21,6 @@ class RiskSse {
   constructor() {
     this.es = null
     this.listeners = {}       // event -> [cb]
-    this.manualClose = false  // 登出时置 true，关闭后不再因后端断开弹提示
   }
 
   connect() {
@@ -41,17 +40,12 @@ class RiskSse {
     if (!token || !(role >= 1)) return
     if (this.es) return  // 已有连接（EventSource 原生自动重连，无需重建）
 
-    this.manualClose = false
     try {
       this.es = new EventSource(`${API_BASE}/risk/admin-stream?token=${encodeURIComponent(token)}`)
     } catch {
       this.es = null
       return
     }
-
-    this.es.addEventListener('connected', () => {
-      console.log('[RiskSSE] 预警实时通道已连接')
-    })
 
     // 预警事件由后端按 name=risk-alert 推送
     this.es.addEventListener('risk-alert', (e) => {
@@ -70,8 +64,7 @@ class RiskSse {
     })
 
     this.es.onerror = () => {
-      // EventSource 会自动重连（包括后端重启场景）；这里只打日志
-      console.log('[RiskSSE] 连接中断，浏览器将自动重连…')
+      // EventSource 会自动重连（包括后端重启场景），无需手动处理
     }
   }
 
@@ -88,7 +81,6 @@ class RiskSse {
   }
 
   disconnect() {
-    this.manualClose = true
     try { this.es?.close() } catch {}
     this.es = null
   }

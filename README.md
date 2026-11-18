@@ -148,7 +148,7 @@ npm install && npm run dev     # http://localhost:5173，已代理 /api 到 8081
 ```
 绪见/
 ├── frontend/                 # Vue 3 前端（Vite）
-│   ├── src/views/            # 用户端页面 12 个 + admin/ 后台页面 15 个
+│   ├── src/views/            # 用户端页面 12 个 + admin/ 后台页面 21 个
 │   ├── src/layouts/          # AppLayout（用户端）/ AdminLayout（后台）
 │   ├── src/api/index.js      # 160 个接口封装（单 axios 实例，便于多端复用）
 │   ├── src/composables/      # useChart：图表实例托管与断点响应式

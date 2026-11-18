@@ -44,6 +44,7 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
 import AppIcon from './AppIcon.vue'
+import { useBackCloser } from '@/utils/backNav'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -84,6 +85,10 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKeydown)
 })
 const onKeydown = (e) => { if (e.key === 'Escape') requestClose('esc') }
+
+/* 打开时登记为「详情层」：手机端从左边缘向右滑返回时先把弹层收起来，
+   停在原页面原位置，而不是直接退到上一页/退出应用 */
+useBackCloser(() => props.open, () => requestClose('back'))
 
 const requestClose = (from) => emit('close', from)
 
@@ -162,7 +167,7 @@ const maskOpacity = computed(() => (dragging.value ? Math.max(0.28, 0.5 - dy.val
 </script>
 
 <style scoped>
-.bs-root { position: fixed; inset: 0; z-index: 3000; }
+.bs-root { position: fixed; inset: 0; z-index: 10000; }
 .bs-mask {
   position: absolute; inset: 0;
   background: rgba(30, 22, 34, 0.5);

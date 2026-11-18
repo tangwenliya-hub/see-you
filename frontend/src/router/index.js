@@ -10,20 +10,24 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
  * 面包屑元数据：数组长度 = 页面层级（1=首页，2=二级页，3=三级页…）。
  * AnimeHero 顶部横幅读取该 meta，层级 > 2 时自动显示可点击路径（首页 > 日记 > 写日记）。
  * 每一级：label=显示文字，to=点击跳转目标；最后一级是当前页，不挂 to。
+ *
+ * listPath：这条内容「所属的列表页」。从通知/分享链接直接打开某个详情
+ * （/fm?audioId=3、/test?testId=2、/diary?date=…）时，返回要回到列表而不是首页，
+ * 见 utils/backNav.js 与本文件底部的「深链历史垫底」。
  */
-const crumb = (items) => ({ meta: { crumbs: items } })
+const crumb = (items, listPath) => ({ meta: { crumbs: items, ...(listPath ? { listPath } : {}) } })
 
 const routes = [
   { path: '/', component: () => import('../views/Home.vue'), alias: '/home' },   /* 打开即欢迎页（奶牛落地页）；已登录访问会自动跳 /main */
   { path: '/main', component: () => import('../views/Main.vue'), ...crumb([{ label: '首页' }]) },
   { path: '/login', component: () => import('../views/Login.vue') },
-  { path: '/diary', component: () => import('../views/Diary.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '日记' }]) },
-  { path: '/diary/write', component: () => import('../views/WriteDiary.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '日记', to: '/diary' }, { label: '写日记' }]) },
-  { path: '/test', component: () => import('../views/Test.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '心理测评' }]) },
-  { path: '/assistant', component: () => import('../views/Assistant.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: 'AI 陪伴' }]) },
-  { path: '/fm', component: () => import('../views/FM.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '心理FM' }]) },
-  { path: '/classroom', component: () => import('../views/Classroom.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '绪见学堂' }]) },
-  { path: '/profile', component: () => import('../views/Profile.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '个人中心' }]) },
+  { path: '/diary', component: () => import('../views/Diary.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '日记' }], '/diary') },
+  { path: '/diary/write', component: () => import('../views/WriteDiary.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '日记', to: '/diary' }, { label: '写日记' }], '/diary') },
+  { path: '/test', component: () => import('../views/Test.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '心理测评' }], '/test') },
+  { path: '/assistant', component: () => import('../views/Assistant.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: 'AI 陪伴' }], '/assistant') },
+  { path: '/fm', component: () => import('../views/FM.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '心理FM' }], '/fm') },
+  { path: '/classroom', component: () => import('../views/Classroom.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '绪见学堂' }], '/classroom') },
+  { path: '/profile', component: () => import('../views/Profile.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '个人中心' }], '/profile') },
   { path: '/databoard', component: () => import('../views/DataBoard.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '数据看板' }]) },
   { path: '/feedback', component: () => import('../views/Feedback.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '反馈与建议' }]) },
 
@@ -153,16 +157,19 @@ router.beforeEach(async (to, from, next) => {
   // 1. 已登录用户访问 /login —— 直接跳主页
   //    （这里只是决定「落地页」，不涉及权限，用本地缓存的 role 即可）
   if (to.path === '/login' && isLoggedIn) {
+    // 但如果是带 redirect 进来的（分享链接 → 登录 → 回原页面），优先回原目标
+    const back = typeof to.query.redirect === 'string' ? to.query.redirect : ''
+    if (back.startsWith('/') && !back.startsWith('/login')) { next(back); return }
     next(isAdminLocal(userInfo) ? '/admin/dashboard' : '/main')
     return
   }
 
   // 2. 后台 /admin —— 必须是管理员，且 role 以服务端返回为准
   if (to.path.startsWith('/admin')) {
-    if (!isLoggedIn) { next('/login'); return }
+    if (!isLoggedIn) { next(toLogin(to)); return }
     const ok = await isAdminFromServer(store.token)
     if (ok === false) { next('/main'); return }
-    if (ok === 'expired') { next('/login'); return }
+    if (ok === 'expired') { next(toLogin(to)); return }
     next()
     return
   }
@@ -170,11 +177,46 @@ router.beforeEach(async (to, from, next) => {
   // 3. 需要登录的普通页面
   const needAuth = needLogin.some(p => to.path === p) || needLoginPrefixes.some(p => to.path.startsWith(p))
   if (needAuth && !isLoggedIn) {
-    next('/login')
+    // 记住原本要去的页面：从分享链接进来的人登录完能直接落到那条内容上
+    next(toLogin(to))
     return
   }
 
   next()
 })
+
+/** 去登录页，并把「登录后回哪里」带上（首页/欢迎页不需要，避免地址栏变脏） */
+function toLogin(to) {
+  if (!to.fullPath || to.fullPath === '/' || to.fullPath === '/main' || to.path === '/login') return '/login'
+  return { path: '/login', query: { redirect: to.fullPath } }
+}
+
+/**
+ * ===== 深链历史垫底 =====
+ *
+ * 从通知/分享链接（/fm?audioId=3、/test?testId=2、/diary?date=2026-11-01 …）
+ * 直接打开时，浏览器历史里只有这一条记录 —— 按系统返回键/微信左上角返回会直接退出应用。
+ *
+ * 这里在进站时把当前这条历史改写成「列表页」，再压入「内容页」：
+ *   [ 列表页 ] ← [ 内容页 ]   ← 用户在这里
+ * 于是系统返回键先回到列表（而不是退出），和站内滑动返回的落点完全一致。
+ *
+ * 只做一次：已经有站内历史（history.state.back 存在）时不动，不干扰正常后退与滚动位置。
+ */
+router.afterEach((to) => {
+  const listPath = to.meta?.listPath
+  if (!listPath) return
+  const st = window.history.state || {}
+  if (st.back) return                                   // 站内跳进来的，历史链天然存在
+  const contentUrl = window.location.pathname + window.location.search + window.location.hash
+  const listUrl = router.resolve(listPath).href
+  if (contentUrl === listUrl) return                    // 本身就是列表页，不用垫
+  if (!contentUrl.startsWith(listUrl.split('?')[0])) return  // 兜底：不是这条路由的内容页就跳过
+
+  const base = Number.isFinite(st.position) ? st.position : 0
+  window.history.replaceState({ ...st, back: null, current: listUrl, position: base }, '', listUrl)
+  window.history.pushState({ ...st, back: listUrl, current: contentUrl, position: base + 1, replaced: false }, '', contentUrl)
+})
+
 
 export default router

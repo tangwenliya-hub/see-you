@@ -383,7 +383,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue'
 import { EMOTIONS as emotions } from '@/utils/constants'  // 情绪字典唯一真源（utils/constants.js）
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { jellyConfirm } from '@/utils/confirm'
 import { AVATAR_FRAMES, FRAME_SCALES } from '@/lib/avatarFrames'
@@ -395,6 +395,7 @@ import {
 import CowLoading from '@/components/CowLoading.vue'
 
 const router = useRouter()
+const route = useRoute()
 
 // ========== 会话管理（会话与消息统一由后端按 sessionId 存储）==========
 const DRAFT_PREFIX = 'AI_DRAFT_'
@@ -1226,6 +1227,10 @@ onMounted(async () => {
   // 进入页面默认显示欢迎页，而不是自动续上一次的聊天记录；
   // 历史会话仍可从左侧列表点进去，真正发消息时 ensureSession 懒创建新会话
   await loadSessions()
+  // 深链：/assistant?sessionId=s_xxx 直接打开这一段对话（从分享链接 / 通知进来），
+  // 返回时回到 AI 陪伴的会话列表而不是首页
+  const qSid = typeof route.query.sessionId === 'string' ? route.query.sessionId : ''
+  if (qSid && sessions.value.some(s => s.sessionId === qSid)) await switchSession(qSid)
   // 监听 localStorage 变化（跨页面同步头像、头像框）
   window.addEventListener('storage', handleStorageChange)
   // 同标签页内 Profile 保存后立刻同步

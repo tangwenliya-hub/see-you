@@ -20,22 +20,15 @@ class FeedbackWS {
   /** 建立连接 */
   connect() {
     const info = JSON.parse(localStorage.getItem('userInfo') || 'null')
-    if (!info) {
-      console.log('[WS] 没有登录信息，跳过连接')
-      return
-    }
+    if (!info) return
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = window.location.host
-    const userId = info.userId
-    const role = info.role
     // 状态源统一走 Pinia store（未挂载 pinia 的极早期场景退回 localStorage）
     let token = ''
     try { token = useUserStore().token || '' } catch { token = localStorage.getItem('token') || '' }
-    // 安全：userId/role 由服务端从 token 解析，URL 上的只是冗余信息
+    // 安全：userId/role 由服务端从 token 解析，URL 上不携带敏感信息
     const url = `${protocol}//${host}/ws/feedback?token=${encodeURIComponent(token || '')}`
-
-    console.log('[WS] 正在连接:', url, 'readyState=', this.ws?.readyState)
 
     this.manualClose = false
     // 如果已经有旧连接，先关掉
@@ -46,42 +39,28 @@ class FeedbackWS {
 
     try {
       this.ws = new WebSocket(url)
-    } catch (e) {
-      console.log('[WS] 创建 WebSocket 异常:', e.message)
+    } catch {
       this.scheduleReconnect()
       return
     }
 
-    this.ws.onopen = () => {
-      console.log('[WS] 连接成功 userId=', userId, 'role=', role)
-    }
-
     this.ws.onmessage = (e) => {
-      console.log('[WS] 收到消息:', e.data)
       try {
         const msg = JSON.parse(e.data)
         const listeners = this.listeners[msg.type] || []
-        console.log('[WS] 触发消息 type=', msg.type, 'listeners 数量=', listeners.length)
-        listeners.forEach((cb, i) => {
-          console.log('[WS] → 调用 listener[' + i + ']')
-          cb(msg.data)
-        })
+        listeners.forEach(cb => cb(msg.data))
       } catch (err) {
         console.warn('[WS] 消息解析失败', err)
       }
     }
 
     this.ws.onclose = (e) => {
-      if (this.manualClose) {
-        console.log('[WS] 主动断开，不再重连')
-        return
-      }
+      if (this.manualClose) return
       console.warn('[WS] 连接已关闭 code=', e.code, '尝试重连...')
       this.scheduleReconnect()
     }
 
-    this.ws.onerror = (e) => {
-      console.log('[WS] 连接出错')
+    this.ws.onerror = () => {
       try { this.ws?.close() } catch {}
     }
   }
@@ -122,18 +101,16 @@ class FeedbackWS {
 
 export const feedbackWS = new FeedbackWS()
 
-// 调试：暴露到全局 window，方便 Console 检查
-if (typeof window !== 'undefined') {
-  window.__feedbackWS = feedbackWS
-}
-
-/** 便捷方法：显示通知并执行回调 */
 // 同一 type 只保留一个通知监听：组件反复挂载（来回跳页面）时先移除旧的，避免监听累积 → 通知重复弹 N 次
 const notifyCbs = {}
+/** 点通知直达对应内容：交给 AppLayout 用路由跳转（这里不直接依赖 router，避免循环引用） */
+const openFeedback = (feedbackId) => {
+  try { window.dispatchEvent(new CustomEvent('open-feedback-detail', { detail: { feedbackId } })) } catch (e) { /* 忽略 */ }
+}
+
 export function notifyFeedback(type, callback) {
   if (notifyCbs[type]) feedbackWS.off(type, notifyCbs[type])
   const cb = (data) => {
-    console.log('[WS] 触发 notifyFeedback type=', type, 'data=', data)
     if (type === 'reply') {
       ElNotification({
         title: '管理员回复了你',
@@ -142,6 +119,7 @@ export function notifyFeedback(type, callback) {
         type: 'success',
         duration: 5000,
         key: 'reply-' + (data.feedbackId || ''),  // 同反馈只弹一次
+        onClick: () => openFeedback(data.feedbackId),
       })
     } else if (type === 'new_feedback') {
       ElNotification({
@@ -151,6 +129,7 @@ export function notifyFeedback(type, callback) {
         type: 'warning',
         duration: 5000,
         key: 'newfb-' + (data.feedbackId || ''),
+        onClick: () => openFeedback(data.feedbackId),
       })
     } else if (type === 'user_supplement') {
       ElNotification({
@@ -160,6 +139,7 @@ export function notifyFeedback(type, callback) {
         type: 'info',
         duration: 5000,
         key: 'supp-' + (data.feedbackId || ''),
+        onClick: () => openFeedback(data.feedbackId),
       })
     }
     callback?.(data)

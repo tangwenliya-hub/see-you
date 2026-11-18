@@ -407,8 +407,12 @@ const doLogin = async () => {
         localStorage.removeItem('pending_onboard_prefs')
       }
       ElMessage.success('登录成功！')
-      // role=1 管理员跳后台，普通用户跳主页
-      if (res.data.role === 1 || res.data.role === '1' || res.data.role === 'admin') {
+      // 从分享链接/通知进来的：登录完直接落到原来那条内容上（替换掉登录页，返回时不会跳回登录）
+      const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+      if (redirect.startsWith('/') && !redirect.startsWith('/login')) {
+        router.replace(redirect)
+      } else if (res.data.role === 1 || res.data.role === '1' || res.data.role === 'admin') {
+        // role=1 管理员跳后台，普通用户跳主页
         router.push('/admin/dashboard')
       } else {
         router.push('/main')
