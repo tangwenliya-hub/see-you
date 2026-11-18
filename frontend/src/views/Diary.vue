@@ -1,7 +1,14 @@
 ﻿<template>
   <div class="diary-page">
     <!-- ===== 顶部横幅 ===== -->
-    <AnimeHero icon="/img/绪见日记.png" title="绪见日记" sub="记录每一天的心情，温柔对待自己">
+    <AnimeHero glyph="notebook" title="绪见日记" sub="记录每一天的心情，温柔对待自己">
+      <!-- 手机端专属：补睡眠/导出放在标题同一行右侧（PC 端此容器隐藏，横幅内按钮原样保留） -->
+      <template #left>
+        <div class="mobile-hero-tools">
+          <button class="write-fab ghost-fab" @click="sleepBackfillVisible = true" title="批量补录近 7 天昨晚睡眠（数据看板散点用）"><AppIcon name="moon" /> 补睡眠</button>
+          <button class="write-fab ghost-fab" @click="exportDiaryCsv" title="导出全部日记为 CSV"><AppIcon name="download" /> 导出</button>
+        </div>
+      </template>
       <template #right>
         <div class="hero-right">
           <div class="hero-meta">
@@ -25,7 +32,31 @@
         </div>
       </template>
     </AnimeHero>
-    
+
+    <!-- 手机端专属：顶条只留标题，统计与按钮下移到这一行轻量工具行（PC 端隐藏） -->
+    <div class="page-tools diary-tools">
+      <div class="hero-meta">
+        <div class="meta-card">
+          <span class="meta-num">{{ diaryList.length }}</span>
+          <span class="meta-label">已记录</span>
+        </div>
+        <div class="meta-card">
+          <span class="meta-num">{{ streakDays }}</span>
+          <span class="meta-label">连续天数</span>
+        </div>
+        <div class="meta-card">
+          <img class="meta-emoji" :src="topEmotion.icon" alt="" />
+          <span class="meta-emotion-name">{{ topEmotion.label }}</span>
+          <span class="meta-label">本周主打</span>
+        </div>
+      </div>
+      <div class="tools-actions">
+        <button class="ghost-fab" @click="sleepBackfillVisible = true"><AppIcon name="moon" /> 补睡眠</button>
+        <button class="ghost-fab" @click="exportDiaryCsv"><AppIcon name="download" /> 导出</button>
+        <button class="write-fab" @click="scrollToWrite"><img class="fab-icon" src="/img/写日记.png" alt="" /> 写日记</button>
+      </div>
+    </div>
+
     <!-- ===== 双栏：情绪统计 + 今日小结 ===== -->
     <section class="top-grid">
       <!-- 左：情绪统计图 -->
@@ -134,11 +165,13 @@
           <div class="card-head">
             <h3><img class="card-icon" src="/img/本月打卡.png" alt="" /> 本月打卡</h3>
             <div class="cal-nav">
-              <!-- 年份选择（当前年±10） -->
+              <!-- 手机端：点这里打开底部弹层选年月 -->
+              <button class="cal-date-btn" @click="showDateSheet = true">{{ calYear }}年{{ calMonth }}月</button>
+              <!-- 年份选择（当前年±10，桌面端显示） -->
               <select v-model.number="calYear" class="cal-picker">
                 <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}年</option>
               </select>
-              <!-- 月份选择 1~12 -->
+              <!-- 月份选择 1~12（桌面端显示） -->
               <select v-model.number="calMonth" class="cal-picker">
                 <option v-for="m in 12" :key="m" :value="m">{{ m }}月</option>
               </select>
@@ -208,25 +241,22 @@
           </div>
         </section>
 
-    <!-- ===== 查看某天日记弹窗 ===== -->
-    <div v-if="dayDiaryTarget" class="modal-mask" @click.self="dayDiaryTarget = null">
-      <div class="modal-card glass">
-        <h3>{{ dayDiaryTarget.diaryDate }} · {{ getWeekday(dayDiaryTarget.diaryDate) }}</h3>
-        <div class="day-diary">
-          <img class="sum-emoji" :src="getEmotionIcon(dayDiaryTarget.emotion)" alt="" />
-          <span class="tag" :style="{background:getEmotionBg(dayDiaryTarget.emotion)}">{{ getEmotionLabel(dayDiaryTarget.emotion) }}</span>
-          <span v-if="dayDiaryTarget.intensity" class="tag intensity-tag">{{ getIntensityLabel(dayDiaryTarget.intensity) }}</span>
-          <span v-if="isAutoFilled(dayDiaryTarget)" class="tag auto-tag"><AppIcon name="moon" /> 系统代记</span>
-        </div>
-        <p class="sum-text">{{ dayDiaryTarget.diaryContent }}</p>
-        <img v-if="dayDiaryTarget.imageUrl" :src="dayDiaryTarget.imageUrl" class="sum-img" alt="" />
-        <div class="modal-actions">
-          <button class="save-btn" @click="editDiary(dayDiaryTarget); dayDiaryTarget = null"><template v-if="isAutoFilled(dayDiaryTarget)"><AppIcon name="pen" /> 补一句</template><template v-else><AppIcon name="pen" /> 编辑</template></button>
-          <button class="cancel-btn danger-btn" @click="delDiary(dayDiaryTarget)"><AppIcon name="trash" /> 删除</button>
-          <button class="cancel-btn" @click="dayDiaryTarget = null">关闭</button>
-        </div>
+    <!-- ===== 查看某天日记（底部弹层） ===== -->
+    <BottomSheet :open="!!dayDiaryTarget" :title="dayDiaryTarget ? dayDiaryTarget.diaryDate + ' · ' + getWeekday(dayDiaryTarget.diaryDate) : '当天日记'" @close="dayDiaryTarget = null">
+      <div class="day-diary" v-if="dayDiaryTarget">
+        <img class="sum-emoji" :src="getEmotionIcon(dayDiaryTarget.emotion)" alt="" />
+        <span class="tag" :style="{background:getEmotionBg(dayDiaryTarget.emotion)}">{{ getEmotionLabel(dayDiaryTarget.emotion) }}</span>
+        <span v-if="dayDiaryTarget.intensity" class="tag intensity-tag">{{ getIntensityLabel(dayDiaryTarget.intensity) }}</span>
+        <span v-if="isAutoFilled(dayDiaryTarget)" class="tag auto-tag"><AppIcon name="moon" /> 系统代记</span>
       </div>
-    </div>
+      <p class="sum-text" v-if="dayDiaryTarget">{{ dayDiaryTarget.diaryContent }}</p>
+      <img v-if="dayDiaryTarget && dayDiaryTarget.imageUrl" :src="dayDiaryTarget.imageUrl" class="sum-img" alt="" />
+      <div class="modal-actions" v-if="dayDiaryTarget">
+        <button class="save-btn" @click="editDiary(dayDiaryTarget); dayDiaryTarget = null"><template v-if="isAutoFilled(dayDiaryTarget)"><AppIcon name="pen" /> 补一句</template><template v-else><AppIcon name="pen" /> 编辑</template></button>
+        <button class="cancel-btn danger-btn" @click="delDiary(dayDiaryTarget)"><AppIcon name="trash" /> 删除</button>
+        <button class="cancel-btn" @click="dayDiaryTarget = null">关闭</button>
+      </div>
+    </BottomSheet>
 
     <!-- ===== 近 7 天睡眠补录 ===== -->
     <SleepBackfill v-model:show="sleepBackfillVisible" />
@@ -259,6 +289,31 @@
         </div>
       </div>
     </div>
+
+    <!-- ===== 选日期（底部弹层：下滑或点遮罩关闭，关掉后停在日历原位） ===== -->
+    <BottomSheet :open="showDateSheet" title="选择年月" @close="showDateSheet = false">
+      <div class="ds-wrap">
+        <p class="ds-label">年份</p>
+        <div class="ds-years">
+          <button
+            v-for="y in yearOptions" :key="y"
+            :class="['ds-chip', { on: y === calYear }]"
+            @click="calYear = y"
+          >{{ y }}</button>
+        </div>
+        <p class="ds-label">月份</p>
+        <div class="ds-months">
+          <button
+            v-for="m in 12" :key="m"
+            :class="['ds-chip', { on: m === calMonth }]"
+            @click="pickMonth(m)"
+          >{{ m }}月</button>
+        </div>
+        <div class="ds-foot">
+          <button class="ds-today" @click="pickToday">回到本月</button>
+        </div>
+      </div>
+    </BottomSheet>
   </div>
 </template>
 
@@ -268,6 +323,7 @@ import { EMOTIONS as emotions } from '@/utils/constants'  // 情绪字典唯一�
 import * as echarts from '../lib/echarts.js'
 import { useChart } from '@/composables/useChart'
 import AnimeHero from '@/components/AnimeHero.vue'
+import BottomSheet from '@/components/BottomSheet.vue'
 import SleepBackfill from '@/components/SleepBackfill.vue'
 import { getDiaryList, saveDiary as apiSaveDiary, updateDiary as apiUpdateDiary, claimDiary as apiClaimDiary, deleteDiary as apiDeleteDiary, generateWhisper, uploadFile, fetchAllPages } from '../api'
 import request from '../api'
@@ -335,6 +391,7 @@ const editTarget = ref(null)
 const editContent = ref('')
 const editSleep = ref('')   // 编辑时可补记昨晚睡眠（小时）
 const sleepBackfillVisible = ref(false)   // 近 7 天睡眠批量补录弹窗
+const showDateSheet = ref(false)          // 选日期底部弹层（日历年月）
 // 新增
 const chartRef = ref(null)
 // 图表实例交给 useChart 托管（统一 init / resize / dispose）
@@ -449,6 +506,15 @@ const yearOptions = computed(() => {
   for (let y = now - 10; y <= now + 10; y++) arr.push(y)
   return arr
 })
+// 底部弹层选日期：选月份即确认关闭；年份只切换不关（方便连选）
+const pickMonth = (m) => {
+  calMonth.value = m
+  showDateSheet.value = false
+}
+const pickToday = () => {
+  jumpToToday()
+  showDateSheet.value = false
+}
 // 兼容两种入参：日历格子（{ dateStr }）或直接的日期字符串
 const openDiaryOfDay = (cell) => {
   const dateStr = typeof cell === 'string' ? cell : (cell?.dateStr || cell?.diaryDate)
@@ -840,6 +906,10 @@ watch(diaryList, async (list) => {
   padding: 0 0 60px;   /* 顶部横幅贴顶，不留白边 */
   overflow-x: hidden;
 }
+/* 顶栏常驻（PC）：内容让出 52px；≤768px 由 mobile.css §2.25 处理 */
+@media (min-width: 769px) {
+  .diary-page { padding-top: 52px; }
+}
 .diary-page::before {
   content: '';
   position: absolute;
@@ -989,18 +1059,19 @@ watch(diaryList, async (list) => {
 }
 .hero-meta {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
+/* 统计胶囊：与测试页顶条同款一行小胶囊，避免把 52px 顶条撑高 */
 .meta-card {
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
+  padding: 5px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1.5px solid color-mix(in srgb, var(--c-main) 55%, transparent);
   box-shadow: none;
   text-align: center;
-  min-width: 70px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 0;
+  display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 5px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .meta-card:nth-child(2) { transform: rotate(0deg); }
@@ -1010,20 +1081,20 @@ watch(diaryList, async (list) => {
   box-shadow: 0 6px 16px rgba(80, 120, 70, 0.18);
 }
 .meta-num {
-  display: block;
-  font-size: 22px;
+  display: inline;
+  font-size: 14px;
   font-weight: 700;
   color: var(--c-text);
   font-family: 'Kaiti', serif;
 }
-.meta-emoji { width: 32px; height: 32px; object-fit: contain; }
-.meta-emotion-name { display: block; font-size: 16px; font-weight: 700; color: var(--c-text); margin-top: 2px; }
+.meta-emoji { width: 18px; height: 18px; object-fit: contain; }
+.meta-emotion-name { display: inline; font-size: 12.5px; font-weight: 700; color: var(--c-text); }
 .meta-label {
-  display: block;
+  display: inline;
   font-size: 12px;
-  color: var(--c-text);
-  margin-top: 2px;
-  letter-spacing: 1px;
+  color: var(--c-text-weak);
+  margin-top: 0;
+  letter-spacing: 0.5px;
 }
 
 /* ===== 写日记区（简洁表单版）===== */
@@ -1420,8 +1491,8 @@ watch(diaryList, async (list) => {
 /* ===== Hero 右侧 ===== */
 .hero-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .write-fab {
-  padding: 8px 14px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.9);
   background: rgba(255,255,255,0.85);
   color: var(--c-text);
@@ -1442,7 +1513,7 @@ watch(diaryList, async (list) => {
   box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 25%, transparent);
   background: #fff;
 }
-.fab-icon { width: 18px; height: 18px; object-fit: contain; }
+.fab-icon { width: 16px; height: 16px; object-fit: contain; }
 
 /* 页面通用图标类 */
 .title-icon { width: 44px; height: 44px; object-fit: contain; vertical-align: -12px; margin-right: 8px; }
@@ -1755,6 +1826,72 @@ watch(diaryList, async (list) => {
 .cal-today-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 3px 8px color-mix(in srgb, var(--c-hex) 40%, transparent);
+}
+/* 手机端日期入口按钮（默认隐藏，mobile.css ≤768px 显示并隐藏 select） */
+.cal-date-btn {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 14px;
+  border: 1.5px dashed color-mix(in srgb, var(--c-hex) 45%, transparent);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--c-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ===== 选日期底部弹层内容 ===== */
+.ds-wrap { padding: 2px 2px 6px; }
+.ds-label {
+  margin: 8px 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text-weak);
+  letter-spacing: 1px;
+}
+.ds-years {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  scrollbar-width: none;
+}
+.ds-years::-webkit-scrollbar { display: none; }
+.ds-months {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.ds-chip {
+  min-height: 38px;
+  border: 1.5px solid color-mix(in srgb, var(--c-hex) 22%, transparent);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--c-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ds-chip:hover { border-color: var(--c-hex); }
+.ds-chip.on {
+  background: linear-gradient(135deg, var(--c-main), var(--c-hex));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--c-hex) 35%, transparent);
+}
+.ds-foot { margin-top: 14px; display: flex; justify-content: center; }
+.ds-today {
+  padding: 7px 22px;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-hex) 14%, transparent);
+  color: var(--c-text);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 /* 日历格子恢复正常尺寸（之前调大过数字） */

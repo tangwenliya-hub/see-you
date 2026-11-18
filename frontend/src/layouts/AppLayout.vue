@@ -1,11 +1,14 @@
 <template>
   <div class="app-layout-wrap">
-    <!-- 顶部 hover 感应区（鼠标靠近顶部 0-60px 时显示导航栏） -->
-    <div class="app-bar-hover-zone" @mouseenter="onHoverZoneEnter" @mouseleave="onHoverZoneLeave"></div>
+    <!-- 顶部导航栏：常驻固定在顶部（PC 与手机一致，不再 hover 滑出） -->
+    <header class="app-bar">
+      <!-- 手机端菜单按钮（PC 端由 mobile.css 隐藏）：打开左侧抽屉 -->
+      <button class="m-drawer-btn" type="button" aria-label="打开菜单" @click.stop="drawerOpen = true">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
+        </svg>
+      </button>
 
-    <!-- 顶部导航栏（默认隐藏，hover 顶部显示） -->
-    <header class="app-bar" :class="{ visible: showBar }"
-            @mouseenter="onBarEnter" @mouseleave="onBarLeave">
       <!-- 返回按钮（除了主页 /main 都显示） -->
       <router-link v-if="!isHome" to="/main" class="back-btn" title="返回主页">
         <AppIcon name="arrow-left" /> 返回
@@ -37,8 +40,66 @@
       </div>
     </header>
 
-    <!-- 页面内容直接插入 -->
-    <slot />
+    <!-- 页面内容容器：手机端从左边缘右滑返回时整页跟着手指平移
+         （PC 端 display:contents 不产生盒子，布局与改动前完全一致） -->
+    <div ref="pageWrapRef" class="page-wrap">
+      <slot />
+    </div>
+
+    <!-- ===== 手机端左侧抽屉菜单（PC 端由 mobile.css 整体 display:none）=====
+         底部 Tab 只放得下 5 个主入口，测试/学堂/数据看板/反馈这些次要功能
+         收进抽屉里：左上角按钮打开，点旁边遮罩关闭。 -->
+    <transition name="m-mask">
+      <div v-if="drawerOpen" class="m-drawer-mask" @click="drawerOpen = false"></div>
+    </transition>
+    <aside class="m-drawer" :class="{ open: drawerOpen }" aria-label="更多功能">
+      <div class="m-drawer-head">
+        <div class="m-dh-avatar">
+          <img :src="topAvatarUrl" class="m-dh-face" alt="" @error="onAvatarError" />
+          <!-- 头像装饰框：与顶栏/个人中心同一份数据源，改框这里实时同步 -->
+          <img v-if="currentFrameImg" :src="currentFrameImg" class="m-dh-frame"
+               :style="{ width: currentFrameScale + '%', height: currentFrameScale + '%' }"
+               @error="$event.target.style.display='none'" />
+        </div>
+        <div class="m-dh-info">
+          <div class="m-dh-name">{{ userInfo ? (userInfo.nickname || userInfo.username || '用户') : '未登录' }}</div>
+          <div class="m-dh-sub">{{ isAdmin ? '管理员' : (isLoggedIn ? '世界和我爱着你' : '登录后同步你的记录') }}</div>
+        </div>
+        <button class="m-dh-close" type="button" aria-label="关闭菜单" @click="drawerOpen = false">
+          <AppIcon name="close" />
+        </button>
+      </div>
+
+      <div class="m-drawer-body">
+        <div class="m-dh-sec">探索更多</div>
+        <router-link v-for="item in drawerLinks" :key="item.to" :to="item.to"
+                     class="m-drawer-item" :class="{ active: route.path === item.to }">
+          <img :src="item.icon" alt="" />
+          <span class="m-di-label">{{ item.label }}</span>
+          <span class="m-di-desc">{{ item.desc }}</span>
+        </router-link>
+
+        <div class="m-dh-sec">账号</div>
+        <router-link to="/profile" class="m-drawer-item" :class="{ active: route.path === '/profile' }">
+          <img src="/img/开心牛牛.png" alt="" />
+          <span class="m-di-label">个人中心</span>
+          <span v-if="unreadAlerts > 0" class="m-di-dot" :title="`${unreadAlerts} 条未读关怀提醒`"></span>
+          <span class="m-di-desc">资料 · 主题 · 提醒</span>
+        </router-link>
+        <template v-if="!isLoggedIn">
+          <router-link to="/login" class="m-drawer-item">
+            <img src="/img/登入.jpg" alt="" />
+            <span class="m-di-label">登入 / 注册</span>
+          </router-link>
+        </template>
+        <button v-else type="button" class="m-drawer-item m-di-danger" @click="onDrawerLogout">
+          <img src="/img/账号安全.png" alt="" />
+          <span class="m-di-label">退出登录</span>
+        </button>
+      </div>
+
+      <div class="m-drawer-foot">绪见 · 世界和我爱着你</div>
+    </aside>
 
     <!--
       情绪风险预警弹窗（全局单例，非医疗诊断）
@@ -72,35 +133,15 @@ import { clearUserPrefs } from '../utils/userPrefs'
 import { useUserStore } from '../stores/user'
 import { senseTracker } from '../utils/senseTracker'
 import { getSenseConfig, getRiskOverview } from '../api/sense'
+import { useSwipeBack } from '../composables/useSwipeBack'
 import RiskAlertDialog from '../components/RiskAlertDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
-const showBar = ref(false)
-let hideTimer = null
 
-// 顶部导航栏 hover 控制（带延迟，防止闪烁）
-const onHoverZoneEnter = () => {
-  if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
-  showBar.value = true
-}
-const onHoverZoneLeave = () => {
-  // 延迟 200ms 隐藏，给用户时间移到导航栏上
-  hideTimer = setTimeout(() => {
-    showBar.value = false
-    hideTimer = null
-  }, 200)
-}
-const onBarEnter = () => {
-  if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
-  showBar.value = true
-}
-const onBarLeave = () => {
-  hideTimer = setTimeout(() => {
-    showBar.value = false
-    hideTimer = null
-  }, 200)
-}
+// 手机端「左边缘右滑返回」：页面容器跟着手指走，过半返回、不过半弹回
+const pageWrapRef = ref(null)
+useSwipeBack(pageWrapRef)
 
 // ===== 登录态（状态源是 Pinia store，天然响应式，无需再监听 storage 事件）=====
 const userStore = useUserStore()
@@ -203,14 +244,38 @@ const doLogout = async () => {
 }
 
 // ===== 移动端底部导航 =====
+// 个人中心不放在底部 Tab：抽屉里有「个人中心」入口，避免重复
 const mobileTabs = [
   { to: '/main',      label: '主页', icon: '/img/绪见后台管理.png', match: (p) => p === '/main' || p === '/' || p === '/home' },
   { to: '/diary',     label: '日记', icon: '/img/我的日记本.png', match: (p) => p.startsWith('/diary') },
   { to: '/assistant', label: 'AI',   icon: '/img/AI对话历史.png', match: (p) => p.startsWith('/assistant') },
   { to: '/fm',        label: 'FM',   icon: '/img/治愈音频.png', match: (p) => p.startsWith('/fm') },
-  { to: '/profile',   label: '我的', icon: '/img/开心牛牛.png', badge: true, match: (p) => p.startsWith('/profile') },
 ]
 const isTabActive = (t) => t.match(route.path)
+
+// ===== 手机端左侧抽屉菜单 =====
+// 底部 Tab 放不下的次要功能收进抽屉，避免顶栏堆一排入口（手机顶栏只有 52px）
+const drawerOpen = ref(false)
+const drawerLinks = [
+  { to: '/test',      label: '绪见测试', icon: '/img/测评量表.png', desc: '量表 · 报告' },
+  { to: '/classroom', label: '绪见学堂', icon: '/img/心理视频.png', desc: '视频 · 课程' },
+  { to: '/databoard', label: '数据看板', icon: '/img/数据大盘.png', desc: '情绪 · 趋势' },
+  { to: '/feedback',  label: '反馈建议', icon: '/img/我的反馈.png', desc: '问题 · 想法' },
+]
+
+/** 抽屉里的退出：复用顶栏的确认弹窗逻辑，点完自动收起抽屉 */
+const onDrawerLogout = async () => {
+  drawerOpen.value = false
+  await doLogout()
+}
+
+// 抽屉打开时锁住页面滚动，关闭/切页时立刻收起（点条目跳转后不该还挂在屏幕上）
+watch(drawerOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+watch(() => route.path, () => {
+  if (drawerOpen.value) drawerOpen.value = false
+})
 
 /** 未读关怀提醒数（情绪风险预警，非医疗诊断） */
 const unreadAlerts = ref(0)
@@ -283,7 +348,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (wsTimer) clearInterval(wsTimer)
-  if (hideTimer) clearTimeout(hideTimer)
+  // 抽屉占用的滚动锁要还回去，否则离开布局后整站都滚不动
+  document.body.style.overflow = ''
   // 卸载即停止采集：保证「开关关闭」是真正的关闭，而不是仅仅不再上报
   senseTracker.disable()
   document.body.classList.remove('has-mobile-tabbar')

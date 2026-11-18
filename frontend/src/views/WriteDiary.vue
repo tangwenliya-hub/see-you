@@ -1,10 +1,8 @@
 <template>
   <div class="write-page">
-    <!-- 顶部横幅（动漫风，颜色跟随个人中心主题色） -->
-    <AnimeHero icon="/img/写日记.png" title="记录今日心情" sub="把今天的心情，轻轻放进来 ">
-      <template #left>
-        <button class="back-btn" @click="$router.push('/diary')"><AppIcon name="arrow-left" /> 返回</button>
-      </template>
+    <!-- 顶部横幅（动漫风，颜色跟随个人中心主题色）
+         不放「返回」按钮：顶部导航栏已有常驻返回，再放一个是重复（全站仅此页有过） -->
+    <AnimeHero glyph="pen" title="记录今日心情" sub="把今天的心情，轻轻放进来 ">
       <template #right>
         <span class="write-today">{{ today }}</span>
       </template>
@@ -606,6 +604,10 @@ const saveDiary = async () => {
   box-sizing: border-box;
   overflow-x: hidden;
 }
+/* 顶栏常驻（PC）：内容让出 52px；≤768px 由 mobile.css 处理 */
+@media (min-width: 769px) {
+  .write-page { padding-top: 52px; }
+}
 /* 柔和装饰光斑 */
 .write-page::before, .write-page::after {
   content: ''; position: fixed; border-radius: 50%;
@@ -627,15 +629,6 @@ const saveDiary = async () => {
   backdrop-filter: blur(10px);
   box-sizing: border-box;
 }
-.back-btn {
-  background: rgba(255,255,255,0.9); border: none;
-  padding: 8px 16px; border-radius: 999px;
-  font-size: 14px; color: #555; cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  transition: all 0.2s; flex-shrink: 0;
-}
-.back-btn:hover { background: #fff; transform: translateX(-2px); }
-
 .write-head-center { flex: 1; text-align: center; min-width: 0; }
 .write-title {
   font-size: 22px; font-weight: 700; color: var(--c-text);
@@ -922,7 +915,7 @@ const saveDiary = async () => {
 
 .sf-save-btn {
   width: 100%; padding: 16px; border-radius: 14px;
-  border: none; background: linear-gradient(135deg, var(--c-hex) 0%, #6eb464 100%);
+  border: none; background: linear-gradient(135deg, var(--c-main) 0%, var(--c-hex) 100%);
   color: #fff; font-size: 16px; font-weight: 600; letter-spacing: 3px;
   cursor: pointer; transition: all 0.3s;
   box-shadow: 0 6px 20px color-mix(in srgb, var(--c-main) 35%, transparent);

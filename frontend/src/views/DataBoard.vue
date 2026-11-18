@@ -1,7 +1,7 @@
 <template>
   <div :class="['board-page', { embedded }]">
     <!-- ===== 顶部（内嵌时不显示）===== -->
-    <AnimeHero v-if="!embedded" glyph="chart-bar" title="我的数据看板" sub="把每天的情绪攒起来，慢慢看清自己的曲线 ">
+    <AnimeHero v-if="!embedded" glyph="chart-bar" title="我的数据看板">
       <template #right>
         <div class="hero-right">
           <div class="range-switch">
@@ -21,6 +21,21 @@
 
     <!-- 内容区：与测试/日记页同宽（横幅通栏，内容 1400 居中） -->
     <div class="board-body">
+
+    <!-- 手机端专属工具行：把日期切换/年份/导出从顶条挪出来，顶条与其他页面一样只留标题 -->
+    <div v-if="!embedded" class="board-mobile-tools">
+      <div class="range-switch">
+        <button v-for="r in trendRanges" :key="r.days"
+                :class="['range-btn', { on: trendDays === r.days }]"
+                @click="trendDays = r.days">{{ r.label }}</button>
+      </div>
+      <select v-model="heatYear" class="year-select" @change="loadHeatmap">
+        <option v-for="y in yearOptions" :key="y" :value="y">{{ y }} 年</option>
+      </select>
+      <button class="export-btn" :disabled="exporting" @click="exportBoardCsv">
+        <template v-if="exporting">导出中…</template><template v-else><AppIcon name="download" /> 导出</template>
+      </button>
+    </div>
 
     <!-- 接口异常时给出可见提示，避免"图表空白但用户不知道为什么" -->
     <div v-if="loadErr" class="board-alert">
@@ -66,12 +81,16 @@
           <template v-else><AppIcon name="refresh" /> {{ wrReport ? '换一份' : '生成周报' }}</template>
         </button>
       </div>
-      <div v-if="wrLoading" class="wr-body wr-hint">AI 正在翻看你这一周的日记，稍等片刻…</div>
+      <div v-if="wrLoading" class="wr-body wr-hint"><CowLoading size="sm" text="AI 正在翻看这一周的日记" /></div>
       <div v-else-if="wrErr" class="wr-body wr-hint">{{ wrErr }}</div>
-      <div v-else-if="wrReport" class="wr-body wr-content">{{ wrReport }}</div>
+      <div v-else-if="wrReport" class="wr-body wr-content" :class="{ collapsed: !wrExpanded }">{{ wrReport }}</div>
       <div v-else class="wr-body wr-hint">
         还没有生成过周报。点右上角「生成周报」，AI 会回顾你近 7 天的日记，写一份只属于你的小结。
       </div>
+      <!-- 周报正文较长：手机端默认折叠，点此展开/收起（PC 端不受影响） -->
+      <button v-if="wrReport && !wrLoading && !wrErr" class="wr-toggle" @click="wrExpanded = !wrExpanded">
+        {{ wrExpanded ? '收起周报' : '展开全文' }}
+      </button>
       <p class="wr-disclaimer">周报由 AI 生成，仅为情绪记录的回顾与陪伴参考，不构成任何医疗建议。</p>
     </section>
 
@@ -251,7 +270,7 @@
     </section>
 
     <!-- ===== 加载中 ===== -->
-    <div v-if="loading" class="loading-mask"><div class="loading-text">数据加载中...</div></div>
+    <div v-if="loading" class="loading-mask"><CowLoading size="md" text="数据加载中" /></div>
 
     </div>
   </div>
@@ -263,6 +282,7 @@ import * as echarts from '../lib/echarts.js'
 import 'echarts-wordcloud'   // 词云系列（echarts-wordcloud 2.x，兼容 echarts 5）
 import { EMOTIONS } from '@/utils/constants'  // 情绪字典唯一真源
 import AnimeHero from '@/components/AnimeHero.vue'
+import CowLoading from '@/components/CowLoading.vue'
 import { useChart } from '@/composables/useChart'
 import {
   getMyOverview, getMyTrend, getMyHeatmap, getMyEmotion, getMyTestTrend, getMyMonthly,
@@ -327,6 +347,7 @@ const wrReport = ref('')
 const wrLoading = ref(false)
 const wrErr = ref('')
 const wrCount = ref(0)
+const wrExpanded = ref(false)
 const wrMeta = computed(() => (wrCount.value ? `本次纳入 ${wrCount.value} 篇日记` : ''))
 
 const loadWeeklyReport = async (refresh = false) => {
@@ -1061,7 +1082,7 @@ const loadSenseCorrelation = async () => {
         radius: '62%', center: ['50%', '48%'],
         splitLine: { lineStyle: { color: SPLIT_COLOR() } },
         axisName: { color: AXIS_COLOR(), fontSize: 10 },
-        splitArea: { areaStyle: { color: ['rgba(255,255,255,0)', 'rgba(140,160,140,0.04)'] } },
+        splitArea: { areaStyle: { color: ['rgba(255,255,255,0)', hexA(accent(), 0.04)] } },
       },
       series: [{
         type: 'radar', symbolSize: 4,
@@ -1098,7 +1119,7 @@ const loadSenseCorrelation = async () => {
           min: 0, max: Math.max(1, maxCnt), calculable: true, orient: 'horizontal',
           left: 'center', bottom: 0, itemWidth: 12, itemHeight: 80,
           textStyle: { color: AXIS_COLOR(), fontSize: 10 },
-          inRange: { color: ['#f2f6f2', '#cfe3c0', '#9ccb7d', '#62a63c', '#33701a'] },
+          inRange: { color: heatRamp() },
         },
         series: [{
           type: 'heatmap', data: d.heat || [],
@@ -1192,6 +1213,10 @@ onBeforeUnmount(() => {
   color: var(--p-text);
   background: linear-gradient(135deg, var(--c-bg1, #f6f9f6) 0%, var(--c-bg2, #f0f7f0) 50%, var(--c-bg1, #f6f9f6) 100%);
 }
+/* 顶栏常驻（PC）：看板让出 52px（embedded 内嵌模式不受影响） */
+@media (min-width: 769px) {
+  .board-page:not(.embedded) { padding-top: 52px; box-sizing: border-box; }
+}
 /* 内容区：与其他页面一致的全宽版心（仅留 28px 内边距） */
 .board-body {
   width: 100%;
@@ -1207,6 +1232,9 @@ onBeforeUnmount(() => {
 }
 /* 内嵌时内容不再额外居中留白（外层个人中心已有自己的版心） */
 .board-page.embedded .board-body { max-width: 100%; padding: 0; }
+
+/* 手机端专属工具行：PC 端由顶条 #right 提供同一组控件，这里只给手机用 */
+.board-mobile-tools { display: none; }
 
 /* 玻璃卡片（原先 .glass 未定义，导致顶部整块透明无背景） */
 .glass {
@@ -1372,6 +1400,8 @@ onBeforeUnmount(() => {
 }
 .wr-hint { color: var(--c-text-weak, #999); font-size: 13px; }
 .wr-content { color: var(--c-text, #444); }
+/* 展开/收起：仅手机端出现（正文在手机上默认折叠），PC 端全文常显 */
+.wr-toggle { display: none; }
 .wr-disclaimer {
   margin: 10px 0 0; padding-top: 8px;
   border-top: 1px dashed color-mix(in srgb, var(--p-hex) 25%, transparent);

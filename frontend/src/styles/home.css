@@ -20,6 +20,11 @@
     overflow: hidden;
     isolation: isolate;
 }
+/* 顶栏常驻后，首屏卡片不再垂直居中留一大截空白：PC 端改为靠上 + 小留白，
+   卡片紧贴顶栏下方；手机端布局不同（卡片本就靠上），保持原样 */
+@media (min-width: 769px) {
+    .hp-root .hero { align-items: flex-start; padding-top: 8px; }
+}
 /* 天空底色（随时间变化） */
 .hp-root .hero-sky {
     position: absolute;

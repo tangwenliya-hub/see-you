@@ -13,7 +13,7 @@
         </div>
       </div>
 
-      <div v-if="loading" class="fm-loading">加载中...</div>
+      <div v-if="loading" class="fm-loading"><CowLoading size="md" text="加载中" /></div>
       <template v-else>
       <div class="card-grid">
         <div v-for="(a, idx) in pagedList" :key="a.audioId" class="song-card"
@@ -127,7 +127,7 @@
                 <input v-model="newComment" placeholder="说点什么吧..." @keyup.enter="submitComment" />
                 <button class="cp-send" @click="submitComment">发送</button>
               </div>
-              <div v-if="commentLoading" class="cp-loading">加载评论中...</div>
+              <div v-if="commentLoading" class="cp-loading"><CowLoading size="sm" text="加载评论中" /></div>
               <div v-else-if="comments.length > 0" class="cp-list">
                 <div v-for="(c, i) in comments" :key="c.commentId || i" class="cp-item" :class="{ pending: c.status === 0, rejected: c.status === -1 }">
                   <div class="cp-avatar">
@@ -232,6 +232,7 @@ import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
 import request, { playAudio } from '@/api'
 import AnimeHero from '@/components/AnimeHero.vue'
+import CowLoading from '@/components/CowLoading.vue'
 import { getLikeList, saveLike, cancelLike, getLikeCount, getCollectList, saveCollect, cancelCollect, getCollectCount, getCommentListByResource, saveComment, fetchAllPages } from '@/api'
 import '../styles/fm.css'
 

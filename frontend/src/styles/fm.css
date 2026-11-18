@@ -9,6 +9,10 @@
   box-sizing: border-box;
   background: linear-gradient(135deg, var(--c-bg1) 0%, var(--c-bg2) 100%);
 }
+/* 顶栏常驻（PC）：内容让出 52px；≤768px 由 mobile.css 处理 */
+@media (min-width: 769px) {
+  .fm-page { padding-top: 52px; }
+}
 
 .fm-page .list-view { padding: 40px 28px 120px; width: 100%; margin: 0; box-sizing: border-box; }
 .fm-page .page-head { margin-bottom: 28px; }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * 全局异常处理器
@@ -62,6 +63,13 @@ public class GlobalExceptionHandler {
     public Result<?> handleNullPointer(NullPointerException e) {
         log.error("空指针异常：", e);
         return Result.error(500, "服务器内部错误");
+    }
+
+    /** 静态资源不存在：本地误开 8081 根路径等场景，安静返回 404，不刷系统异常堆栈 */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public Result<?> handleNoResource(NoResourceFoundException e) {
+        log.info("访问的资源不存在：{}", e.getResourcePath());
+        return Result.error(404, "资源不存在");
     }
 
     /** 兜底：所有未知异常 */

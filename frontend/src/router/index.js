@@ -6,19 +6,26 @@ import { useUserStore } from '../stores/user'
 // 与 src/api/index.js 同一套前缀约定：dev=/api（Vite 代理），prod=空（同源直连）
 const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
 
+/**
+ * 面包屑元数据：数组长度 = 页面层级（1=首页，2=二级页，3=三级页…）。
+ * AnimeHero 顶部横幅读取该 meta，层级 > 2 时自动显示可点击路径（首页 > 日记 > 写日记）。
+ * 每一级：label=显示文字，to=点击跳转目标；最后一级是当前页，不挂 to。
+ */
+const crumb = (items) => ({ meta: { crumbs: items } })
+
 const routes = [
   { path: '/', component: () => import('../views/Home.vue'), alias: '/home' },   /* 打开即欢迎页（奶牛落地页）；已登录访问会自动跳 /main */
-  { path: '/main', component: () => import('../views/Main.vue') },
+  { path: '/main', component: () => import('../views/Main.vue'), ...crumb([{ label: '首页' }]) },
   { path: '/login', component: () => import('../views/Login.vue') },
-  { path: '/diary', component: () => import('../views/Diary.vue') },
-  { path: '/diary/write', component: () => import('../views/WriteDiary.vue') },
-  { path: '/test', component: () => import('../views/Test.vue') },
-  { path: '/assistant', component: () => import('../views/Assistant.vue') },
-  { path: '/fm', component: () => import('../views/FM.vue') },
-  { path: '/classroom', component: () => import('../views/Classroom.vue') },
-  { path: '/profile', component: () => import('../views/Profile.vue') },
-  { path: '/databoard', component: () => import('../views/DataBoard.vue') },
-  { path: '/feedback', component: () => import('../views/Feedback.vue') },
+  { path: '/diary', component: () => import('../views/Diary.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '日记' }]) },
+  { path: '/diary/write', component: () => import('../views/WriteDiary.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '日记', to: '/diary' }, { label: '写日记' }]) },
+  { path: '/test', component: () => import('../views/Test.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '心理测评' }]) },
+  { path: '/assistant', component: () => import('../views/Assistant.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: 'AI 陪伴' }]) },
+  { path: '/fm', component: () => import('../views/FM.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '心理FM' }]) },
+  { path: '/classroom', component: () => import('../views/Classroom.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '绪见学堂' }]) },
+  { path: '/profile', component: () => import('../views/Profile.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '个人中心' }]) },
+  { path: '/databoard', component: () => import('../views/DataBoard.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '数据看板' }]) },
+  { path: '/feedback', component: () => import('../views/Feedback.vue'), ...crumb([{ label: '首页', to: '/main' }, { label: '反馈与建议' }]) },
 
   // ===== 404 兜底：所有不存在的路径统一跳主页 =====
   { path: '/:pathMatch(.*)*', redirect: '/main' },

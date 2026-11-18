@@ -50,10 +50,10 @@ b,strong{
     font-size: 1.2vw;
 }
 
-/* ===== 顶部 App Bar（跟随主题的玻璃效果）===== */
+/* ===== 顶部 App Bar（常驻固定：PC 与手机一致，不再 hover 滑出）===== */
 .app-bar {
     position: fixed;
-    top: -60px;              /* 默认向上隐藏 */
+    top: 0;
     left: 0;
     right: 0;
     height: 52px;
@@ -67,20 +67,7 @@ b,strong{
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-    transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-}
-/* 鼠标靠近顶部或 hover 导航栏时显示 */
-.app-bar.visible {
-    top: 0;
-}
-/* 顶部 hover 感应条（60px 高） */
-.app-bar-hover-zone {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    z-index: 999;
+    transition: background 0.3s ease;
 }
 
 /* 返回按钮 */
@@ -128,13 +115,14 @@ b,strong{
     background-clip: initial;
 }
 
-/* ===== App Bar 中间的毛玻璃按钮（跟随主题色）===== */
+/* ===== 顶栏中间导航：纯文字标签（参考分类 tab 风格）
+   当前页加粗 + 主题色，其他灰色，无背景胶囊 ===== */
 .nav-links {
     flex: 1 1 auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
     overflow-x: auto;
     scrollbar-width: none;
@@ -144,36 +132,34 @@ b,strong{
 }
 .bar-item {
     flex: 0 0 auto;
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
     letter-spacing: 1px;
     text-decoration: none;
     white-space: nowrap;
-    color: var(--c-hex);
-    background: color-mix(in srgb, var(--c-main) 45%, white);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    box-shadow: 0 3px 8px color-mix(in srgb, var(--c-hex) 25%, transparent);
-    transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+    color: color-mix(in srgb, var(--c-ink, #444) 55%, transparent);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
+    transition: color 0.2s ease, background 0.2s ease;
     cursor: pointer;
 }
 .bar-item:hover {
-    transform: translateY(-2px) scale(1.06);
-    background: color-mix(in srgb, var(--c-main) 70%, white);
     color: var(--c-hex);
-    box-shadow: 0 8px 16px color-mix(in srgb, var(--c-hex) 35%, transparent);
+    background: color-mix(in srgb, var(--c-main) 16%, transparent);
 }
 .bar-item:active {
-    transform: translateY(0);
+    transform: none;
 }
-/* 当前页导航高亮（vue-router 会自动加 router-link-active） */
+/* 当前页导航高亮：加粗 + 主题色文字（vue-router 自动加 router-link-active） */
 .bar-item.router-link-active {
-    background: var(--c-hex);
-    color: #fff;
-    border-color: var(--c-hex);
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 45%, transparent);
+    background: transparent;
+    color: var(--c-hex);
+    font-weight: 800;
+    border: none;
+    box-shadow: none;
 }
 
 .app-actions {
@@ -302,8 +288,40 @@ b,strong{
     overflow-x: hidden;
 }
 
-/* ===== 所有页面根元素统一处理偏移：避开 fixed 导航栏 =====
-   页面自己加 padding，背景图可以用 background-attachment: fixed 全屏铺满 */
+/* ===== 内页背景统一：全部对齐个人中心/数据看板的淡色渐变 =====
+   日记的网格、测试的波点、写日记的彩色光斑等装饰层全部不再渲染，
+   避免各页颜色不一致。首页（hp-root）的插画氛围图保留不动。 */
+:root:not(.dark-mode) {
+    --page-bg: linear-gradient(135deg, var(--c-bg1) 0%, var(--c-bg2) 50%, var(--c-bg1) 100%);
+}
+:root:not(.dark-mode) .diary-page,
+:root:not(.dark-mode) .test-page,
+:root:not(.dark-mode) .write-page,
+:root:not(.dark-mode) .feedback-page,
+:root:not(.dark-mode) .fm-page,
+:root:not(.dark-mode) .classroom-page,
+:root:not(.dark-mode) .ai-chat-page,
+:root:not(.dark-mode) .main-page {
+    background: var(--page-bg) !important;
+    background-attachment: fixed !important;
+}
+:root:not(.dark-mode) .diary-page::before,
+:root:not(.dark-mode) .diary-page::after,
+:root:not(.dark-mode) .write-page::before,
+:root:not(.dark-mode) .write-page::after,
+:root:not(.dark-mode) .feedback-page::before {
+    display: none !important;
+}
+
+/* 日记页标题左侧槽只在手机端放低频按钮；PC 端原按钮仍在右侧，槽位直接收起 */
+@media (min-width: 769px) {
+    .diary-page .ah-left { display: none; }
+}
+
+/* ===== 页面根元素统一让位：顶部导航栏 52px 常驻 =====
+   （旧的左侧悬浮导航已移除，190px 左留白一并清理；
+    Diary/WriteDiary/Test/Feedback/DataBoard/Assistant 的根类在各自
+    scoped 样式里定义了 padding，优先级更高，由页面文件内单独让位） */
 .main-page,
 .test-page,
 .fm-page,
@@ -311,10 +329,17 @@ b,strong{
 .profile-page,
 .feedback-page,
 .assistant-page {
-    padding-left: 190px;    /* 左侧导航宽170 + 间隙20 */
-    padding-top: 52px;      /* 顶部导航高52 */
+    padding-top: 52px;      /* 顶部导航高52（常驻） */
     box-sizing: border-box;
     min-height: 100vh;
+}
+/* 主页根类不在上面的列表里（scoped/global 分离），单独让位（仅 PC；
+    ≤768px 由 mobile.css 的各页规则自行处理） */
+@media (min-width: 769px) {
+    .hp-root {
+        padding-top: 52px;
+        box-sizing: border-box;
+    }
 }
 @media (max-width: 600px) {
     .main-page,

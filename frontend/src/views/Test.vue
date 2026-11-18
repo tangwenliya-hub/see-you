@@ -2,20 +2,10 @@
   <div class="test-page" :style="themeVars">
     <!-- ===== 顶部海报横幅（动漫风：渐变天空 + 吉祥物 + 星星 + 波浪底边） ===== -->
     <header class="hero">
-      <div class="hero-blob b1"></div>
-      <div class="hero-blob b2"></div>
-      <span class="hero-star s1"><AppIcon name="sparkles" /></span>
-      <span class="hero-star s2"><AppIcon name="sparkles" /></span>
-      <span class="hero-star s3"><AppIcon name="sparkles" /></span>
-      <span class="hero-cloud c1"><AppIcon name="cloud" /></span>
-      <span class="hero-cloud c2"><AppIcon name="cloud" /></span>
       <div class="hero-inner">
         <div class="hero-title">
-          <h1>测一测，更温柔地了解自己</h1>
-          <p class="hero-sub">科学量表 · 匿名安心 · 结果即刻生成</p>
+          <h1><AppIcon name="clipboard" :size="21" class="hero-title-icon" /> 测一测，更温柔地了解自己</h1>
         </div>
-        <!-- 吉祥物小熊：弹性布局中间项，自动落在标题与右侧统计的空档 -->
-        <div class="hero-mascot">ʕ •ᴥ• ʔ</div>
         <div class="hero-meta">
           <div class="meta-chip"><b>{{ totalTests }}</b> 可用量表</div>
           <div class="meta-chip"><b>{{ myHistory.length }}</b> 我的测评</div>
@@ -23,21 +13,26 @@
           <button class="history-btn" @click="scrollToHistory"><AppIcon name="clipboard" /> 我的测评记录</button>
         </div>
       </div>
-      <svg class="hero-wave" viewBox="0 0 1440 70" preserveAspectRatio="none">
-        <path d="M0,40 C240,80 480,0 720,30 C960,60 1200,10 1440,40 L1440,70 L0,70 Z" fill="#ffffff"/>
-      </svg>
     </header>
+
+    <!-- 手机端专属：顶条只留标题，三个徽章 + 测评记录按钮下移到这一行（PC 端隐藏） -->
+    <div class="page-tools test-tools">
+      <div class="meta-chip"><b>{{ totalTests }}</b> 可用量表</div>
+      <div class="meta-chip"><b>{{ myHistory.length }}</b> 我的测评</div>
+      <div class="meta-chip"><b>{{ latestScore }}</b> 最近得分</div>
+      <button class="history-btn" @click="scrollToHistory"><AppIcon name="clipboard" /> 我的测评记录</button>
+    </div>
 
     <!-- ===== 分类筛选磁贴 + 搜索（磁贴即筛选项，选中高亮） ===== -->
     <nav class="cat-nav">
       <div class="quick-tiles">
         <div
-          v-for="(cat, i) in quickCats"
+          v-for="cat in quickCats"
           :key="cat.key"
           :class="['quick-tile', { on: activeCat === cat.key }]"
           @click="activeCat = cat.key"
         >
-          <div class="tile-icon" :style="{ background: tileBg(i) }"><AppIcon :name="cat.icon" /></div>
+          <div class="tile-icon" :style="{ background: tileBg() }"><AppIcon :name="cat.icon" /></div>
           <span class="tile-name">{{ cat.label }}</span>
         </div>
       </div>
@@ -148,7 +143,7 @@
     <div v-if="showDetail" class="modal-mask" @click.self="showDetail = false">
       <div class="modal-card detail-modal">
         <div class="detail-head">
-          <div class="detail-icon">{{ paperIcon(detailPaper?.testName) }}</div>
+          <div class="detail-icon"><AppIcon :name="paperIcon(detailPaper?.testName)" /></div>
           <div>
             <h3 class="detail-title">{{ detailPaper?.testName }}</h3>
             <div class="detail-tags">
@@ -208,7 +203,7 @@
             :key="i"
             :class="['opt-btn', { on: answers[currentQ] === opt.score }]"
             :style="{ animationDelay: (i * 0.07) + 's' }"
-            @click="answers[currentQ] = opt.score"
+            @click="pickOption(opt.score)"
           >
             <span class="opt-letter">{{ letterOf(i) }}</span>
             <span class="opt-text">{{ opt.label }}</span>
@@ -223,8 +218,8 @@
           <div class="quiz-progress-fill" :style="{ width: ((currentQ + 1) / questions.length * 100) + '%' }"></div>
         </div>
         <div class="quiz-foot-btns">
-          <button class="quiz-nav ghost" :disabled="currentQ === 0" @click="currentQ--">上一题</button>
-          <button v-if="currentQ < questions.length - 1" class="quiz-nav primary" :disabled="answers[currentQ] === undefined" @click="currentQ++">下一题</button>
+          <button class="quiz-nav ghost" :disabled="currentQ === 0" @click="goPrev">上一题</button>
+          <button v-if="currentQ < questions.length - 1" class="quiz-nav primary" :disabled="answers[currentQ] === undefined" @click="goNext">下一题</button>
           <button v-else class="quiz-nav primary" :disabled="submitting || answers.some(a => a === undefined)" @click="submitTest">{{ submitting ? '提交中…' : '提交测评' }}</button>
         </div>
       </footer>
@@ -270,19 +265,24 @@
 
     <!-- ===== 加载动画 ===== -->
     <div v-if="isLoading" class="loading-mask">
-      <div class="loading-spinner">
-        <div class="loading-dots"><span></span><span></span><span></span></div>
-        <p class="loading-text">(´･ω･)ﾉ 题目加载中…</p>
-      </div>
+      <CowLoading size="lg" text="题目加载中" />
     </div>
+    <!-- ===== 回到顶部（仅手机端显示；滚过一屏才浮现，点一下平滑回顶） ===== -->
+    <transition name="bt-fade">
+      <button v-if="showBackTop" class="m-back-top" @click="backToTop" aria-label="回到顶部">
+        <AppIcon name="arrow-up" />
+      </button>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getTestPaperList, getRecordList, saveRecord, getQuestionList, getOptionList, matchResultGrade } from '../api'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import CowLoading from '../components/CowLoading.vue'
+import { ElMessage } from 'element-plus'
+import { jellyConfirm } from '@/utils/confirm'
 
 const route = useRoute()
 const router = useRouter()
@@ -382,11 +382,10 @@ const themeVars = computed(() => {
   }
 })
 
-// 快捷磁贴的六格渐变：主色色相微旋转，整体和主题一个色系
-const tileBg = (i) => {
-  const degs = [0, -28, 150, 205, 42, -58]
-  const c = rotateHue(theme.value.hex, degs[i % degs.length])
-  return `linear-gradient(135deg, ${tint(c, 0.72)}, ${tint(c, 0.5)})`
+// 快捷磁贴：全部统一为同一个主题色渐变，不再逐格旋转色相
+const tileBg = () => {
+  const hex = theme.value.hex
+  return `linear-gradient(135deg, ${tint(hex, 0.72)}, ${tint(hex, 0.5)})`
 }
 
 // Profile 里切了主题  立即换肤（同标签页事件 + 跨标签页 storage）
@@ -506,6 +505,36 @@ const quizMascotLine = computed(() => {
 })
 const answers = ref([])
 const currentPaper = ref(null)
+
+// ===== 选项点击：选中 → 短暂停顿后自动进入下一题 =====
+// 最后一题不自动跳，留在提交按钮那一步，避免误提交。
+let autoNextTimer = null
+const cancelAutoNext = () => {
+  if (autoNextTimer) { clearTimeout(autoNextTimer); autoNextTimer = null }
+}
+const pickOption = (score) => {
+  answers.value[currentQ.value] = score
+  cancelAutoNext()
+  if (currentQ.value < questions.value.length - 1) {
+    // 320ms：刚好看到选中态动画 + 打勾，太快会显得页面在闪
+    autoNextTimer = setTimeout(() => { autoNextTimer = null; currentQ.value++ }, 320)
+  }
+}
+const goNext = () => {
+  cancelAutoNext()
+  if (currentQ.value < questions.value.length - 1) currentQ.value++
+}
+const goPrev = () => {
+  cancelAutoNext()
+  if (currentQ.value > 0) currentQ.value--
+}
+// 换题时回到顶部：上一题滚到底后，新题不会只露出选项而看不到题干
+watch(currentQ, () => {
+  nextTick(() => {
+    const sc = document.querySelector('.quiz-screen')
+    if (sc) sc.scrollTop = 0
+  })
+})
 
 // 选项字母徽标：A / B / C / D
 const letterOf = (i) => ['A', 'B', 'C', 'D', 'E', 'F'][i] || String(i + 1)
@@ -777,6 +806,7 @@ const useFallbackQuestions = (paper) => {
   answers.value = new Array(questions.value.length).fill(undefined)
 }
 const closeTest = () => {
+  cancelAutoNext()
   showTest.value = false
   currentPaper.value = null
   document.body.style.overflow = ''
@@ -836,6 +866,7 @@ const computeTotal = () => {
 const submitting = ref(false)
 const submitTest = async () => {
   if (submitting.value) return // 防连点/重复提交
+  cancelAutoNext()
   submitting.value = true
   try { await doSubmitTest() } finally { submitting.value = false }
 }
@@ -843,11 +874,10 @@ const doSubmitTest = async () => {
   // 登录门槛：测评分数只在登录后展示，并自动写入 psy_test_record。
   // 游客可以完整体验答题流程，但提交时不给出分数，直接引导登录。
   if (!getUid()) {
-    ElMessageBox.confirm(
+    jellyConfirm(
       '登录后才能查看测评分数，结果也会自动保存到你的测评记录里（支持历史与趋势）。现在去登录吗？',
-      '需要登录',
-      { confirmButtonText: '去登录', cancelButtonText: '再逛逛', type: 'info' }
-    ).then(() => router.push('/login')).catch(() => {})
+      { title: '需要登录', confirmText: '去登录', cancelText: '再逛逛' }
+    ).then((ok) => { if (ok) router.push('/login') })
     return
   }
   const score = answers.value.reduce((s, v) => s + (v || 0), 0)
@@ -1087,6 +1117,16 @@ const scrollToHistory = () => {
   })
 }
 
+// ===== 回到顶部（手机端，长列表/看完测评记录后一键回顶） =====
+const showBackTop = ref(false)
+const onPageScroll = () => {
+  // 滚过约 0.8 屏才浮现，避免刚打开页面就晃一个按钮
+  showBackTop.value = window.scrollY > window.innerHeight * 0.8
+}
+const backToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 // ===== 加载 =====
 onMounted(async () => {
   loadFavorites()
@@ -1145,11 +1185,15 @@ onMounted(async () => {
       }
     }
   } catch (e) {}
+  window.addEventListener('scroll', onPageScroll, { passive: true })
+  onPageScroll()
 })
 
 onBeforeUnmount(() => {
+  cancelAutoNext()
   window.removeEventListener('profile-updated', onThemeChange)
   window.removeEventListener('storage', onThemeChange)
+  window.removeEventListener('scroll', onPageScroll)
   // 全屏答题页可能还开着：卸载时恢复滚动
   document.body.style.overflow = ''
 })
@@ -1204,113 +1248,68 @@ const pickCat = (name) => {
   background-size: auto, auto, 26px 26px, auto;
   transition: background 0.3s;
 }
+/* 顶栏常驻（PC）：内容让出 52px；≤768px 由 mobile.css 处理 */
+@media (min-width: 769px) {
+  .test-page { padding-top: 52px; }
+}
 
 /* ===== 顶部海报横幅（动漫风：渐变天空 + 吉祥物 + 星星 + 波浪） ===== */
 .hero {
   width: 100%;
-  padding: 44px 28px 58px;
+  padding: 9px 28px;
   box-sizing: border-box;
-  background: linear-gradient(135deg, var(--t-hero1) 0%, var(--t-hero2) 45%, var(--t-hero3) 100%);
-  border-radius: 0 0 36px 36px;
+  min-height: 52px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--t-hero2) 14%, transparent) 0%,
+    color-mix(in srgb, var(--t-hero2) 5%, transparent) 100%);
+  border-bottom: 1px solid color-mix(in srgb, var(--t-hero2) 14%, transparent);
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 12px 32px var(--t-poster2);
+  display: flex;
+  align-items: center;
   transition: background 0.3s;
 }
-.hero-blob {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  filter: blur(2px);
-}
-.hero-blob.b1 { width: 220px; height: 220px; top: -80px; right: -40px; }
-.hero-blob.b2 { width: 140px; height: 140px; bottom: -60px; left: 12%; background: rgba(255,255,255,0.18); }
-/* 一闪一闪的星星 */
-.hero-star {
-  position: absolute; color: rgba(255,255,255,0.95);
-  animation: twinkle 2.4s ease-in-out infinite;
-  text-shadow: 0 0 10px rgba(255,255,255,0.9);
-  pointer-events: none;
-}
-.hero-star.s1 { font-size: 20px; top: 24%; left: 30%; }
-.hero-star.s2 { font-size: 14px; top: 58%; left: 46%; animation-delay: 0.8s; }
-.hero-star.s3 { font-size: 16px; top: 18%; right: 26%; animation-delay: 1.4s; }
-@keyframes twinkle {
-  0%, 100% { opacity: 0.35; transform: scale(0.85) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1.2) rotate(18deg); }
-}
-/* 慢慢飘的云 */
-.hero-cloud {
-  position: absolute; color: rgba(255,255,255,0.5);
-  font-size: 44px; pointer-events: none;
-  animation: cloudDrift 26s linear infinite;
-}
-.hero-cloud.c1 { top: 12%; left: -60px; }
-.hero-cloud.c2 { top: 55%; left: -120px; font-size: 32px; animation-delay: -13s; animation-duration: 34s; }
-@keyframes cloudDrift {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(100vw + 200px)); }
-}
-/* 吉祥物：上下浮动的小熊（站在标题与统计胶囊之间的空档，避免压住胶囊） */
-/* 吉祥物小熊：弹性布局中间项，自动站在标题与右侧统计的空档；窄屏让位 */
-.hero-mascot {
-  font-size: 46px; font-weight: 700;
-  color: rgba(255,255,255,0.96);
-  text-shadow: 0 3px 0 var(--t-poster2), 0 8px 18px var(--t-poster2);
-  animation: mascotBob 2.6s ease-in-out infinite;
-  pointer-events: none;
-  letter-spacing: -2px;
-  line-height: 1;
-  flex-shrink: 0;
-  user-select: none;
-}
-@keyframes mascotBob {
-  0%, 100% { transform: translateY(0) rotate(-4deg); }
-  50% { transform: translateY(-10px) rotate(4deg); }
-}
-/* 窄屏时标题和胶囊会挤到一起，装饰全部让位 */
-@media (max-width: 1180px) {
-  .hero-mascot { display: none; }
-  .hero-star.s3 { display: none; }
-}
-/* 波浪底边 */
-.hero-wave {
-  position: absolute; bottom: -2px; left: 0;
-  width: 100%; height: 46px; display: block;
-  pointer-events: none;
-}
 .hero-inner {
-  position: relative; z-index: 2;
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 20px; flex-wrap: wrap; max-width: 1400px; margin: 0 auto;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 .hero-title h1 {
-  font-size: 34px; font-weight: 800; letter-spacing: 2px;
-  color: #fff; margin: 0 0 8px;
-  line-height: 1.25;
-  text-shadow: 0 2px 0 var(--t-poster2), 0 3px 12px var(--t-poster2);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--t-hero2);
+  margin: 0;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.hero-sub { font-size: 15px; color: rgba(255,255,255,0.92); margin: 0; letter-spacing: 2px; }
-.hero-meta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; }
+.hero-title-icon { color: var(--t-hero2); }
+.hero-meta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
 .meta-chip {
-  background: rgba(255,255,255,0.88);
-  border-radius: 18px; padding: 8px 16px;
-  font-size: 13px; color: var(--t-mid);
-  border: 2px solid rgba(255,255,255,0.9);
-  outline: 1.5px solid var(--t-poster2);
-  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 14px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--t-mid);
+  border: 1.5px solid color-mix(in srgb, var(--t-poster2) 55%, transparent);
 }
-.meta-chip b { font-size: 18px; color: var(--t-strong); margin-right: 4px; }
+.meta-chip b { font-size: 14px; color: var(--t-strong); margin-right: 3px; }
 .history-btn {
   background: var(--t-hex); color: #fff;
-  border: none; padding: 10px 20px; border-radius: 22px;
-  font-weight: 700; font-size: 14px; cursor: pointer;
+  border: none; padding: 6px 14px; border-radius: 16px;
+  font-weight: 700; font-size: 12.5px; cursor: pointer;
   font-family: inherit; transition: all 0.2s;
-  border: 2px solid #fff;
-  outline: 1.5px solid var(--t-poster2);
-  box-shadow: 0 6px 16px var(--t-poster2);
+  box-shadow: 0 3px 10px var(--t-poster2);
 }
-.history-btn:hover { transform: translateY(-2px) rotate(-1deg); filter: brightness(1.05); }
+.history-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+:root.dark-mode .hero-title h1 { color: color-mix(in srgb, var(--t-hero2) 70%, #fff); }
+
 
 /* ===== 分类磁贴 + 搜索（磁贴即筛选项：白描边圈 + 选中主题色描边高亮） ===== */
 .cat-nav {
@@ -1637,7 +1636,14 @@ const pickCat = (name) => {
 .detail-modal { max-width: 480px; }
 .detail-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; position: relative; }
 .detail-head .close-btn { position: absolute; top: 0; right: 0; }
-.detail-icon { font-size: 36px; }
+.detail-icon {
+  width: 48px; height: 48px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--t-hex);
+  background: var(--t-poster1);
+  border: 2px solid var(--t-poster2);
+  border-radius: 14px;
+}
 .detail-title { font-size: 20px; color: var(--t-deep); margin: 0; }
 .detail-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .detail-tag {

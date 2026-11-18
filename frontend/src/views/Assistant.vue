@@ -59,30 +59,17 @@
               <path d="M12 7v5l4 2"/>
             </svg>
           </button>
-          <img src="/img/AI对话历史.png" class="header-icon" alt="" />
           <div class="header-info">
-            <h2 class="header-title">绪见AI</h2>
-            <p class="header-sub"><AppIcon name="sparkles" /> 你的专属情绪陪伴助手</p>
+            <h2 class="header-title"><AppIcon name="bot" :size="20" class="header-title-icon" /><span class="header-title-text">绪见AI</span></h2>
           </div>
         </div>
         <div class="header-right">
-          <!-- 导出按钮 -->
+          <!-- 导出按钮：样式与数据看板一致（白底描边小按钮） -->
           <button class="export-btn" @click="exportChat" title="导出聊天记录">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
+            <AppIcon name="download" />
             <span class="export-label">导出</span>
           </button>
-          <!-- 用户信息 -->
-          <div class="user-info-bar">
-            <div class="user-avatar-wrap" :class="['frame-' + userFrame]">
-              <img :src="userAvatar" class="user-avatar-mini" alt="我的头像" @error="onAvatarError" />
-              <img v-if="currentFrameImg" :src="currentFrameImg" class="frame-ring-img" :style="{ width: currentFrameScale + '%', height: currentFrameScale + '%' }" @error="$event.target.style.display='none'" />
-            </div>
-            <span class="user-name">{{ userName }}</span>
-          </div>
+          <!-- 用户信息：抽屉/个人中心已有入口，顶栏不再重复展示 -->
           <div class="status-badge">
             <span class="online-dot"></span>
             <span class="online-text">AI 在线</span>
@@ -116,54 +103,6 @@
             <button v-for="q in quickQuestions" :key="q" class="quick-btn" @click="sendQuickMsg(q)">
               {{ q }}
             </button>
-          </div>
-        </div>
-
-        <!-- 写日记面板：PC 内嵌在消息列表顶部；手机端由 mobile.css 变成底部弹层，
-             点遮罩（面板外的空白处）也可关闭 -->
-        <div v-if="showDiaryPanel" class="diary-panel-wrap" @click.self="isMobile && closeDiaryPanel()">
-          <div class="diary-panel">
-            <div class="diary-panel-header">
-              <h4><AppIcon name="edit" /> 写日记给AI</h4>
-              <button class="close-btn" @click="closeDiaryPanel"><AppIcon name="close" /></button>
-            </div>
-            
-            <div class="diary-form">
-              <div class="form-label">今天的心情 <span class="required">*</span></div>
-              <div class="emotion-picker">
-                <div
-                  v-for="emo in emotions"
-                  :key="emo.val"
-                  class="emo-item"
-                  :class="{ active: diaryForm.emotion === emo.val }"
-                  :style="{ '--emo-bg': emo.bg }"
-                  @click="diaryForm.emotion = emo.val"
-                >
-                  <img :src="emo.icon" :alt="emo.label" />
-                  <span>{{ emo.label }}</span>
-                </div>
-              </div>
-
-              <div class="form-label">想说的话 <span class="required">*</span></div>
-              <textarea
-                v-model="diaryForm.content"
-                class="diary-textarea"
-                placeholder="把今天的心情写下来，我会认真听的~"
-                rows="4"
-              ></textarea>
-            </div>
-
-            <div class="diary-panel-footer">
-              <button class="cancel-btn" @click="closeDiaryPanel">取消</button>
-              <button
-                class="submit-diary-btn"
-                :disabled="!diaryForm.content.trim() || isSendingDiary"
-                @click="sendDiaryToAi"
-              >
-                <span v-if="isSendingDiary">发送中...</span>
-                <span v-else><AppIcon name="mail" /> 保存并发送给AI</span>
-              </button>
-            </div>
           </div>
         </div>
 
@@ -257,6 +196,54 @@
 
       <!-- 底部输入区域 -->
       <div class="chat-input-area">
+        <!-- 写日记面板：PC 与选日记/选测评一致——平铺在输入区上方；
+             手机端由 mobile.css 变成底部弹层，点遮罩（面板外的空白处）也可关闭 -->
+        <div v-if="showDiaryPanel" class="diary-panel-wrap" @click.self="isMobile && closeDiaryPanel()">
+          <div class="diary-panel">
+            <div class="diary-panel-header">
+              <h4><AppIcon name="edit" /> 写日记给AI</h4>
+              <button class="close-btn" @click="closeDiaryPanel"><AppIcon name="close" /></button>
+            </div>
+
+            <div class="diary-form">
+              <div class="form-label">今天的心情 <span class="required">*</span></div>
+              <div class="emotion-picker">
+                <div
+                  v-for="emo in emotions"
+                  :key="emo.val"
+                  class="emo-item"
+                  :class="{ active: diaryForm.emotion === emo.val }"
+                  :style="{ '--emo-bg': emo.bg }"
+                  @click="diaryForm.emotion = emo.val"
+                >
+                  <img :src="emo.icon" :alt="emo.label" />
+                  <span>{{ emo.label }}</span>
+                </div>
+              </div>
+
+              <div class="form-label">想说的话 <span class="required">*</span></div>
+              <textarea
+                v-model="diaryForm.content"
+                class="diary-textarea"
+                placeholder="把今天的心情写下来，我会认真听的~"
+                rows="4"
+              ></textarea>
+            </div>
+
+            <div class="diary-panel-footer">
+              <button class="cancel-btn" @click="closeDiaryPanel">取消</button>
+              <button
+                class="submit-diary-btn"
+                :disabled="!diaryForm.content.trim() || isSendingDiary"
+                @click="sendDiaryToAi"
+              >
+                <span v-if="isSendingDiary">发送中...</span>
+                <span v-else><AppIcon name="mail" /> 保存并发送给AI</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- 选择日记/测评面板层：PC 用 display:contents 不参与布局（面板平铺在输入区上方）；
              手机端变成全屏遮罩+底部弹层（同写日记面板），点遮罩空白处关闭 -->
         <div v-if="showDiaryPicker || showTestPicker" class="picker-layer" @click.self="closeAllPickers">
@@ -882,7 +869,6 @@ const diaryForm = ref({
 
 const userInfo = ref(JSON.parse(localStorage.getItem('userInfo') || '{}'))
 const userId = computed(() => userInfo.value.userId || userInfo.value.id)
-const userName = computed(() => userInfo.value.nickname || userInfo.value.username || '用户')
 const DEFAULT_AVATAR = '/img/默认管理员头像.png'
 const userAvatar = computed(() => {
   const a = userInfo.value.avatar
@@ -1294,6 +1280,10 @@ onUnmounted(() => {
   --ai-chip: color-mix(in srgb, var(--c-hex) 10%, transparent);      /* 按钮淡底 */
   --ai-chip-strong: color-mix(in srgb, var(--c-hex) 20%, transparent);
 }
+/* 顶栏常驻（PC）：聊天区让出 52px；≤768px 由 mobile.css（52px !important）处理 */
+@media (min-width: 769px) {
+  .ai-chat-page { padding-top: 52px; }
+}
 
 /* ========== 侧边栏 ========== */
 .session-sidebar {
@@ -1475,7 +1465,8 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 28px;
+  padding: 10px 28px;
+  min-height: 46px;
   background: var(--ai-grad-soft-90);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--c-surface-line);
@@ -1484,31 +1475,25 @@ onUnmounted(() => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
 }
 
-.header-icon {
-  width: 64px !important;
-  height: 64px !important;
-  object-fit: contain;
-}
-
-.header-info { display: flex; flex-direction: column; gap: 2px; }
+.header-info { display: flex; flex-direction: column; gap: 1px; }
 
 .header-title {
   margin: 0;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.header-title-icon { color: var(--c-hex); }
+.header-title-text {
   background: linear-gradient(135deg, var(--c-main), var(--c-hex));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-.header-sub {
-  margin: 0;
-  font-size: 13px;
-  color: var(--c-text-weak);
 }
 
 .header-right {
@@ -1517,81 +1502,27 @@ onUnmounted(() => {
   gap: 16px;
 }
 
-/* 导出按钮 */
+/* 导出按钮：与数据看板一致的白底描边小按钮（PC/手机统一） */
 .export-btn {
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: var(--c-surface-weak);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  color: var(--c-hex);
-  transition: all 0.25s;
+  gap: 6px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-solid);
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: var(--c-text);
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .export-btn:hover {
-  background: var(--ai-chip);
-  transform: scale(1.1);
+  color: var(--c-hex);
+  border-color: var(--c-hex);
 }
 
-/* 用户信息栏 */
-.user-info-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 16px 6px 8px;
-  background: var(--c-surface-weak);
-  border-radius: 28px;
-}
-
-.user-avatar-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: visible;
-  position: relative;
-  flex-shrink: 0;
-  margin: 4px;
-}
-
-.user-avatar-mini {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--c-surface-solid);
-  box-shadow: 0 2px 6px var(--c-shadow-soft);
-  position: relative;
-  z-index: 1;
-  display: block;
-  background: var(--c-bg2);
-}
-
-.user-avatar-wrap .frame-ring-img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 3;
-  object-fit: contain;
-  display: block;
-  /* 顶栏白色胶囊只有 ~52px 高，40px 头像若按个人中心的 205% 渲染框图（82px）
-     会溢出胶囊压到「哞哞」和「AI 在线」徽章；钳到头像的 1.5 倍内。
-     max-* 优先级高于行内 style 的 width/height，竖版框图(433x577)由 contain 自动适配 */
-  max-width: 150%;
-  max-height: 150%;
-}
-
-.user-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--c-text);
-}
-
+/* 用户信息栏（已移除顶栏用户胶囊，样式一并清理） */
 .status-badge {
   display: flex;
   align-items: center;
@@ -1734,20 +1665,20 @@ onUnmounted(() => {
   object-fit: contain;
 }
 
-/* 写日记面板 */
+/* 写日记面板：PC 与选日记/选测评同布局——wrap 用 display:contents 不产生盒子，
+   面板本体全宽平铺在输入区上方；手机端由 mobile.css 覆盖成全屏遮罩+底部弹层 */
 .diary-panel-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 10px 0;
+  display: contents;
 }
 
 .diary-panel {
   width: 100%;
-  max-width: 520px;
   background: var(--c-surface-solid);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px var(--c-shadow-soft);
-  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 -4px 20px var(--c-shadow-soft);
+  margin-bottom: 12px;
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
 }
 
 .diary-panel-header {

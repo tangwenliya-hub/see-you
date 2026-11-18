@@ -16,6 +16,11 @@
     box-sizing: border-box;
 }
 
+/* 顶栏常驻（PC）：内容让出 52px；≤768px 由 mobile.css 处理 */
+@media (min-width: 769px) {
+    .classroom-page { padding-top: 52px; }
+}
+
 /* ===== 列表视图（封面卡片网格，与心理FM同构） ===== */
 .classroom-page .list-view { padding: 24px 28px 80px; width: 100%; margin: 0; box-sizing: border-box; }
 

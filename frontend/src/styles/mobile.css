@@ -83,10 +83,6 @@ p, li, span, td, th, div {
    面板保持原来的平铺卡片；手机端在 §2.28 里改成全屏遮罩+底部弹层 */
 .picker-layer { display: contents; }
 
-/* 导出按钮的「导出」文字标签：为手机端能看清按钮用途而加（用户反馈纯图标认不出），
-   PC 端保持纯图标圆形按钮，全局隐藏文字；手机端在 §2.28 里放开 */
-.export-btn .export-label { display: none; }
-
 /* ---------------------------------------------------------------------
  * 1. 平板（769px ~ 1024px）：收窄页面左右留白
  * ------------------------------------------------------------------- */
@@ -141,6 +137,14 @@ p, li, span, td, th, div {
   .hero-sign-edit input { min-width: 0 !important; max-width: 100% !important; }
   .lt-input { min-width: 0 !important; width: 100%; flex: 1; }
   .lt-row { width: 100%; }
+  /* Profile.vue：日期范围两个 input[type=date] 固有宽 ~150px/个，384px 屏放不下 →
+     各自 flex:1 平分剩余宽度，起始~结束一行装下 */
+  .lt-date { min-width: 0 !important; width: 100% !important; flex: 1 1 0 !important; padding: 7px 6px !important; font-size: 12.5px !important; }
+  /* Profile.vue：快捷筛选胶囊（全部/近7天/近30天…）被 flex 压扁后文字竖排成两行
+     → 禁止收缩 + 禁止换行，一行放不下由 .lt-row 整体换行 */
+  .lt-quick { flex: 0 0 auto !important; white-space: nowrap !important; }
+  /* WriteDiary.vue：scoped ≤700px 把 padding-top 清成 0 → 补回 fixed 顶栏让位 */
+  .write-page { padding-top: 52px !important; box-sizing: border-box; }
   .cancel { min-width: 0 !important; }
   /* Profile.vue：概览卡片一行三个放不下 → 改为两列 */
   .summary-item { min-width: 0 !important; padding: 12px 6px !important; }
@@ -186,21 +190,27 @@ p, li, span, td, th, div {
     max-width: 100%;
   }
 
-  /* ---- 2.6 顶部导航栏：手机上只留「品牌 + 头像/退出」，导航全部下沉到底部 Tab ---- */
+  /* ---- 2.6 顶部导航栏：手机上只留「菜单 + 品牌」，导航沉到底部 Tab，
+        头像/退出沉到左侧抽屉（个人中心在底部 Tab「我的」里也有入口）---- */
   .app-bar {
     top: 0 !important;
     height: 52px;
     padding: 0 10px !important;
     gap: 8px;
+    /* 右上角头像/退出收掉后只剩「菜单+logo」，别再用 space-between 把 logo 顶到最右边 */
+    justify-content: flex-start !important;
   }
-  .app-bar-hover-zone { display: none; }
-  /* 品牌区不许被压缩：之前「绪见」两个字会被挤成半个字 */
-  .app-bar .logo { flex-shrink: 0; font-size: 16px !important; letter-spacing: 1px; gap: 6px; }
+  /* 品牌区不许被压缩：之前「绪见」两个字会被挤成半个字；
+     用户拍板 logo 放右上角——左边留菜单/返回，margin-left:auto 把 logo 推到最右 */
+  .app-bar .logo { flex-shrink: 0; margin-left: auto; font-size: 16px !important; letter-spacing: 1px; gap: 6px; }
   .app-bar .logo-cow { width: 26px !important; height: 26px !important; }
   .app-bar .back-btn { padding: 4px 10px !important; }
   .nav-greeting { display: none !important; }
   /* 顶部 tab 与底部 Tab Bar 功能重复：手机端直接隐藏，入口只留底部一处 */
   .nav-links { display: none !important; }
+  /* 右上角「头像+退出」与抽屉的「个人中心/退出登录」完全重复：手机端收掉。
+     未登录时的「登入/注册」不在此列，保留（登录页之外的快捷入口）。 */
+  .app-bar .user-actions { display: none !important; }
 
   /* 头像框装饰在顶栏里收着点：装饰图按头像比例最高放大到 205%（≈90px），
      会溢出 52px 的导航栏压住退出按钮，手机端统一钳到 46px 内 */
@@ -473,47 +483,40 @@ p, li, span, td, th, div {
      原状：三张统计卡 + 三个按钮全挤在渐变横幅里，卡片压扁、按钮小胶囊一大排；
      改后：统计卡一行等宽铺满、数字放大；按钮另起一行——
      「写日记」是绿色大主按钮排在最左，「补睡眠/导出」收成小按钮跟在右边 */
-  .diary-page .ah-hero { padding: 26px 18px 46px !important; }
-  /* 常驻顶栏 52px 会盖住横幅标题，页面整体往下让出顶栏高度 */
+  /* 常驻顶栏 52px 会盖住标题，页面整体往下让出顶栏高度 */
   .diary-page { padding-top: 52px !important; }
-  .diary-page .ah-title h1 { font-size: 26px !important; }
-  .diary-page .ah-sub { font-size: 13px !important; }
-  .diary-page .hero-right { flex-wrap: wrap !important; gap: 10px !important; }
-  /* AnimeHero 组件的 .ah-right 写死 flex-shrink:0，横幅里内容再宽也不缩，
-     手机端必须放开并占满整行，否则统计卡/按钮行会溢出屏幕 */
-  .diary-page .ah-right { flex-shrink: 1 !important; flex: 1 1 100% !important; }
-  /* 统计卡：整行铺满，逼按钮换行 */
-  .diary-page .hero-meta {
-    width: 100% !important;
-    order: -3 !important;
-    gap: 8px !important;
-  }
+  /* 顶条（紧凑版）：手机端放不下「标题+3卡+按钮」一行，
+     让功能区整体换到第二行：统计卡 + 写日记按钮同行（补睡眠/导出在 §2.50 工具行） */
+  .diary-page .ah-hero { padding: 8px 14px !important; }
+  .diary-page .ah-left { display: flex; order: 2; margin-left: auto; }
+  .diary-page .ah-title { order: 1; }
+  .diary-page .ah-title h1 { font-size: 18px !important; }
+  .diary-page .ah-right { order: 3; flex: 1 1 100% !important; }
+  .diary-page .hero-right { gap: 6px !important; }
+  .diary-page .hero-meta { gap: 5px !important; flex: 1 !important; }
   .diary-page .meta-card {
     flex: 1 !important;
     min-width: 0 !important;
-    padding: 10px 6px !important;
+    padding: 4px 2px !important;
+    gap: 1px !important;
+    flex-direction: column !important;
   }
-  .diary-page .meta-num { font-size: 22px !important; }
-  .diary-page .meta-label { font-size: 11px !important; letter-spacing: 1px !important; }
-  /* 按钮行：写日记提最前 + 拉大；两个功能按钮收小 */
+  .diary-page .meta-num { font-size: 14px !important; }
+  .diary-page .meta-label { font-size: 9px !important; letter-spacing: 0.5px !important; white-space: nowrap !important; }
+  /* 横幅内的补睡眠/导出让位给 §2.50 工具行，避免重复出现 */
+  .diary-page .hero-right .write-fab.ghost-fab { display: none !important; }
+  .diary-page .meta-emoji { width: 15px !important; height: 15px !important; }
+  /* 写日记主按钮：主题色底白字，与统计卡同行 */
   .diary-page .hero-right .write-fab:not(.ghost-fab) {
-    order: -2 !important;
-    flex: 1.6 !important;
+    flex: 0 0 auto !important;
     justify-content: center !important;
-    height: 46px !important;
-    border-radius: 23px !important;
-    font-size: 14.5px !important;
+    height: 40px !important;
+    border-radius: 18px !important;
+    font-size: 13px !important;
     background: color-mix(in srgb, var(--c-hex) 82%, white) !important;
     color: #fff !important;
     border-color: rgba(255, 255, 255, 0.75) !important;
-    box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--c-hex) 70%, transparent) !important;
-  }
-  .diary-page .hero-right .ghost-fab {
-    flex: 1 !important;
-    justify-content: center !important;
-    height: 40px !important;
-    font-size: 12px !important;
-    padding: 0 6px !important;
+    box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--c-hex) 70%, transparent) !important;
   }
 
   /* ---- 2.26 情绪分布 + 月度小结：PC 是 1fr 1fr 两列网格，
@@ -609,27 +612,9 @@ p, li, span, td, th, div {
   .ai-chat-page .chat-header { padding: 8px 12px !important; gap: 8px !important; }
   .ai-chat-page .chat-header .header-left { flex: 1 !important; min-width: 0 !important; gap: 10px !important; }
   .ai-chat-page .chat-header .header-right { flex-shrink: 0 !important; gap: 8px !important; }
-  .ai-chat-page .chat-header .header-icon { width: 34px !important; height: 34px !important; }
   .ai-chat-page .chat-header .header-title { font-size: 16px !important; white-space: nowrap !important; }
-  .ai-chat-page .chat-header .header-sub { display: none !important; }
-  .ai-chat-page .chat-header .user-name { display: none !important; }
   .ai-chat-page .chat-header .status-badge { display: none !important; }
-  /* 导出按钮：纯图标小圆圈认不出（用户反馈），手机端变带文字的绿色胶囊 */
-  .ai-chat-page .chat-header .export-btn {
-    width: auto !important;
-    height: 36px !important;
-    padding: 0 14px !important;
-    border-radius: 18px !important;
-    gap: 5px !important;
-    background: linear-gradient(135deg, var(--c-main), var(--c-hex)) !important;
-    color: #fff !important;
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
-  }
-  .ai-chat-page .chat-header .export-btn .export-label { display: inline !important; }
-  /* 头像框 40px 在 390px 顶栏里太大且头像框贴纸溢出屏幕边，收成 34px */
-  .ai-chat-page .chat-header .user-avatar-wrap,
-  .ai-chat-page .chat-header .user-avatar-mini { width: 34px !important; height: 34px !important; }
+  /* 导出按钮沿用组件内样式：与数据看板同款白底描边小按钮，手机端不再另设胶囊 */
 
   /* 消息区：PC 的 24px/28px 大内边距 + msg-item 75% 限宽在手机上把气泡挤成细窄柱，
      手机端放开到 88% 并收掉留白，气泡才有一屏宽的呼吸感 */
@@ -662,9 +647,11 @@ p, li, span, td, th, div {
   }
   .ai-chat-page .input-tip { font-size: 10.5px !important; margin-top: 5px !important; }
 
-  /* 写日记面板：原本内嵌在消息列表顶部（点「写日记」后开在屏幕上方看不见），
-     手机端改成底部弹层——固定铺满、半透明遮罩、点遮罩可关（Assistant.vue 配了 @click.self） */
+  /* 写日记面板：PC 已与选日记/选测评同为输入区上方平铺；手机端仍是
+     底部弹层——固定铺满、半透明遮罩、点遮罩可关（Assistant.vue 配了 @click.self）。
+     注意必须重置 display（PC 基础样式是 display:contents，不生成盒子） */
   .ai-chat-page .diary-panel-wrap {
+    display: flex !important;
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -782,20 +769,28 @@ p, li, span, td, th, div {
   text-decoration: none;
   color: var(--c-text-weak, #8a9a8a);
   font-size: 11px;
+  font-weight: 400;
   line-height: 1.2;
   padding: 6px 2px;
   transition: color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 当前页：主题色 + 加粗（其余标签保持原样）；字重无法过渡，
+   颜色过渡 + 图标放大让高亮"跟着走"时有个轻微动效 */
 .mobile-tabbar .mt-item.active {
   color: var(--c-hex, #7bc47b);
+  font-weight: 700;
+}
+.mobile-tabbar .mt-item.active .mt-emoji {
+  transform: translateY(-1px) scale(1.08);
 }
 
 .mobile-tabbar .mt-emoji {
   font-size: 19px;
   line-height: 1;
   filter: saturate(0.75);
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 .mobile-tabbar .mt-item.active .mt-emoji {
   filter: none;
@@ -1006,23 +1001,96 @@ p, li, span, td, th, div {
 }
 
 /* ---------------------------------------------------------------------
- * 2.38 FM 播放器（≤768px）：PC 右侧信息栏写死 380px + flex-shrink:0，
- *     手机上把黑胶区挤没、自己被压成一字宽 → 文字一字一行竖排。
- *     另：迷你播放条的音频名可能是超长句且无省略限制，会把整条撑高、
- *     文字压成竖排——单行省略，并抬到底部 Tab 栏上方。
+ * 2.38 FM 全屏播放页（≤768px）：
+ *     PC 是「左黑胶+文案 / 右 380px 信息栏」横排，黑胶锁死尺寸、文案区
+ *     固定 240px 且内容垂直居中——音频名是长句子，36px 大字从盒子里溢出，
+ *     和黑胶、进度条、简介 Tab 叠成一团。
+ *     手机端改竖排小黑胶：黑胶缩到屏幕宽的一半，标题限两行、简介限五行，
+ *     简介评论区放黑胶下方，中部整体可滚动，底部控制条收紧。
  * ------------------------------------------------------------------- */
 @media (max-width: 768px) {
+  /* 顶栏：返回 + 歌名一行放得下 */
+  .fm-page .player-top { padding: 12px 14px !important; gap: 10px !important; }
+  .fm-page .pt-name { font-size: 15px !important; padding: 0 8px !important; max-width: none !important; }
+  .fm-page .pt-cat { font-size: 11px !important; margin-top: 2px !important; }
+
+  /* 中部：整列可滚，黑胶 → 标题/简介 → 简介评论区 自上而下 */
   .fm-page .player-body {
     flex-direction: column !important;
-    padding: 0 16px !important;
-    gap: 16px !important;
+    padding: 4px 16px 10px !important;
+    gap: 12px !important;
+    overflow-y: auto !important;
   }
-  .fm-page .player-main { gap: 0 !important; }
+  .fm-page .player-main {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 14px !important;
+  }
+
+  /* 黑胶：跟随屏宽缩放，解除 280px 锁死尺寸 */
+  .fm-page .vinyl-wrap {
+    width: min(56vw, 230px) !important;
+    height: min(56vw, 230px) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    flex-shrink: 0 !important;
+  }
+  .fm-page .vinyl-tonearm { right: 4% !important; width: 22px !important; }
+
+  /* 标题/简介：高度自适应，标题最多两行，居中排版 */
+  .fm-page .lyric-section {
+    height: auto !important;
+    max-width: 100% !important;
+    flex-shrink: 1 !important;
+    align-items: center !important;
+  }
+  .fm-page .big-title {
+    font-size: 17px !important;
+    line-height: 1.45 !important;
+    margin-bottom: 6px !important;
+    text-align: center !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+  .fm-page .audio-desc {
+    font-size: 13px !important;
+    line-height: 1.7 !important;
+    max-height: 5.5em !important;
+    text-align: center !important;
+    padding-right: 0 !important;
+  }
+
+  /* 简介评论区：占满下方剩余空间，随中部一起滚 */
   .fm-page .player-side {
     width: 100% !important;
     flex-shrink: 1 !important;
-    max-height: 42vh !important;
+    max-height: none !important;
+    min-height: 0 !important;
   }
+
+  /* 继续播放提示 / 进度条：贴边收窄 */
+  .fm-page .resume-bar { margin: 0 16px 8px !important; max-width: none !important; padding: 10px 14px !important; font-size: 13px !important; }
+  .fm-page .player-progress { padding: 0 16px !important; }
+
+  /* 点赞/收藏/分享：三等分铺满一行 */
+  .fm-page .action-row { gap: 10px !important; margin: 10px 16px 0 !important; }
+  .fm-page .action-btn {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 9px 4px !important;
+    font-size: 13px !important;
+  }
+
+  /* 底部播放控制：收紧 + 让出安全区 */
+  .fm-page .player-controls {
+    gap: 44px !important;
+    margin: 12px auto calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .fm-page .pctrl-btn { width: 48px !important; height: 48px !important; }
+  .fm-page .pctrl-btn svg { width: 24px !important; height: 24px !important; }
+  .fm-page .pctrl-play { width: 62px !important; height: 62px !important; font-size: 26px !important; }
 
   /* 迷你播放条：单行省略 + 让出底部 Tab 栏 */
   .fm-page .mini-bar {
@@ -1049,23 +1117,9 @@ p, li, span, td, th, div {
  *     收紧横幅 → 标签流式换行 → 搜索框独占一行铺满 → 卡片信息区收薄。
  * ------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  /* 横幅：标题/副标题收敛，去掉大字距的难看断行 */
-  .fm-page .ah-hero {
-    padding: 22px 16px 44px !important;
-    margin-bottom: 0 !important;
-  }
-  .fm-page .ah-title h1 {
-    font-size: 21px !important;
-    letter-spacing: 1px !important;
-    margin-bottom: 4px !important;
-  }
-  .fm-page .ah-emoji { font-size: 19px !important; }
-  .fm-page .ah-sub {
-    font-size: 12.5px !important;
-    letter-spacing: 0.5px !important;
-    line-height: 1.65 !important;
-  }
-  .fm-page .ah-wave { height: 30px !important; }
+  /* 页面整体让出常驻顶栏 52px（顶条由组件统一为紧凑版，无需再覆盖） */
+  .fm-page { padding-top: 52px !important; }
+
 
   /* 列表区：贴紧横幅，别再空出一大条背景色 */
   .fm-page .list-view { padding: 14px 14px 120px !important; }
@@ -1094,4 +1148,1040 @@ p, li, span, td, th, div {
   .fm-page .card-cat { font-size: 11px !important; }
   .fm-page .card-play-icon { font-size: 30px !important; }
   .fm-page .empty-tip { padding: 40px 16px !important; }
+}
+
+/* ---------------------------------------------------------------------
+ * 2.40 手机端左侧抽屉菜单（AppLayout.vue）
+ *      底部 Tab 只放得下 5 个主入口，测试/学堂/数据看板/反馈这些次要功能
+ *      收进抽屉：左上角汉堡按钮打开，点旁边遮罩关闭。
+ *      PC 端整套（按钮 + 遮罩 + 抽屉）默认 display:none，布局零影响。
+ * ------------------------------------------------------------------- */
+.m-drawer-btn,
+.m-drawer,
+.m-drawer-mask { display: none; }
+
+@media (max-width: 768px) {
+  /* 顶栏左上角菜单按钮 */
+  .app-bar .m-drawer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--c-hex);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-bar .m-drawer-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  /* 遮罩：半透明，点一下关闭（层级压在底部 Tab 栏之上） */
+  .m-drawer-mask {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1290;
+    background: rgba(30, 42, 32, 0.42);
+  }
+  .m-mask-enter-active, .m-mask-leave-active { transition: opacity 0.22s ease; }
+  .m-mask-enter-from, .m-mask-leave-to { opacity: 0; }
+
+  /* 抽屉本体：从左侧滑出 */
+  .m-drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1300;
+    width: 76vw;
+    max-width: 300px;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 0 14px;
+    box-sizing: border-box;
+    background: var(--c-bg1, #fff);
+    border-radius: 0 20px 20px 0;
+    box-shadow: 14px 0 36px rgba(20, 32, 24, 0.18);
+    transform: translateX(-104%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .m-drawer.open { transform: translateX(0); }
+
+  /* 头部：头像 + 昵称 */
+  .m-drawer-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 14px 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  .m-dh-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: visible;
+    position: relative;
+    flex-shrink: 0;
+    background: var(--c-bg2, #f3f6f1);
+  }
+  .m-dh-avatar .m-dh-face {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+  }
+  /* 头像装饰框：与顶栏同款，装饰图按比例放大溢出圆底也压不坏布局 */
+  .m-dh-avatar .m-dh-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 3;
+    display: block;
+    max-width: 60px;
+    max-height: 60px;
+  }
+  .m-dh-info { flex: 1; min-width: 0; }
+  .m-dh-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--c-text, #2d3a2f);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .m-dh-sub {
+    font-size: 11.5px;
+    color: var(--c-text-weak, #8a9a8a);
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .m-dh-close {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--c-bg2, #f3f6f1);
+    color: var(--c-text-weak, #8a9a8a);
+    cursor: pointer;
+  }
+  .m-dh-close svg { width: 15px; height: 15px; }
+
+  /* 内容区 */
+  .m-drawer-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 4px 0 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .m-dh-sec {
+    padding: 14px 18px 6px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--c-text-weak, #8a9a8a);
+  }
+  .m-drawer-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 2px 10px;
+    padding: 10px 10px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--c-text, #2d3a2f);
+    text-decoration: none;
+    text-align: left;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-drawer-item img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 6px;
+  }
+  .m-di-label { flex-shrink: 1; min-width: 0; }
+  .m-di-desc {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--c-text-weak, #8a9a8a);
+    white-space: nowrap;
+  }
+  .m-drawer-item.active {
+    background: color-mix(in srgb, var(--c-hex) 14%, #fff);
+    color: var(--c-hex);
+    font-weight: 600;
+  }
+  .m-di-danger { color: #d4695f; }
+  .m-di-danger img { opacity: 0.9; }
+
+  .m-drawer-foot {
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 11px;
+    color: var(--c-text-weak, #8a9a8a);
+    padding: 10px 0 calc(2px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* 深色模式：抽屉底色跟随深色主题 */
+:root.dark-mode .m-drawer {
+  background: #1f2937;
+}
+:root.dark-mode .m-dh-close { background: rgba(148, 163, 184, 0.18); }
+:root.dark-mode .m-drawer-item.active {
+  background: color-mix(in srgb, var(--c-hex) 26%, #1f2937);
+}
+
+/* 抽屉「个人中心」条目上的未读关怀提醒红点（原挂底部 Tab「我的」，入口合并后挪到这里） */
+.m-di-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: #f56c6c;
+  box-shadow: 0 0 0 3px rgba(245, 108, 108, 0.2);
+}
+
+/* ---------------------------------------------------------------------
+ * 2.41 手机端「左边缘右滑返回」的页面容器（手势逻辑见 composables/useSwipeBack.js）
+ *      PC 端 display:contents —— 不产生盒子，等于页面还是直接挂在布局下，零影响；
+ *      手机端才是实体块，右滑时整页跟着手指平移。
+ *      注意：动画结束后 JS 会清掉 inline transform，别在这里留常驻 transform /
+ *      will-change —— 那会给 fixed 子元素造包含块，弹层和输入区会错位。
+ * ------------------------------------------------------------------- */
+.page-wrap { display: contents; }
+
+@media (max-width: 768px) {
+  .page-wrap {
+    display: block;
+    width: 100%;
+    background: var(--c-bg1, #fff);
+  }
+  /* 拖动中：右缘投影做出「页面被拎起来」的层次感 */
+  .page-wrap.is-swiping {
+    box-shadow: 14px 0 32px rgba(24, 38, 28, 0.2);
+    border-radius: 0 16px 16px 0;
+  }
+}
+
+/* ---------------------------------------------------------------------
+ * 2.42 测试页（Test.vue）手机端布局
+ *      问题：横幅标题被常驻顶栏挡住、34px 大标题+chips 占近半屏、
+ *      分类磁贴 76px 宽 + 20px 间距换行成 4+3 两行很乱。
+ *      全部关在 ≤768px 内，PC 端零影响。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* 让出常驻顶栏（同 FM/日记页的 52px 规矩；后定义覆盖 2.1 的 padding-top:0） */
+  .test-page { padding-top: 52px !important; }
+
+  /* 顶条（紧凑版）：4 项统计徽章横排一行放得下，无需特殊处理 */
+
+  /* 分类磁贴：压成单行紧凑胶囊带（小圆 + 名字横排、左右滑动），不再占两行大圆的高度 */
+  .test-page .cat-nav { padding: 10px 12px 4px; gap: 8px; }
+  .test-page .quick-tiles {
+    flex-wrap: nowrap !important;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    overflow-x: auto;
+    padding: 4px 2px 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .test-page .quick-tiles::-webkit-scrollbar { display: none; }
+  .test-page .quick-tile {
+    flex-direction: row !important;
+    width: auto !important;
+    flex-shrink: 0;
+    gap: 6px;
+    padding: 4px 12px 4px 5px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1.5px solid var(--t-poster2, #e4d6f4);
+    border-radius: 20px;
+    box-sizing: border-box;
+  }
+  .test-page .quick-tile.on {
+    border-color: var(--t-hex);
+    background: color-mix(in srgb, var(--t-hex) 14%, #fff);
+  }
+  .test-page .quick-tile:nth-child(odd),
+  .test-page .quick-tile:nth-child(even) { animation: none; }
+  .test-page .tile-icon { width: 26px !important; height: 26px !important; font-size: 13px !important; border-width: 1.5px; box-shadow: none; border-radius: 50%; }
+  .test-page .quick-tile.on .tile-icon { box-shadow: none; outline: 2px solid var(--t-hex); outline-offset: 1px; transform: none !important; }
+  .test-page .tile-name { font-size: 12px !important; white-space: nowrap; }
+
+  /* 搜索框独立成行贴着磁贴下缘 */
+  .test-page .search-box { padding: 7px 12px; border-radius: 18px; }
+  .test-page .search-input { font-size: 13px; }
+
+  /* 量表卡片：两列（768 断点已定），留白收窄 */
+  .test-page .scale-grid { padding: 8px 12px 0; gap: 10px; }
+
+  /* 答题页底部吉祥物提示气泡（"感觉低，不用着急~"）：用户拍板去掉，只留进度条和按钮 */
+  .test-page .quiz-mascot { display: none !important; }
+}
+
+/* ---------------------------------------------------------------------
+ * 2.43 回到顶部悬浮按钮 + 测评记录区手机端重排（Test.vue）
+ *      问题：点「我的测评记录」平滑滚到页面底部，看完记录想回顶部只能一路划。
+ *      方案：滚过约 0.8 屏浮现一个圆形回顶按钮（PC 端整套不显示）。
+ * ------------------------------------------------------------------- */
+.m-back-top { display: none; }
+
+@media (max-width: 768px) {
+  .m-back-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 14px;
+    /* 让出底部 Tab 栏（58px）+ 一点呼吸 */
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    z-index: 1100;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-main), var(--c-hex));
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(24, 38, 28, 0.22);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-back-top svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .m-back-top:active { transform: scale(0.94); }
+  .bt-fade-enter-active, .bt-fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+  .bt-fade-enter-from, .bt-fade-leave-to { opacity: 0; transform: translateY(8px); }
+
+  /* 测评记录区：单列卡片收紧，一屏能看两条以上 */
+  .test-page .history-area { margin-top: 22px; padding: 0 12px; }
+  .test-page .history-grid { grid-template-columns: 1fr; gap: 10px; }
+  .test-page .history-card { padding: 12px 14px; border-radius: 16px; }
+  .test-page .his-name { font-size: 14px; }
+  .test-page .his-date { font-size: 11px; }
+  .test-page .score-num { font-size: 24px; }
+  .test-page .his-tip {
+    font-size: 12px;
+    margin: 6px 0 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .test-page .his-view { padding: 6px 12px; font-size: 12px; }
+}
+
+/* ---------------------------------------------------------------------
+ * 2.43 回到顶部悬浮按钮 + 测评记录区手机端重排（Test.vue）
+ *      问题：点「我的测评记录」平滑滚到页面底部，看完记录想回顶部只能一路划。
+ *      方案：滚过约 0.8 屏浮现一个圆形回顶按钮（PC 端整套不显示）。
+ * ------------------------------------------------------------------- */
+.m-back-top { display: none; }
+
+@media (max-width: 768px) {
+  .m-back-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 14px;
+    /* 让出底部 Tab 栏（58px）+ 一点呼吸 */
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    z-index: 1100;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-main), var(--c-hex));
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(24, 38, 28, 0.22);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-back-top svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .m-back-top:active { transform: scale(0.94); }
+  .bt-fade-enter-active, .bt-fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+  .bt-fade-enter-from, .bt-fade-leave-to { opacity: 0; transform: translateY(8px); }
+
+  /* 测评记录区：单列卡片收紧，一屏能看两条以上 */
+  .test-page .history-area { margin-top: 22px; padding: 0 12px; }
+  .test-page .history-grid { grid-template-columns: 1fr; gap: 10px; }
+  .test-page .history-card { padding: 12px 14px; border-radius: 16px; }
+  .test-page .his-name { font-size: 14px; }
+  .test-page .his-date { font-size: 11px; }
+  .test-page .score-num { font-size: 24px; }
+  .test-page .his-tip {
+    font-size: 12px;
+    margin: 6px 0 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .test-page .his-view { padding: 6px 12px; font-size: 12px; }
+}
+
+/* ---------------------------------------------------------------------
+ * 2.44 量表详情弹窗手机端底部弹层化（Test.vue .detail-modal）
+ *      原：居中小卡 + 顶部图标位渲染 bug（图标名被当文字显示）。
+ *      图标 bug 已在 Test.vue 模板修（AppIcon 包裹，PC 同步受益）；
+ *      这里只做手机端：底部弹层、全宽、头部/章节/按钮收紧。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* 遮罩让出底部 Tab 栏（与其他弹层同规矩），弹窗贴着 Tab 栏上缘弹出 */
+  .test-page .modal-mask {
+    align-items: flex-end !important;
+    padding: 0 !important;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .test-page .detail-modal {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 82vh !important;
+    border-radius: 22px 22px 0 0 !important;
+    border-bottom: none !important;
+    padding: 16px 16px 14px !important;
+    box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.18) !important;
+    animation: sheetUp 0.26s cubic-bezier(0.34, 1.3, 0.64, 1);
+  }
+  @keyframes sheetUp { from { transform: translateY(40%); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
+
+  /* 中间章节区自己滚，头部/底部按钮常驻可见 */
+  .test-page .detail-body { flex: 1; min-height: 0; overflow-y: auto; }
+
+  .test-page .detail-head { gap: 10px !important; margin-bottom: 14px !important; padding-right: 34px; }
+  .test-page .detail-icon { width: 42px !important; height: 42px !important; font-size: 20px !important; border-radius: 12px !important; }
+  .test-page .detail-title { font-size: 16px !important; line-height: 1.35; }
+  .test-page .detail-tags { gap: 6px !important; margin-top: 5px !important; }
+  .test-page .detail-tag { font-size: 11px !important; padding: 2px 8px !important; }
+  .test-page .detail-head .close-btn { top: -2px !important; right: 0 !important; }
+
+  .test-page .detail-body { gap: 12px !important; margin-bottom: 14px !important; }
+  .test-page .detail-section h4 { font-size: 14px !important; margin-bottom: 4px !important; }
+  .test-page .detail-section p { font-size: 13px !important; line-height: 1.65 !important; }
+
+  /* 底部按钮：两端等宽铺满，主按钮占大头 */
+  .test-page .detail-foot { flex-shrink: 0; gap: 10px !important; }
+  .test-page .detail-foot .foot-btn { flex: 1; padding: 11px 0 !important; font-size: 14px !important; }
+  .test-page .detail-foot .foot-btn.primary { flex: 1.6; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.45 答题页（quiz-screen）层级与底部安全区
+ * quiz-screen 原生 z-index:1000，低于底部 Tab 栏的 1200，
+ * 导致「上一题/下一题/提交测评」按钮被 Tab 栏盖住。
+ * 手机端把答题页抬到 Tab 栏之上（又低于抽屉 1300），
+ * 答题是全屏沉浸模式，Tab 栏被答题页的不透明背景自然遮住。
+ * 同时给底部按钮区补 safe-area 留白，防止全面屏手势条压住按钮。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .quiz-screen { z-index: 1250 !important; }
+  .quiz-foot { padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)) !important; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.46 测评结果弹窗（手机端）
+ *  - 遮罩：暗紫模糊 → 浅色毛玻璃，背后不再显脏
+ *  - 海报卡：紫渐变掺白调柔和，硬阴影改柔和大阴影
+ *  - 布局：整卡改底部抽屉式（上圆角、卡身自滚、操作栏白底常驻 + safe-area）
+ *  - 字号/间距整体收紧，适配 412px 宽度
+ * PC 端完全不受影响（全部关在 ≤768px 里）。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .test-page .modal-mask {
+    align-items: flex-end !important;
+    padding: 0 !important;
+    background: rgba(248, 246, 252, 0.78) !important;
+    backdrop-filter: blur(18px) saturate(1.25);
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  }
+  :root.dark-mode .test-page .modal-mask { background: rgba(24, 26, 34, 0.84) !important; }
+
+  .test-page .result-wrap {
+    max-width: 100% !important;
+    width: 100% !important;
+    gap: 0 !important;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 海报卡：底部抽屉形态 + 奶油浅紫配色 */
+  .test-page .result-poster {
+    flex: 1;
+    min-height: 0;
+    max-height: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    border-bottom: none !important;
+    padding: 20px 18px 14px !important;
+    box-shadow: 0 -12px 44px rgba(70, 50, 110, 0.20) !important;
+    background: linear-gradient(168deg,
+      color-mix(in srgb, var(--t-poster1) 46%, #ffffff) 0%,
+      color-mix(in srgb, var(--t-poster2) 52%, #ffffff) 62%,
+      color-mix(in srgb, var(--t-poster3) 72%, #ffffff) 100%) !important;
+    animation: mSheetUp 0.3s cubic-bezier(0.34, 1.3, 0.64, 1) !important;
+  }
+  @keyframes mSheetUp { from { transform: translateY(45%); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
+
+  /* 掺白后白字改深色才看得清 */
+  .test-page .poster-slogan {
+    color: var(--t-strong) !important;
+    text-shadow: none !important;
+    font-size: 13px !important;
+    margin-bottom: 12px !important;
+  }
+  .test-page .result-poster::before { opacity: 0.5; }
+
+  /* 内容排版收紧 */
+  .test-page .poster-pills { gap: 8px !important; margin-bottom: 12px !important; }
+  .test-page .pill { padding: 6px 14px !important; font-size: 12.5px !important; max-width: 62% !important; }
+  .test-page .ps-num { font-size: 52px !important; }
+  .test-page .ps-total { font-size: 17px !important; }
+  .test-page .poster-desc { font-size: 13.5px !important; padding: 12px 14px !important; margin-bottom: 12px !important; }
+  .test-page .poster-tips { gap: 10px !important; margin-bottom: 12px !important; }
+  .test-page .tips-label { font-size: 12px !important; }
+  .test-page .tips-divider { height: 30px !important; }
+  .test-page .tips-text { font-size: 12.5px !important; }
+  .test-page .poster-tags { gap: 6px !important; margin-bottom: 12px !important; }
+  .test-page .poster-tag { font-size: 11.5px !important; padding: 4px 10px !important; }
+  .test-page .poster-brand { padding-top: 10px !important; }
+  .test-page .poster-brand-name { font-size: 12.5px !important; }
+  .test-page .poster-date { font-size: 11.5px !important; }
+  .test-page .result-poster::after { bottom: 58px; }
+
+  /* 操作栏：白底常驻底部 + safe-area，主按钮占大头 */
+  .test-page .result-actions {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    border-top: 1px solid rgba(140, 120, 170, 0.16);
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+  }
+  .test-page .result-actions .foot-btn { flex: 1; padding: 11px 0 !important; font-size: 13.5px !important; border-radius: 22px; }
+  .test-page .result-actions .foot-btn.primary { flex: 1.4; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.47 心理疗愈视频页（classroom）
+ * 与 FM 列表页同款问题：常驻顶栏 52px 盖住了横幅标题「绪见学堂」。
+ * 页面让出 52px + 横幅按 FM 同款规则收紧，保持两端观感一致。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .classroom-page { padding-top: 52px !important; }
+
+}
+
+/* -------------------------------------------------------------------
+ * §2.48 视频播放页（classroom player-view）控制条位置
+ * classroom.css 的 ≤1100px 单列布局把控制条排在第 3 行（页面最底部），
+ * 手机端改回「视频 → 标题+控制条 → 简介/评论」的顺序，
+ * 控制条紧跟播放窗口正下方（优酷式）。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .classroom-page .player-layout { grid-template-rows: auto auto auto !important; }
+  .classroom-page .player-main { grid-row: 1 !important; }
+  .classroom-page .video-head { grid-row: 2 !important; }
+  .classroom-page .player-side { grid-row: 3 !important; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.49 横幅 → 紧凑顶条（2026-11-17，PC+手机同步改版）
+ * AnimeHero 组件本体已重写为 52px 淡色通栏（参考 AI 陪伴页顶条），
+ * 测评页 .hero 同步改写 —— 此处不再需要任何横幅覆盖规则。
+ * 日记页特殊处理见 §2.25；补睡眠/导出工具行见 §2.50。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* 测评页顶条：4 项统计徽章压缩后单行放得下 */
+  .test-page .hero { padding: 8px 14px !important; }
+  .test-page .hero-title h1 { font-size: 17px !important; }
+  .test-page .meta-chip { padding: 4px 8px !important; font-size: 10.5px !important; border-radius: 12px !important; }
+  .test-page .meta-chip b { font-size: 12.5px !important; }
+  .test-page .history-btn { padding: 5px 9px !important; font-size: 11px !important; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.50 日记页横幅下方工具行（手机端专属容器）
+ * 补睡眠/导出是低频功能，从横幅里挪出来：横幅内只留统计卡 + 写日记主按钮。
+ * .mobile-hero-tools 在 Diary.vue 模板中，PC 端用全局 display:none 永久隐藏，
+ * PC 横幅内按钮原样保留 —— 严格只改手机端。
+ * ------------------------------------------------------------------- */
+.mobile-hero-tools { display: none; }
+
+@media (max-width: 768px) {
+  /* 工具按钮已放进 AnimeHero 的 #left 槽，和标题同一行右侧，不再单独占一行 */
+  .mobile-hero-tools {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+  }
+  .mobile-hero-tools .write-fab.ghost-fab {
+    flex: 0 0 auto;
+    justify-content: center;
+    height: 28px !important;
+    padding: 0 8px !important;
+    gap: 3px !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    border: 1px solid color-mix(in srgb, var(--c-hex) 32%, transparent) !important;
+    color: var(--c-hex) !important;
+    box-shadow: none !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    font-family: inherit !important;
+  }
+  .mobile-hero-tools .write-fab.ghost-fab .app-icon { width: 13px; height: 13px; }
+}
+
+
+/* -------------------------------------------------------------------
+ * §2.51 数据看板手机端：顶条回归纯标题 / 工具行下移 / 周报折叠
+ * 只作用于 ≤768px，PC 端保持原样。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* 顶部导航栏 fixed 52px：看板根类手机端让位 */
+  .board-page:not(.embedded) {
+    padding-top: 52px !important;
+    box-sizing: border-box;
+  }
+
+  /* -- 顶条：与其他页面一致，只留「图标 + 标题」，工具行整体隐藏 -- */
+  .board-page:not(.embedded) .ah-hero {
+    min-height: 52px !important;
+    padding: 9px 14px !important;
+    margin-bottom: 0 !important;
+  }
+  .board-page:not(.embedded) .ah-title h1 { font-size: 18px !important; }
+  .board-page:not(.embedded) .ah-right { display: none !important; }
+
+  /* -- 工具行：从顶条挪到内容区顶部，轻量描边小胶囊 -- */
+  .board-page .board-mobile-tools {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 12px 2px 4px;
+  }
+  .board-mobile-tools .range-switch {
+    display: flex; gap: 2px; padding: 3px;
+    background: color-mix(in srgb, var(--c-hex) 8%, transparent);
+    border-radius: 999px;
+  }
+  .board-mobile-tools .range-btn {
+    flex: 0 0 auto; min-width: 34px; padding: 5px 10px;
+    border: none; background: transparent; border-radius: 999px;
+    font-size: 12px; color: var(--c-text-weak); cursor: pointer;
+    font-family: inherit; white-space: nowrap;
+  }
+  .board-mobile-tools .range-btn.on {
+    background: var(--c-hex); color: #fff; font-weight: 600;
+  }
+  .board-mobile-tools .year-select {
+    border: 1px solid color-mix(in srgb, var(--c-hex) 30%, transparent);
+    background: transparent; border-radius: 999px;
+    padding: 5px 10px; font-size: 12px; color: var(--c-hex);
+    cursor: pointer; font-family: inherit;
+  }
+  .board-mobile-tools .export-btn {
+    margin-left: auto;
+    border: 1px solid color-mix(in srgb, var(--c-hex) 30%, transparent);
+    background: transparent; border-radius: 999px;
+    padding: 5px 12px; font-size: 12px; color: var(--c-hex);
+    cursor: pointer; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  }
+  .board-mobile-tools .export-btn:disabled { opacity: .6; }
+  .board-mobile-tools .export-btn .app-icon { width: 14px; height: 14px; }
+
+  /* -- 概览卡：6 个改 3 列 2 行的小卡，减少首屏占用 -- */
+  .board-page .metric-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin: 8px 0 14px !important;
+  }
+  .board-page .metric-card {
+    align-items: center !important;
+    padding: 12px 4px !important;
+    border-radius: 12px !important;
+    gap: 3px !important;
+    box-shadow: none !important;
+  }
+  .board-page .metric-num { font-size: 21px !important; }
+  .board-page .metric-num .unit { font-size: 10px !important; margin-left: 1px !important; }
+  .board-page .metric-label { font-size: 10.5px !important; white-space: nowrap !important; }
+
+  /* -- 面板：统一收一档密度 -- */
+  .board-page .panel { padding: 14px 12px 10px !important; border-radius: 14px !important; }
+  .board-page .panel-head { gap: 4px !important; margin-bottom: 8px !important; }
+  .board-page .panel-head h2 { font-size: 14px !important; }
+  .board-page .panel-tip { flex: 1 1 100% !important; font-size: 10.5px !important; line-height: 1.5 !important; }
+  .board-page .panel-row { gap: 12px !important; margin-top: 12px !important; }
+  .board-page .chart { height: clamp(200px, 56vw, 240px) !important; }
+
+  /* -- AI 周报：标题与按钮同一行，说明换行独占一行，正文默认折叠 -- */
+  .board-page .wr-panel .panel-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+  }
+  .board-page .wr-panel .panel-head h2 { grid-column: 1 !important; grid-row: 1 !important; }
+  .board-page .wr-panel .wr-refresh {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    flex: none !important;
+    min-height: 0 !important;
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+  }
+  .board-page .wr-panel .panel-tip {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    flex: none !important;
+    min-width: 0 !important;
+  }
+  .board-page .wr-body { font-size: 12.5px !important; line-height: 1.7 !important; padding-top: 4px !important; }
+  .board-page .wr-content.collapsed {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 4 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+  .board-page .wr-toggle {
+    display: block !important;
+    margin: 8px auto 0 !important;
+    padding: 5px 18px !important;
+    border: 1px solid color-mix(in srgb, var(--c-hex) 32%, transparent) !important;
+    background: transparent !important;
+    border-radius: 999px !important;
+    color: var(--c-hex) !important;
+    font-size: 11.5px !important;
+    cursor: pointer !important;
+  }
+}
+
+/* -------------------------------------------------------------------
+ * §2.52 顶条统一为纯标题：工具下移到内容区 .page-tools（2026-11-18）
+ * 数据看板 §2.51 已先行落地；这里把同款规范同步到日记 / 反馈 / 测评。
+ * 顶条只留「图标 + 标题」，所有统计卡与按钮收进紧贴顶条下方的轻量工具行。
+ * 只作用于 ≤768px；PC 端 .page-tools 恒隐藏，顶条 #right 原样保留。
+ * ------------------------------------------------------------------- */
+.page-tools { display: none; }
+
+@media (max-width: 768px) {
+  /* -- 日记：顶条只剩标题，原 left/right 工具槽整体隐藏 -- */
+  .diary-page .ah-left { display: none !important; }
+  .diary-page .ah-right { display: none !important; }
+  .diary-page .ah-hero { padding: 9px 14px !important; min-height: 52px !important; margin-bottom: 0 !important; }
+  .diary-page .ah-title h1 { font-size: 18px !important; }
+  .diary-page .diary-tools {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px 2px;
+  }
+  .diary-tools .hero-meta { display: flex; gap: 8px; flex: 1 1 100%; }
+  .diary-tools .meta-card {
+    flex: 1; min-width: 0; padding: 8px 4px; gap: 2px;
+    flex-direction: column; align-items: center;
+    background: transparent; border: 1px solid color-mix(in srgb, var(--c-hex) 26%, transparent);
+    border-radius: 12px; box-shadow: none;
+  }
+  .diary-tools .meta-num { font-size: 18px !important; }
+  .diary-tools .meta-label { font-size: 10px !important; letter-spacing: 0 !important; white-space: nowrap !important; }
+  .diary-tools .meta-emoji { width: 18px !important; height: 18px !important; }
+  .diary-tools .meta-emotion-name { font-size: 12px !important; }
+  .diary-tools .tools-actions { display: flex; gap: 8px; flex: 1 1 100%; }
+  .diary-tools .tools-actions button {
+    height: 32px; padding: 0 12px; gap: 4px;
+    border-radius: 999px; font-size: 12px; font-family: inherit;
+    display: inline-flex; align-items: center; justify-content: center;
+    white-space: nowrap; cursor: pointer;
+  }
+  .diary-tools .ghost-fab {
+    background: transparent !important;
+    border: 1px solid color-mix(in srgb, var(--c-hex) 32%, transparent) !important;
+    color: var(--c-hex) !important; box-shadow: none !important;
+  }
+  .diary-tools .ghost-fab .app-icon { width: 14px; height: 14px; }
+  .diary-tools .write-fab:not(.ghost-fab) {
+    margin-left: auto;
+    background: var(--c-hex) !important; color: #fff !important;
+    border: none !important; box-shadow: none !important;
+  }
+  .diary-tools .write-fab .fab-icon { display: none; }
+
+  /* -- 反馈：顶条只剩标题，统计下移 -- */
+  /* 让位 fixed 52px 顶栏（同日记/测试/看板），否则标题被盖住 */
+  .feedback-page {
+    padding-top: 52px !important;
+    box-sizing: border-box;
+  }
+  .feedback-page .ah-right { display: none !important; }
+  .feedback-page .ah-hero { min-height: 52px !important; margin-bottom: 0 !important; }
+  .feedback-page .feedback-tools {
+    display: flex !important; gap: 8px; padding: 10px 14px 2px;
+  }
+  .feedback-tools .hero-stat {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center;
+    padding: 8px 4px; gap: 2px;
+    background: transparent; border: 1px solid color-mix(in srgb, var(--c-hex) 26%, transparent);
+    border-radius: 12px;
+  }
+  .feedback-tools .stat-num { font-size: 18px !important; }
+  .feedback-tools .stat-label { font-size: 10px !important; }
+
+  /* -- 测评：自定义 hero，meta 行收起，下移 -- */
+  .test-page .hero .hero-meta { display: none !important; }
+  .test-page .hero { min-height: 52px !important; padding: 9px 14px !important; margin-bottom: 0 !important; }
+  .test-page .test-tools {
+    display: flex !important; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 14px 2px;
+  }
+  .test-tools .meta-chip {
+    background: transparent !important;
+    border: 1px solid color-mix(in srgb, var(--c-hex) 26%, transparent) !important;
+    border-radius: 999px !important;
+    padding: 5px 10px !important; font-size: 11px !important;
+  }
+  .test-tools .history-btn { margin-left: auto; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.53 个人中心手机端（2026-11-18 第四版）：背景图在上，资料卡在下方
+ * 背景照片整块占顶部（完整可见、不被卡片压住），头像/昵称/签名等资料
+ * 放到背景图下方的卡片区域，组成一张「照片 + 资料」的完整大卡。
+ * 背景设置/拖动调整功能完整保留。只作用于 ≤768px；PC 端保持原样。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* 让位 fixed 52px 顶栏（同日记/反馈/看板），否则导航栏盖住背景图顶部 */
+  .profile-page {
+    padding-top: 52px !important;
+    box-sizing: border-box;
+  }
+  .profile-page .profile-hero {
+    position: relative !important;
+    background: #fff !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    margin-bottom: 16px !important;
+  }
+  .profile-page.dark-mode .profile-hero { background: #1f2937 !important; }
+  /* 背景照片：整块在顶部，不被资料卡压住 */
+  .profile-page .hero-bg {
+    position: static !important;
+    height: 170px !important;
+    border-radius: 0 !important;
+  }
+  /* 照片底部轻微渐变，向资料区自然过渡 */
+  .profile-page .hero-bg::after {
+    background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.03) 60%,
+      rgba(255, 255, 255, 0.5) 88%,
+      rgba(255, 255, 255, 0.85) 100%) !important;
+  }
+  /* 资料区：在背景图下方，不再上移压照片 */
+  .profile-page .hero-content {
+    margin-top: 0 !important;
+    padding: 14px 14px 16px !important;
+    gap: 10px !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    align-items: center !important;
+  }
+  /* 头像框 */
+  .profile-page .avatar-wrap { width: 80px !important; height: 80px !important; border-width: 3px !important; }
+  .profile-page .avatar-wrap .frame-ring-img { width: 135% !important; height: 135% !important; }
+  .profile-page .hero-info { flex: 1 1 0 !important; width: auto !important; min-width: 0 !important; padding-bottom: 0 !important; }
+  .profile-page .hero-info h1 { font-size: 19px !important; }
+  .profile-page .hero-info h1 .role-tag { font-size: 10px !important; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.54 个人中心弹窗手机端（2026-11-18）：PC 小卡片 → 底部弹层
+ * 编辑个人资料弹窗在手机上贴底全宽展示，按钮加大、表单单列，方便触控。
+ * 只作用于 ≤768px；PC 端保持原样。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .uc-mask { align-items: flex-end !important; padding: 0 !important; }
+  .uc-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 88vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  /* 顶部：标题居中 + 关闭按钮右上 */
+  .uc-head { text-align: center; font-size: 16px !important; margin-bottom: 12px !important; }
+  .uc-close { top: 12px !important; right: 14px !important; width: 32px !important; height: 32px !important; }
+  /* 三个标签等宽铺满一行 */
+  .uc-tabs { gap: 8px !important; margin-bottom: 14px !important; }
+  .uc-tab { flex: 1 1 0 !important; min-width: 0 !important; padding: 9px 0 !important; text-align: center; font-size: 13px !important; }
+  /* 表单：单列 + 输入框加大 */
+  .uc-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .uc-body .form-item input { width: 100% !important; padding: 11px 12px !important; font-size: 14px !important; box-sizing: border-box; }
+  .uc-body { min-height: 0 !important; }
+  /* 头像卡保持横排，按钮加大 */
+  .uc-avatar-card { padding: 12px 14px !important; gap: 12px !important; margin-bottom: 14px !important; }
+  .uc-upload-btn { padding: 8px 16px !important; font-size: 13px !important; }
+  /* 弹窗内小头像自洽：§2.53 的 80px 头像规则会命中弹窗里的 .avatar-wrap，
+     但 PC 的 .uc-avatar .avatar-img-inner 固定 64px，图比框小且不居中 → 白边错位。
+     这里框、图、装饰环统一成一套尺寸。 */
+  .uc-modal .avatar-wrap.uc-avatar { width: 68px !important; height: 68px !important; }
+  .uc-modal .uc-avatar .avatar-img-inner { width: 68px !important; height: 68px !important; }
+  .uc-modal .uc-avatar .frame-ring-img { width: 128% !important; height: 128% !important; }
+  /* 装饰按钮：两列铺满，不再受 140px 最小宽限制 */
+  .uc-deco-row .cancel { min-width: 0 !important; flex: 1 1 46% !important; padding: 10px 0 !important; font-size: 13px !important; }
+  .uc-switch { padding: 12px !important; font-size: 13px !important; }
+  /* 底部按钮：等宽铺满一行，触控友好 */
+  .uc-footer { margin-top: 16px !important; gap: 10px !important; }
+  .uc-footer .cancel,
+  .uc-footer .primary-btn.small { flex: 1 1 0 !important; height: 44px !important; padding: 0 !important; font-size: 14px !important; justify-content: center; border-radius: 22px !important; }
+}
+
+/* -------------------------------------------------------------------
+ * §2.55 个人中心手机端整体重排（2026-11-18）
+ * 问题：≤900px 时 .steam-body 变纵向后，整个右侧信息栏（等级/数据导航/
+ * 情绪预警/本周情绪）被压到全部标签内容的最底部，导航要翻到底才看得到。
+ * 方案：信息栏上移到内容上方成为「个人概览」，逐卡压缩为手机密度：
+ *   1) 数据导航（stat-card）提到最前，改两列网格 —— 这是手机端主入口
+ *   2) 等级卡压成横排（隐藏长说明，保留进度条与明细折叠）
+ *   3) 情绪预警条、本周情绪卡紧随其后
+ *   4) 在线卡隐藏（hero 已有「在线 · 最近活跃」，纯重复）
+ * 只作用于 ≤768px；PC 端保持原样。
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .profile-page .steam-body { flex-direction: column !important; gap: 12px !important; }
+  /* 信息栏整体上移到内容上方 */
+  .profile-page .steam-side {
+    order: -1 !important;
+    width: 100% !important;
+    position: static !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  /* 卡片密度统一收一档 */
+  .profile-page .side-card { padding: 14px 12px !important; border-radius: 14px !important; }
+
+  /* -- 卡片顺序：数据导航 → 等级 → 预警 → 本周情绪 -- */
+  .profile-page .steam-side .stat-card { order: 1 !important; }
+  .profile-page .steam-side .level-card { order: 2 !important; }
+  .profile-page .steam-side .risk-cta { order: 3 !important; }
+  .profile-page .steam-side .side-card:last-of-type { order: 4 !important; }
+
+  /* -- 在线卡与 hero 重复 → 隐藏 -- */
+  .profile-page .online-card { display: none !important; }
+
+  /* -- 数据导航：两列网格，当前页高亮保留 -- */
+  .profile-page .stat-card {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    padding: 12px !important;
+  }
+  .profile-page .stat-card .sg-title {
+    grid-column: 1 / -1 !important;
+    margin: 2px 2px 0 !important;
+    letter-spacing: 2px !important;
+  }
+  .profile-page .side-stat {
+    padding: 9px 10px !important;
+    font-size: 12.5px !important;
+    background: var(--c-bg1, #f7f9f7);
+  }
+  .profile-page .side-stat.active { color: #fff !important; }
+  .profile-page .ss-icon { width: 16px !important; height: 16px !important; }
+
+  /* -- 等级卡：横排紧凑，隐藏底部长说明 -- */
+  .profile-page .level-card .lc-head { padding: 10px 12px !important; }
+  .profile-page .level-card .lc-main { padding: 0 !important; gap: 8px !important; }
+  .profile-page .lc-badge { width: 44px !important; height: 44px !important; font-size: 19px !important; }
+  .profile-page .level-card .lc-detail-toggle { margin-top: 8px !important; }
+  .profile-page .level-card .lc-desc { display: none !important; }
+  .profile-page .level-card .side-btn { margin: 12px 0 0 !important; width: 100% !important; }
+
+  /* -- 情绪预警条 / 本周情绪卡紧凑 -- */
+  .profile-page .risk-cta { padding: 10px 14px !important; }
+  .profile-page .side-emo { gap: 10px !important; margin-bottom: 8px !important; }
+  .profile-page .se-img { width: 44px !important; height: 44px !important; }
+  .profile-page .side-btn.ghost { margin-top: 8px !important; }
+
+  /* -- 内容区：动态两栏（最近日记/最近测评）改单列 -- */
+  .profile-page .act-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ==========================================================================
+ * §2.56 临时小操作统一底部弹层（2026-11-18）
+ * 日历「选日期」：手机端隐藏原生 select，显示年月入口按钮，点开底部弹层选。
+ * 删除确认等 jellyConfirm 弹层本身已贴底（ConfirmSheet），无需额外适配。
+ * ========================================================================== */
+@media (max-width: 768px) {
+  .calendar-card .cal-nav .cal-picker { display: none !important; }
+  .calendar-card .cal-nav .cal-date-btn { display: inline-flex !important; }
 }

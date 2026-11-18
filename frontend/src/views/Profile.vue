@@ -48,11 +48,10 @@
       </div>
     </div>
 
-    <!-- 背景图选择弹窗 -->
-    <div v-if="showBgPicker" class="mask" @click.self="showBgPicker = false">
-      <div class="avatar-picker" style="width:500px">
-        <h3><AppIcon name="image" /> 设置顶部背景图</h3>
-        <p class="modal-desc" style="margin:-6px 0 12px;font-size:12px">选择一张喜欢的图片作为个人中心的顶栏背景~</p>
+    <!-- 背景图选择（底部弹层） -->
+    <BottomSheet :open="showBgPicker" title="设置顶部背景图" @close="showBgPicker = false">
+      <div class="avatar-picker sheet-flat">
+        <p class="modal-desc" style="margin:-2px 0 12px;font-size:12px">选择一张喜欢的图片作为个人中心的顶栏背景~</p>
         <div class="bg-preview" :class="{ clickable: heroBg }" :style="heroBgStyle" :title="heroBg ? '点击去顶部横幅调整显示区域' : ''" @click="heroBg && startBgAdjust()">
           <span v-if="heroBg" class="bg-preview-tip"><AppIcon name="target" /> 点击调整显示区域</span>
         </div>
@@ -67,7 +66,7 @@
           <button class="primary-btn small" @click="bgUploadRef?.click()"><AppIcon name="upload" /> 上传自定义图片</button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
 
     <!-- 主体两栏：左侧内容 + 右侧信息栏（Steam 式） -->
     <div class="steam-body">
@@ -277,7 +276,7 @@
             <button class="lt-reset" @click="resetDiaryFilter"><AppIcon name="rotate-ccw" /> 重置</button>
           </div>
         </div>
-        <div v-if="diaryLoading" class="empty"><AppIcon name="loader" /> 加载中...</div>
+        <div v-if="diaryLoading" class="empty"><CowLoading size="sm" text="加载中" /></div>
         <div v-else-if="diaryServerTotal === 0" class="empty">
           <span v-if="diaryKw"><img src="/img/搜索.png" class="lt-icon" style="vertical-align:middle;margin-right:4px" />没有找到匹配的日记~</span>
           <span v-else>
@@ -514,7 +513,7 @@
           <span class="ct-item"><span class="dot no"></span>未通过 —— 仅自己可见</span>
         </div>
 
-        <div v-if="cmtLoading" class="empty">加载中...</div>
+        <div v-if="cmtLoading" class="empty"><CowLoading size="sm" text="加载中" /></div>
 
         <template v-else-if="cmtList.length > 0">
           <div class="cmt-list">
@@ -841,7 +840,7 @@
           <template v-if="hasSessionData">
             <span class="sd-num">{{ onlineDeviceCount }}</span> 台设备在线<span class="sd-sub">（共 {{ totalDeviceCount }} 台）</span>
           </template>
-          <span v-else class="sd-sub">加载中…</span>
+          <span v-else class="sd-sub"><CowLoading size="sm" text="" /></span>
           <button class="link-btn" @click="switchTab('setting')">管理设备</button>
         </div>
       </div>
@@ -877,13 +876,9 @@
     </aside>
     </div>
 
-    <!-- AI 对话详情弹窗 -->
-    <div v-if="aiDetail" class="mask" @click.self="aiDetail = null">
-      <div class="detail-modal">
-        <div class="detail-header">
-          <h3><AppIcon name="bot" /> AI 对话详情</h3>
-          <button class="detail-close" @click="aiDetail = null"><AppIcon name="close" /></button>
-        </div>
+    <!-- AI 对话详情（底部弹层） -->
+    <BottomSheet :open="!!aiDetail" title="AI 对话详情" @close="aiDetail = null">
+      <div class="detail-modal sheet-flat" v-if="aiDetail">
         <div class="detail-meta"><AppIcon name="clock" /> {{ formatDateTime(aiDetail.createTime) }}</div>
         <div class="detail-body">
           <div class="ai-user-row"><span class="ai-tag user">你</span></div>
@@ -892,21 +887,17 @@
           <div class="ai-bubble ai full">{{ aiDetail.aiReply ?? aiDetail.aiResponse }}</div>
         </div>
       </div>
-    </div>
+    </BottomSheet>
 
-    <!-- 反馈完整对话弹窗 -->
-    <div v-if="fbDetail" class="mask" @click.self="fbDetail = null">
-      <div class="detail-modal">
-        <div class="detail-header">
-          <h3><AppIcon name="message" /> 反馈对话详情</h3>
-          <button class="detail-close" @click="fbDetail = null"><AppIcon name="close" /></button>
-        </div>
+    <!-- 反馈完整对话（底部弹层） -->
+    <BottomSheet :open="!!fbDetail" title="反馈对话详情" @close="fbDetail = null">
+      <div class="detail-modal sheet-flat" v-if="fbDetail">
         <div class="detail-meta"><AppIcon name="clock" /> {{ formatDateTime(fbDetail.createTime) }}
           <span v-if="fbDetail.replyText" class="fb-status replied" style="margin-left:10px"><AppIcon name="check" /> 已回复</span>
           <span v-else class="fb-status pending" style="margin-left:10px"><AppIcon name="loader" /> 待回复</span>
         </div>
         <div class="detail-body">
-          <div v-if="fbLoading" class="empty" style="padding:30px">加载中...</div>
+          <div v-if="fbLoading" class="empty" style="padding:30px"><CowLoading size="sm" text="加载中" /></div>
           <template v-else>
             <div v-for="(m, idx) in fbMessages" :key="idx" class="fb-msg-row">
               <div :class="['fb-msg-bubble', m.senderType === 'user' ? 'user' : 'admin']">
@@ -919,12 +910,11 @@
           </template>
         </div>
       </div>
-    </div>
+    </BottomSheet>
 
-    <!-- 头像选择弹窗 -->
-    <div v-if="showAvatarPicker" class="mask" @click.self="showAvatarPicker = false">
-      <div class="avatar-picker">
-        <h3><AppIcon name="image" /> 设置头像</h3>
+    <!-- 头像选择（底部弹层） -->
+    <BottomSheet :open="showAvatarPicker" title="设置头像" @close="showAvatarPicker = false">
+      <div class="avatar-picker sheet-flat">
         <div class="avatar-upload-area" @click="$refs.avatarUploadRef.click()">
           <div class="upload-big-icon"><AppIcon name="upload" /></div>
           <p>点击上传头像</p>
@@ -934,12 +924,11 @@
           <button class="cancel" @click="showAvatarPicker = false">取消</button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
 
     <!-- 测评详情弹窗 -->
-    <div v-if="testDetail" class="mask" @click.self="testDetail = null">
-      <div class="detail-modal" style="max-width:480px">
-        <div class="detail-header"><h3><AppIcon name="clipboard" /> 测评报告详情</h3><button class="detail-close" @click="testDetail = null"><AppIcon name="close" /></button></div>
+    <BottomSheet :open="!!testDetail" title="测评报告详情" @close="testDetail = null">
+      <div class="detail-modal sheet-flat" v-if="testDetail">
         <div class="test-detail-body">
           <div class="test-detail-name">{{ testDetail.testTitle || testDetail.paperName || '综合测试' }}</div>
           <div class="test-detail-circle" :class="testLevelClass(testDetail)"><span class="test-detail-score">{{ testDetail.score ?? testDetail.totalScore }}</span><span class="test-detail-total">/ {{ testDetail.totalScore || '--' }}</span></div>
@@ -949,12 +938,11 @@
           <div class="test-detail-actions"><button class="test-action-btn" @click="testDetail = null">关闭</button><button class="test-action-btn primary" @click="showTestShare(testDetail); testDetail = null"><AppIcon name="camera" /> 生成分享卡片</button></div>
         </div>
       </div>
-    </div>
+    </BottomSheet>
 
-    <!-- 测评分享卡片弹窗 -->
-    <div v-if="showTestShareCard" class="mask" @click.self="showTestShareCard = false">
-      <div class="detail-modal" style="max-width:440px">
-        <div class="detail-header"><h3><AppIcon name="camera" /> 生成分享卡片</h3><button class="detail-close" @click="showTestShareCard = false"><AppIcon name="close" /></button></div>
+    <!-- 测评分享卡片（底部弹层） -->
+    <BottomSheet :open="showTestShareCard" title="生成分享卡片" @close="showTestShareCard = false">
+      <div class="detail-modal sheet-flat">
         <div class="share-card-preview" v-if="currentShareTest">
           <div class="sc-header"><div class="sc-logo"><AppIcon name="leaf" /> 绪见测试</div><div class="sc-date">{{ today }}</div></div>
           <div class="sc-body">
@@ -967,13 +955,12 @@
         </div>
         <div class="picker-actions"><button class="cancel" @click="showTestShareCard = false">取消</button><button class="primary-btn small" @click="saveTestShareCard"><AppIcon name="save" /> 保存图片</button></div>
       </div>
-    </div>
+    </BottomSheet>
 
-    <!-- 头像装饰框弹窗 -->
-    <div v-if="showFramePicker" class="mask" @click.self="showFramePicker = false">
-      <div class="avatar-picker" style="width:440px">
-        <h3><AppIcon name="image" /> 头像装饰框</h3>
-        <p class="modal-desc" style="margin:-8px 0 14px;font-size:12px"><AppIcon name="sparkles" /> 本周情绪推荐：{{ weekStat.topEmotionIcon }} {{ weekStat.summary?.split('！')[0]?.split('？')[0] || '' }}</p>
+    <!-- 头像装饰框（底部弹层） -->
+    <BottomSheet :open="showFramePicker" title="头像装饰框" @close="showFramePicker = false">
+      <div class="avatar-picker sheet-flat">
+        <p class="modal-desc" style="margin:-2px 0 14px;font-size:12px"><AppIcon name="sparkles" /> 本周情绪推荐：{{ weekStat.topEmotionIcon }} {{ weekStat.summary?.split('！')[0]?.split('？')[0] || '' }}</p>
         <div class="frame-grid">
           <div v-for="f in avatarFrames" :key="f.name"
                :class="['frame-opt', { on: userFrame === f.name }]"
@@ -990,7 +977,7 @@
           <button class="cancel" @click="showFramePicker = false">取消</button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
 
     <!-- ========== 个人中心弹窗（基本资料 / 个性化设置 / 修改密码） ========== -->
     <div v-if="showUserCenter" class="mask uc-mask" @click.self="showUserCenter = false">
@@ -1069,6 +1056,8 @@ import { EMOTIONS as emotions } from '@/utils/constants'  // 情绪字典唯一�
 import { getUserById, updateUser, changePassword, cancelLike, cancelCollect, getSessions, kickSession as apiKickSession, kickOtherSessions, deactivateAccount, getMyComments, getMyOverview } from '@/api'
 import { jellyConfirm } from '@/utils/confirm'
 import { AVATAR_FRAMES, FRAME_SCALES } from '@/lib/avatarFrames'
+import CowLoading from '@/components/CowLoading.vue'
+import BottomSheet from '@/components/BottomSheet.vue'
 import { clearUserPrefs } from '../utils/userPrefs'
 import { useUserStore } from '../stores/user'
 import { feedbackWS } from '../utils/ws'
@@ -2761,6 +2750,10 @@ const saveStatus = async () => {
   max-width: 100%;
   transition: background 0.3s;
 }
+/* 顶栏常驻（PC）：内容让出 52px（覆盖上面的 30px）；≤768px 由 mobile.css 处理 */
+@media (min-width: 769px) {
+  .profile-page { padding-top: 52px; }
+}
 .profile-page.dark-mode { background: linear-gradient(135deg, #1f2937, #111827, #1f2937); color: #e5e7eb; }
 .profile-page.dark-mode .hero-content,
 .profile-page.dark-mode .sec-card,
@@ -3274,8 +3267,8 @@ const saveStatus = async () => {
 
 /* ===== 日记分页 ===== */
 .diary-pager { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding: 16px 0; }
-.pager-btn { padding: 10px 22px; border: none; border-radius: 25px; background: linear-gradient(135deg, #FFB74D, #FF9800); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3); }
-.pager-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4); }
+.pager-btn { padding: 10px 22px; border: none; border-radius: 25px; background: linear-gradient(135deg, var(--c-main), var(--c-hex)); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px color-mix(in srgb, var(--c-hex) 30%, transparent); }
+.pager-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 45%, transparent); }
 .pager-btn:disabled { background: var(--c-border-strong); cursor: not-allowed; box-shadow: none; opacity: 0.6; }
 .pager-info { font-size: 15px; font-weight: 600; color: #4b5563; background: var(--c-bg2); padding: 8px 18px; border-radius: 20px; }
 .diary-img-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 8px 12px; background: var(--c-bg2, #f6f9f6); border-radius: 10px; }
@@ -3434,6 +3427,8 @@ const saveStatus = async () => {
 .logout-btn:hover { background: #fef2f2; border-color: #f87171; }
 
 .mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
+/* 底部弹层里的内容卡：去掉原居中弹窗的定宽/阴影/内边距，交给 BottomSheet 容器 */
+.sheet-flat { width: auto !important; max-width: none !important; margin: 0 !important; box-shadow: none !important; padding: 0 !important; animation: none !important; overflow: visible !important; }
 .avatar-picker, .modal-card { background: #fff; border-radius: 20px; padding: 28px 32px; width: 400px; max-width: 90vw; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
 .avatar-picker h3, .modal-card h3 { margin: 0 0 20px; font-size: 16px; color: #374151; text-align: center; }
 .modal-desc { font-size: 14px; color: #6b7280; text-align: center; margin: 0 0 20px; line-height: 1.6; }

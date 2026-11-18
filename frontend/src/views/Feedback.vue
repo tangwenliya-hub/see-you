@@ -20,6 +20,13 @@
       </template>
     </AnimeHero>
 
+    <!-- 手机端专属：顶条只留标题，三个统计下移到这一行（PC 端隐藏） -->
+    <div class="page-tools feedback-tools">
+      <div class="hero-stat"><span class="stat-num">{{ myList.length }}</span><span class="stat-label">我的反馈</span></div>
+      <div class="hero-stat"><span class="stat-num">{{ repliedCount }}</span><span class="stat-label">已回复</span></div>
+      <div class="hero-stat"><span class="stat-num pending">{{ pendingCount }}</span><span class="stat-label">处理中</span></div>
+    </div>
+
     <!-- 主体：只放表单，历史记录收进右下角悬浮按钮 -->
     <div class="fb-body">
     <!-- 小贴士：横幅下方细条 -->
@@ -342,6 +349,10 @@ onMounted(loadList)
   font-family: "宋体", "Microsoft YaHei", sans-serif;
   color: #55606b;
 }
+/* 顶栏常驻（PC）：内容让出 52px（补 box-sizing 防止 100vh 被撑出滚动条） */
+@media (min-width: 769px) {
+  .feedback-page { padding-top: 52px; box-sizing: border-box; }
+}
 /* 内容区：与其他页面一致的全宽版心（仅留 28px 内边距） */
 .fb-body {
   width: 100%;
@@ -447,29 +458,31 @@ onMounted(loadList)
   gap: 14px;
 }
 .hero-stat {
-  padding: 10px 22px;
-  border-radius: 16px;
+  padding: 4px 12px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid color-mix(in srgb, var(--c-main) 30%, transparent);
-  text-align: center;
-  min-width: 78px;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--c-hex) 12%, transparent);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--c-hex) 10%, transparent);
   transition: transform 0.25s;
 }
 .hero-stat:hover { transform: translateY(-2px); }
 .stat-num {
-  display: block;
-  font-size: 22px;
-  font-weight: 600;
+  display: inline;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--c-hex);
 }
 .stat-num.pending { color: #d4a85a; }
 .stat-label {
-  display: block;
-  font-size: 12px;
+  display: inline;
+  font-size: 11.5px;
   color: var(--c-text-weak);
-  margin-top: 2px;
-  letter-spacing: 1px;
+  margin-top: 0;
+  letter-spacing: 0.5px;
 }
 
 /* ===== 主体：表单占满整行，历史记录在右下角悬浮按钮里 ===== */

@@ -5,52 +5,53 @@
     颜色跟随「个人中心 → 个性化设置 → 主题颜色」实时切换。
 
     用法：
-      <AnimeHero icon="/img/绪见日记.png" title="绪见日记" sub="记录每一天的心情">
+      <AnimeHero glyph="notebook" title="绪见日记" sub="记录每一天的心情">
         <template #right> 右侧功能区（统计卡/按钮等，原样塞进来） </template>
         <template #left>  左侧内容（如返回按钮，WriteDiary 用） </template>
       </AnimeHero>
   -->
   <header class="ah-hero" :style="heroVars">
-    <div class="ah-blob b1"></div>
-    <div class="ah-blob b2"></div>
-    <span class="ah-star s1"><AppIcon name="sparkles" /></span>
-    <span class="ah-star s2"><AppIcon name="sparkles" /></span>
-    <span class="ah-star s3"><AppIcon name="sparkles" /></span>
-    <span class="ah-cloud c1"><AppIcon name="cloud" /></span>
-    <span class="ah-cloud c2"><AppIcon name="cloud" /></span>
-
     <div class="ah-inner">
       <div v-if="$slots.left" class="ah-left"><slot name="left" /></div>
       <div class="ah-title">
         <h1>
-          <span v-if="icon" class="ah-icon-chip"><img :src="icon" alt="" /></span>
-          <span v-else-if="glyph" class="ah-emoji"><AppIcon :name="glyph" /></span>
+          <span v-if="glyph" class="ah-emoji"><AppIcon :name="glyph" :size="21" /></span>
           {{ title }}
         </h1>
-        <p v-if="sub" class="ah-sub">{{ sub }}</p>
+        <!-- 面包屑：路由 meta.crumbs 层级 > 2 时显示（如 首页 > 日记 > 写日记），每一级可点击跳回 -->
+        <nav v-if="crumbs" class="ah-crumb" aria-label="页面路径">
+          <template v-for="(c, i) in crumbs" :key="i">
+            <span v-if="i" class="ah-crumb-sep">›</span>
+            <a v-if="c.to" class="ah-crumb-item is-link" href="javascript:;" @click.prevent="go(c.to)">{{ c.label }}</a>
+            <span v-else class="ah-crumb-item is-cur">{{ c.label }}</span>
+          </template>
+        </nav>
       </div>
-      <!-- 吉祥物小熊：作为弹性布局中间项，自动落在标题与右侧功能区的空档，右侧内容再宽也不会被挡 -->
-      <div class="ah-mascot">ʕ •ᴥ• ʔ</div>
       <div v-if="$slots.right" class="ah-right"><slot name="right" /></div>
     </div>
-
-    <svg class="ah-wave" viewBox="0 0 1440 70" preserveAspectRatio="none">
-      <path d="M0,40 C240,80 480,0 720,30 C960,60 1200,10 1440,40 L1440,70 L0,70 Z" fill="#ffffff"/>
-    </svg>
   </header>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+
+/** 面包屑：只有层级超过两层（≥3 级）才显示；点击任意上级跳回对应页面 */
+const crumbs = computed(() => {
+  const c = route.meta?.crumbs
+  return Array.isArray(c) && c.length > 2 ? c : null
+})
+const go = (to) => router.push(to)
 
 const props = defineProps({
   /** 页面大标题 */
   title: { type: String, required: true },
   /** 副标题（一句话说明） */
   sub: { type: String, default: '' },
-  /** 标题前图标：传图片路径（如 /img/绪见日记.png），与 glyph 二选一 */
-  icon: { type: String, default: '' },
-  /** 标题前的线性图标名（见 components/appIcons.js），无插画时用 */
+  /** 标题前的线性图标名（见 components/appIcons.js），全站统一用线性图标 */
   glyph: { type: String, default: '' },
 })
 
@@ -93,107 +94,73 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* ===== 紧凑顶条（参考 AI 陪伴页顶条）：淡主题色通栏一行 ===== */
 .ah-hero {
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  padding: 44px 28px 58px;   /* 与 Test 页英雄区一致 */
-  margin: 0 0 16px;   /* 波浪底边与下方内容留一点呼吸 */
-  background: linear-gradient(135deg, var(--ah-h1) 0%, var(--ah-h2) 45%, var(--ah-h3) 100%);
-  border-radius: 0 0 36px 36px;
-  overflow: hidden;
-  box-shadow: 0 12px 32px var(--ah-shadow);
+  min-height: 52px;
+  padding: 9px 24px;
+  margin: 0 0 14px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--ah-h2) 14%, transparent) 0%,
+    color-mix(in srgb, var(--ah-h2) 5%, transparent) 100%);
+  border-bottom: 1px solid color-mix(in srgb, var(--ah-h2) 14%, transparent);
+  display: flex;
+  align-items: center;
   transition: background 0.3s;
 }
-/* 柔和光斑（与 Test 页同款，让顶部质感一致） */
-.ah-blob {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  filter: blur(2px);
-}
-.ah-blob.b1 { width: 220px; height: 220px; top: -80px; right: -40px; }
-.ah-blob.b2 { width: 140px; height: 140px; bottom: -60px; left: 12%; background: rgba(255,255,255,0.18); }
-
-/* 一闪一闪的星星 */
-.ah-star {
-  position: absolute; color: rgba(255,255,255,0.95);
-  animation: ahTwinkle 2.4s ease-in-out infinite;
-  text-shadow: 0 0 10px rgba(255,255,255,0.9);
-  pointer-events: none;
-}
-.ah-star.s1 { font-size: 18px; top: 26%; left: 34%; }
-.ah-star.s2 { font-size: 13px; top: 62%; left: 48%; animation-delay: 0.8s; }
-.ah-star.s3 { font-size: 15px; top: 18%; right: 27%; animation-delay: 1.4s; }
-@keyframes ahTwinkle {
-  0%, 100% { opacity: 0.35; transform: scale(0.85) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1.2) rotate(18deg); }
-}
-
-/* 慢慢飘的云 */
-.ah-cloud {
-  position: absolute; color: rgba(255,255,255,0.5);
-  font-size: 40px; pointer-events: none;
-  animation: ahCloudDrift 26s linear infinite;
-}
-.ah-cloud.c1 { top: 12%; left: -60px; }
-.ah-cloud.c2 { top: 55%; left: -120px; font-size: 30px; animation-delay: -13s; animation-duration: 34s; }
-@keyframes ahCloudDrift {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(100vw + 200px)); }
-}
-
-/* 吉祥物小熊：弹性布局中间项，自动站在标题与右侧功能区的空档（不再写死百分比）；窄屏让位 */
-.ah-mascot {
-  font-size: 46px; font-weight: 700;
-  color: rgba(255,255,255,0.96);
-  text-shadow: 0 3px 0 var(--ah-shadow), 0 8px 18px var(--ah-shadow);
-  animation: ahBob 2.6s ease-in-out infinite;
-  pointer-events: none;
-  user-select: none;
-  letter-spacing: -2px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-@keyframes ahBob {
-  0%, 100% { transform: translateY(0) rotate(-4deg); }
-  50% { transform: translateY(-10px) rotate(4deg); }
-}
-@media (max-width: 1180px) {
-  .ah-mascot, .ah-star.s3 { display: none; }
-}
-
-/* 波浪底边（与页面白色内容区衔接） */
-.ah-wave {
-  position: absolute; bottom: -2px; left: 0;
-  width: 100%; height: 42px; display: block;
-  pointer-events: none;
-}
-
 /* 内容层 */
 .ah-inner {
-  position: relative; z-index: 2;
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 18px; flex-wrap: wrap; max-width: 1400px; margin: 0 auto;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 .ah-title h1 {
-  font-size: 34px; font-weight: 800; letter-spacing: 2px;
-  color: #fff; margin: 0 0 6px;
-  line-height: 1.25;
-  display: flex; align-items: center; gap: 10px;
-  text-shadow: 0 2px 0 var(--ah-shadow), 0 3px 12px var(--ah-shadow);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--ah-h2);
+  margin: 0;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.ah-sub { font-size: 15px; color: rgba(255,255,255,0.92); margin: 0; letter-spacing: 2px; }
-.ah-emoji { font-size: 26px; display: inline-flex; align-items: center; }
-
-/* 图片图标：白色小圆角底板托住，保证任何主题色下都看得清 */
-.ah-icon-chip {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.92);
-  border-radius: 12px; padding: 5px 8px;
-  box-shadow: 0 3px 8px var(--ah-shadow);
-}
-.ah-icon-chip img { width: 26px; height: 26px; object-fit: contain; display: block; }
+.ah-emoji { display: inline-flex; align-items: center; color: var(--ah-h2); }
 
 .ah-left, .ah-right { flex-shrink: 0; }
+
+/* ===== 面包屑路径（层级 > 2 的页面才出现） ===== */
+.ah-crumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--ah-h2) 55%, #5c5c72);
+  user-select: none;
+}
+.ah-crumb-sep { opacity: 0.5; font-size: 13px; }
+.ah-crumb-item.is-link {
+  cursor: pointer;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ah-h2) 80%, #4a4a5a);
+  transition: color 0.2s;
+}
+.ah-crumb-item.is-link:hover { color: var(--ah-h2); text-decoration: underline; }
+.ah-crumb-item.is-cur { font-weight: 700; color: var(--ah-h2); }
+
+:root.dark-mode .ah-crumb { color: color-mix(in srgb, var(--ah-h2) 55%, #c9cad6); }
+:root.dark-mode .ah-crumb-item.is-link { color: color-mix(in srgb, var(--ah-h2) 75%, #d5d6e2); }
+:root.dark-mode .ah-crumb-item.is-cur { color: color-mix(in srgb, var(--ah-h2) 70%, #fff); }
+:root.dark-mode .ah-title h1 { color: color-mix(in srgb, var(--ah-h2) 70%, #fff); }
 </style>
+
