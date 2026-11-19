@@ -230,7 +230,7 @@ watch(() => route.path, (p) => {
 // 退出登录
 const doLogout = async () => {
   try {
-    await jellyConfirm('确定要退出登录吗？', { title: '退出登录', confirmText: '退出', cancelText: '留下' })
+    if (!(await jellyConfirm('确定要退出登录吗？', { title: '退出登录', confirmText: '退出', cancelText: '留下' }))) return
     // 退出前先停掉行为采集，避免下一个账号继承上一个账号的采集状态
     senseTracker.disable()
     unreadAlerts.value = 0

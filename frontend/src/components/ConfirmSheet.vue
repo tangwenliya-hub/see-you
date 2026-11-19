@@ -46,7 +46,7 @@ function finish(ok) {
   margin: 6px 4px 20px;
   font-size: 14.5px;
   line-height: 1.7;
-  color: #5c4a56;
+  color: var(--c-text);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -64,12 +64,12 @@ function finish(ok) {
   transition: filter 0.15s, transform 0.1s;
 }
 .jc-btn:active { transform: scale(0.97); }
-.jc-btn.cancel { background: #f3e9ee; color: #7a6270; }
+.jc-btn.cancel { background: var(--c-accent-tint); color: var(--c-text); }
 .jc-btn.cancel:hover { filter: brightness(0.97); }
 .jc-btn.ok {
-  background: linear-gradient(135deg, #f7a8c0, #ef8aae);
+  background: linear-gradient(135deg, var(--c-main), var(--c-hex));
   color: #fff;
-  box-shadow: 0 4px 14px rgba(239, 138, 174, 0.35);
+  box-shadow: 0 4px 14px var(--c-accent-glow);
 }
 .jc-btn.ok:hover { filter: brightness(1.04); }
 .jc-btn.danger {
@@ -79,7 +79,7 @@ function finish(ok) {
 }
 .jc-btn.danger:hover { filter: brightness(1.04); }
 
-:root.dark-mode .jc-msg { color: #d8c8d2; }
+:root.dark-mode .jc-msg { color: var(--c-text); }
 :root.dark-mode .jc-msg.danger { color: #ef9a94; }
-:root.dark-mode .jc-btn.cancel { background: #3a3140; color: #c9b8c4; }
+:root.dark-mode .jc-btn.cancel { background: var(--c-bg2); color: var(--c-text); }
 </style>

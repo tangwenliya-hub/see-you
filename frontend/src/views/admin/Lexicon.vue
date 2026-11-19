@@ -46,11 +46,11 @@
       <template v-else>
         <table v-if="list.length > 0" class="admin-table">
           <thead>
-            <tr><th>ID</th><th>词条</th><th>情绪</th><th>权重</th><th>类型</th><th>来源</th><th>操作</th></tr>
+            <tr><th>序号</th><th>词条</th><th>情绪</th><th>权重</th><th>类型</th><th>来源</th><th>操作</th></tr>
           </thead>
           <tbody>
-            <tr v-for="l in list" :key="l.lexiconId">
-              <td>{{ l.lexiconId }}</td>
+            <tr v-for="(l, idx) in list" :key="l.lexiconId">
+              <td>{{ (page - 1) * pageSize + idx + 1 }}</td>
               <td><b>{{ l.word }}</b></td>
               <td><span class="status-tag" :class="{ muted: l.emotion === 0 }">{{ l.emotionName }}</span></td>
               <td>{{ l.weight }}</td>

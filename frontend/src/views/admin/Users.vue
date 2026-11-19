@@ -25,14 +25,14 @@
             <th style="width:50px">
               <el-checkbox :model-value="isAllSelected" :indeterminate="isIndeterminate" @change="toggleSelectAll" />
             </th>
-            <th>ID</th><th>头像</th><th>用户</th><th>邮箱</th><th>角色</th>
+            <th>序号</th><th>头像</th><th>用户</th><th>邮箱</th><th>角色</th>
             <th>注册时间</th><th>状态</th><th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(u, idx) in list" :key="u.userId" :class="{ 'row-selected': selectedIds.includes(u.userId) }">
             <td><el-checkbox :model-value="selectedIds.includes(u.userId)" @change="toggleSelect(u.userId)" /></td>
-            <td>{{ u.userId }}</td>
+            <td>{{ (page - 1) * pageSize + idx + 1 }}</td>
             <td>
               <div class="avatar" style="width:32px;height:32px;font-size:16px;display:flex;align-items:center;justify-content:center">
                 <img v-if="u.avatar && (u.avatar.startsWith('/') || u.avatar.startsWith('http'))" :src="u.avatar" @error="onAvatarError($event, u)" style="width:32px;height:32px;border-radius:50%;object-fit:cover" />

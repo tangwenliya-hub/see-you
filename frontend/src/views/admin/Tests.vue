@@ -11,7 +11,7 @@
       <div v-if="loading" class="table-loading">加载中...</div>
       <template v-else>
         <table v-if="filteredList.length > 0" class="admin-table">
-          <thead><tr><th>ID</th><th>量表名称</th><th>题数</th><th>总分区间</th><th>完成次数</th><th>状态</th><th>操作</th></tr></thead>
+          <thead><tr><th>序号</th><th>量表名称</th><th>题数</th><th>总分区间</th><th>完成次数</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
             <tr v-for="(t, idx) in pagedList" :key="t.testId">
               <td>{{ (page - 1) * pageSize + idx + 1 }}</td>

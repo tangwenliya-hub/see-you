@@ -21,12 +21,12 @@
       <table v-if="list.length > 0" class="admin-table">
         <thead><tr>
           <th style="width:50px"><el-checkbox :model-value="isAllSelected" :indeterminate="isIndeterminate" @change="toggleSelectAll" /></th>
-          <th>ID</th><th>封面</th><th>音频内容</th><th>音频</th><th>分类</th><th>播放量</th><th>创建时间</th><th>操作</th>
+          <th>序号</th><th>封面</th><th>音频内容</th><th>音频</th><th>分类</th><th>播放量</th><th>创建时间</th><th>操作</th>
         </tr></thead>
         <tbody>
-          <tr v-for="a in list" :key="a.audioId" :class="{ 'row-selected': selectedIds.includes(a.audioId) }">
+          <tr v-for="(a, idx) in list" :key="a.audioId" :class="{ 'row-selected': selectedIds.includes(a.audioId) }">
             <td><el-checkbox :model-value="selectedIds.includes(a.audioId)" @change="toggleSelect(a.audioId)" /></td>
-            <td>{{ a.audioId }}</td>
+            <td>{{ (page - 1) * pageSize + idx + 1 }}</td>
             <td>
               <img v-if="getCoverUrl(a.coverImg)" :src="getCoverUrl(a.coverImg)"
                    style="width:60px;height:60px;border-radius:10px;object-fit:cover;background:#f0f0f0" />

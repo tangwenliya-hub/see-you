@@ -29,7 +29,7 @@
             <th style="width:50px">
               <el-checkbox :model-value="isAllSelected" :indeterminate="isIndeterminate" @change="toggleSelectAll" />
             </th>
-            <th>ID</th>
+            <th>序号</th>
             <th>用户</th>
             <th>类型</th>
             <th>标题</th>
@@ -40,11 +40,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="f in pagedList" :key="f.feedbackId" :class="{ 'row-selected': selectedIds.includes(f.feedbackId) }" @click="openDetail(f)" style="cursor:pointer">
+          <tr v-for="(f, idx) in pagedList" :key="f.feedbackId" :class="{ 'row-selected': selectedIds.includes(f.feedbackId) }" @click="openDetail(f)" style="cursor:pointer">
             <td @click.stop><el-checkbox :model-value="selectedIds.includes(f.feedbackId)" @change="toggleSelect(f.feedbackId)" /></td>
             <td>
               <span v-if="hasNewSupplement(f) || f.status == 0" class="red-dot"></span>
-              {{ f.feedbackId }}
+              {{ (pageNum - 1) * pageSize + idx + 1 }}
             </td>
             <td>
               <div style="display:flex;align-items:center;gap:8px">

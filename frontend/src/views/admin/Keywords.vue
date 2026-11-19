@@ -19,7 +19,7 @@
       <div v-if="loading" class="table-loading">加载中...</div>
       <template v-else>
         <table v-if="list.length > 0" class="admin-table">
-          <thead><tr><th style="width:60px">ID</th><th style="width:100px">关键词</th><th style="width:120px">分类</th><th>匹配示例</th><th>AI 回复内容</th><th style="width:70px">排序</th><th style="width:80px">状态</th><th style="width:160px">操作</th></tr></thead>
+          <thead><tr><th style="width:60px">序号</th><th style="width:100px">关键词</th><th style="width:120px">分类</th><th>匹配示例</th><th>AI 回复内容</th><th style="width:70px">排序</th><th style="width:80px">状态</th><th style="width:160px">操作</th></tr></thead>
           <tbody>
             <tr v-for="(k, idx) in list" :key="k.wordId">
               <td>{{ (page - 1) * pageSize + idx + 1 }}</td>

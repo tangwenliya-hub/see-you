@@ -170,7 +170,7 @@ const maskOpacity = computed(() => (dragging.value ? Math.max(0.28, 0.5 - dy.val
 .bs-root { position: fixed; inset: 0; z-index: 10000; }
 .bs-mask {
   position: absolute; inset: 0;
-  background: rgba(30, 22, 34, 0.5);
+  background: rgba(20, 30, 22, 0.5);
   backdrop-filter: blur(2px);
   transition: opacity 0.25s;
 }
@@ -182,9 +182,9 @@ const maskOpacity = computed(() => (dragging.value ? Math.max(0.28, 0.5 - dy.val
   max-height: 82vh;
   display: flex;
   flex-direction: column;
-  background: #fffdfb;
+  background: var(--c-surface-solid);
   border-radius: 20px 20px 0 0;
-  box-shadow: 0 -8px 40px rgba(60, 30, 50, 0.18);
+  box-shadow: 0 -8px 40px var(--c-shadow-soft);
   animation: bs-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -198,18 +198,18 @@ const maskOpacity = computed(() => (dragging.value ? Math.max(0.28, 0.5 - dy.val
 .bs-handle {
   display: block; width: 44px; height: 4.5px; border-radius: 3px;
   margin: 0 auto 6px;
-  background: color-mix(in srgb, #a08a96 35%, transparent);
+  background: var(--c-border-strong);
 }
 .bs-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 2px 16px 8px;
 }
-.bs-title { margin: 0; font-size: 15.5px; font-weight: 800; color: #6b5560; letter-spacing: 0.5px; }
+.bs-title { margin: 0; font-size: 15.5px; font-weight: 800; color: var(--c-ink); letter-spacing: 0.5px; }
 .bs-close {
   border: 0; background: none; cursor: pointer;
-  color: #a08a96; font-size: 16px; padding: 4px 6px; border-radius: 8px;
+  color: var(--c-text-weak); font-size: 16px; padding: 4px 6px; border-radius: 8px;
 }
-.bs-close:hover { background: rgba(160, 138, 150, 0.12); color: #6b5560; }
+.bs-close:hover { background: var(--c-accent-tint); color: var(--c-ink); }
 .bs-body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -225,7 +225,7 @@ const maskOpacity = computed(() => (dragging.value ? Math.max(0.28, 0.5 - dy.val
     max-height: 78vh;
     transform: translate(-50%, -50%);
     border-radius: 18px;
-    box-shadow: 0 18px 60px rgba(60, 30, 50, 0.22);
+    box-shadow: 0 18px 60px var(--c-shadow-hover);
     animation: bs-pop 0.22s cubic-bezier(0.22, 1, 0.36, 1);
     transition: none;
   }
@@ -240,10 +240,6 @@ const maskOpacity = computed(() => (dragging.value ? Math.max(0.28, 0.5 - dy.val
   .bs-body { padding: 0 18px 18px; }
 }
 
-/* 深色模式 */
-:root.dark-mode .bs-panel { background: #2a2230; box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5); }
-:root.dark-mode .bs-title { color: #e8dde4; }
-:root.dark-mode .bs-handle { background: rgba(232, 221, 228, 0.28); }
-:root.dark-mode .bs-close { color: #b9a6b3; }
-:root.dark-mode .bs-close:hover { background: rgba(232, 221, 228, 0.12); color: #e8dde4; }
+/* 深色模式：变量本身已随 dark-mode 翻转，这里只保留必要的微调 */
+:root.dark-mode .bs-panel { box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5); }
 </style>

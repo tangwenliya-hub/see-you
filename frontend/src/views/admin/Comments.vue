@@ -66,7 +66,7 @@
                   @change="toggleSelectAll"
                 />
               </th>
-              <th>ID</th><th>用户</th><th>内容</th><th>关联内容</th><th>时间</th><th>状态</th><th>操作</th>
+              <th>序号</th><th>用户</th><th>内容</th><th>关联内容</th><th>时间</th><th>状态</th><th>操作</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +74,7 @@
               <td>
                 <el-checkbox :model-value="selectedIds.includes(c.commentId)" @change="toggleSelect(c.commentId)" />
               </td>
-              <td>{{ idx + 1 }}</td>
+              <td>{{ (page - 1) * pageSize + idx + 1 }}</td>
               <td>
                 <div style="display:flex;align-items:center;gap:8px">
                   <img v-if="c.avatar" :src="getAvatarUrl(c.avatar)" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid color-mix(in srgb, var(--c-main) 30%, transparent)" @error="$event.target.src='/img/1 (1).png'" />

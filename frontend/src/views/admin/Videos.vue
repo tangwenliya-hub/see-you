@@ -21,12 +21,12 @@
       <table v-if="list.length > 0" class="admin-table">
         <thead><tr>
           <th style="width:50px"><el-checkbox :model-value="isAllSelected" :indeterminate="isIndeterminate" @change="toggleSelectAll" /></th>
-          <th>ID</th><th>封面</th><th>视频名称</th><th>分类</th><th>时长</th><th>播放量</th><th>视频</th><th>创建时间</th><th>操作</th>
+          <th>序号</th><th>封面</th><th>视频名称</th><th>分类</th><th>时长</th><th>播放量</th><th>视频</th><th>创建时间</th><th>操作</th>
         </tr></thead>
         <tbody>
           <tr v-for="(v, idx) in list" :key="v.videoId" :class="{ 'row-selected': selectedIds.includes(v.videoId) }">
             <td><el-checkbox :model-value="selectedIds.includes(v.videoId)" @change="toggleSelect(v.videoId)" /></td>
-            <td>{{ v.videoId }}</td>
+            <td>{{ (page - 1) * pageSize + idx + 1 }}</td>
             <td>
               <img :src="getCoverUrl(v.coverImg)"
                    style="width:100px;height:56px;border-radius:10px;object-fit:cover;background:#eee" />

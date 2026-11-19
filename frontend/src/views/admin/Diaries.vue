@@ -22,7 +22,7 @@
               <th style="width:50px">
                 <el-checkbox :model-value="isAllSelected" :indeterminate="isIndeterminate" @change="toggleSelectAll" />
               </th>
-              <th>ID</th><th>用户</th><th>情绪</th><th>内容</th><th>睡眠</th><th>日期</th><th>操作</th>
+              <th>序号</th><th>用户</th><th>情绪</th><th>内容</th><th>睡眠</th><th>日期</th><th>操作</th>
             </tr>
           </thead>
           <tbody>
