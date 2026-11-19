@@ -59,13 +59,15 @@ public class WebConfig implements WebMvcConfigurer {
 
         File distDir = new File(distPath);
 
-        // ===== 2) 前端构建产物：index.html、/assets/**、/vite.svg =====
+        // ===== 2) 前端构建产物：index.html、/assets/**、/favicon.png、/vite.svg =====
         if (distDir.isDirectory()) {
             File assetsDir = new File(distDir, "assets");
             registry.addResourceHandler("/index.html").addResourceLocations(fileLocation(distDir));
             if (assetsDir.isDirectory()) {
                 registry.addResourceHandler("/assets/**").addResourceLocations(fileLocation(assetsDir));
             }
+            // 站点根目录的 favicon（dist 根，非 /img 子目录），不注册会被兜底成 JSON 404
+            registry.addResourceHandler("/favicon.png").addResourceLocations(fileLocation(distDir));
             registry.addResourceHandler("/vite.svg").addResourceLocations(fileLocation(distDir));
         }
 
